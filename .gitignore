@@ -1,0 +1,7 @@
+#These are files that 'git add .' should ignore
+#ignore object files
+*.o
+#ignore vim swap files
+*.swp
+#ignore executable
+2dlc
