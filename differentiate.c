@@ -15,7 +15,7 @@ enum differencingSchemes diffScheme = FORWARD_DIFF;
 *  w.r.t to x then evaluated at point (xPos,yPos)
 * 
 */
-float dndx(enum directorComponent dirComp, int xPos, int yPos, LatticeObject* theLattice)
+float dndx(enum directorComponent dirComp, LatticeObject* theLattice, int xPos, int yPos)
 {
 
 	return 0;
@@ -26,7 +26,7 @@ float dndx(enum directorComponent dirComp, int xPos, int yPos, LatticeObject* th
 /* Calculate partial derivative w.r.t to y then evaluated at point (xPos,yPos)
 * 
 */
-float dndy(enum directorComponent dirComp, int xPos, int yPos, LatticeObject* theLattice )
+float dndy(enum directorComponent dirComp, LatticeObject* theLattice, int xPos, int yPos)
 {
 
 	return 0;

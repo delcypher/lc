@@ -23,8 +23,19 @@
 	*/
 	typedef struct
 	{
-		unsigned int width;
-		unsigned int height;
+		/*
+		* Although width & height should not be < 0
+		* using unsigned int causes problems when comparing to signed ints
+		* e.g. 
+		* signed int x=5;
+		* if(-4 < x) this is false if x is unsigned
+		* need to do if( -4 < (signed int) x) to get true
+		* 
+		* We do not want to be doing typecasts everytime we do a comparision so just use
+		* signed ints instead!
+		*/
+		signed int width;
+		signed int height;
 
 		/*
 		* assume k_1 = 1
@@ -32,6 +43,13 @@
 		*/
 		float beta;
 
+		/* These define the different type of boundary conditions on the edges of the lattice
+		 * The BOUNDARY_PARALLEL & BOUNDARY_PERPENDICULAR conditions are relative to the x-axis
+		 * and not the edge itself.
+		 *
+		 * For example if leftBoundary = BOUNDARY_PERPENDICULAR
+		 * The left boundary will be perpendilcar to the x-axis and not to the left boundary edge
+		*/
 		enum latticeBoundary
 		{
 			BOUNDARY_PARALLEL,
@@ -49,8 +67,10 @@
 
 	} LatticeConfig;
 
-	
-
+		
+	/* This struct is the container for everything to do with the lattice
+	 *
+	*/
 	typedef struct
 	{
 				
@@ -64,16 +84,12 @@
 	} LatticeObject;	
 
 	
-	/* See above:
-	 * nSystem struct is defined with {width,height, beta}
-	*/
-
 	/*
 	This function returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
 	boundary conditions of a LatticeObject (theLattice). You need to pass a pointer to the LatticeObject.
 	
 	*/
-	DirectorElement* latticeGetN(LatticeObject* theLattice, int xPos, int yPos);
+	const DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos);
 	
 	
 	/* This function is used free memory allocated by the latticeInitialise function
@@ -94,6 +110,12 @@
 	* compatible with GNUplot. A simple plot command is `set key off; plot 'file' with vectors`
 	*/
 	void latticeDump(LatticeObject* theLattice);
+
+	/* This function returns the correct modulo for dealing with negative a. Note % does not!
+	 *
+	 * mod(a,b) = a mod b
+	*/
+	inline int mod(int a, int b);
 
 	#define TWO_D_LATTICE 1	
 #endif

@@ -10,13 +10,50 @@
 
 const float PI=3.1415926;
 
+/* Define the perpendicular & parallel directors used by
+ * BOUNDARY_PERPENDICULAR & BOUNDARY_PARALLEL respectively
+*/
+const DirectorElement PERPENDICULAR_DIRECTOR = {0,1};
+const DirectorElement PARALLEL_DIRECTOR = {1,0};
+
 /*
 This function returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
 boundary conditions of a LatticeObject (theLattice). You need to pass a pointer to the LatticeObject.
 
 */
-DirectorElement* latticeGetN(LatticeObject* theLattice, int xPos, int yPos)
+const DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos)
 {
+	/* set xPos & yPos in the lattice taking into account periodic boundary conditions
+	*  of the 2D lattice
+	*/
+
+	//Handle xPos going off the lattice in the x direction to the right
+	if(xPos >= theLattice->param.width && theLattice->param.rightBoundary == BOUNDARY_PERIODIC)
+	{
+		xPos = mod(xPos, theLattice->param.width);
+	}
+
+	//Handle xPos going off the lattice in x direction to the left
+	if(xPos < 0 && theLattice->param.leftBoundary == BOUNDARY_PERIODIC)
+	{
+		xPos = mod(xPos, theLattice->param.width);
+	}
+
+	//Handle yPos going off the lattice in the y directory to the top
+	if(yPos >= theLattice->param.height && theLattice->param.topBoundary == BOUNDARY_PERIODIC)
+	{
+		yPos = mod(yPos, theLattice->param.height);
+	}
+
+	//Handle yPos going off the lattice in the y directory to the bottom
+	if(yPos < 0  && theLattice->param.bottomBoundary == BOUNDARY_PERIODIC)
+	{
+		yPos = mod(yPos, theLattice->param.height);
+	}
+	
+	/* All periodic boundary conditions have now been handled
+	*/
+
 	/*
 	* If the requested "DirectorElement" is in the lattice array just return it.
 	*/
@@ -24,8 +61,84 @@ DirectorElement* latticeGetN(LatticeObject* theLattice, int xPos, int yPos)
 	{
 		return &(theLattice->lattice[xPos][yPos]);
 	}
-	
-	//HANDLE OTHER CASES LATER
+
+	/*we now know (xPos,yPos) isn't in lattice so either (xPos,yPos) is on the PARALLEL or PERPENDICULAR
+	* boundary or an invalid point has been requested
+	*/
+
+	//in top boundary and within lattice along x
+	if(yPos == theLattice->param.height && xPos >= 0 && xPos < theLattice->param.width)
+	{
+		if(theLattice->param.topBoundary == BOUNDARY_PARALLEL)
+		{
+			return &PARALLEL_DIRECTOR;
+		} 
+		else if(theLattice->param.topBoundary == BOUNDARY_PERPENDICULAR)
+		{
+			return &PERPENDICULAR_DIRECTOR;
+		}
+		else
+		{
+			//Boundary cases should of already been handled, something went wrong if we get here!
+			return NULL;
+		}
+	}
+
+	//in bottom boundary and within lattice along x
+	if(yPos == -1 && xPos >= 0 && xPos < theLattice->param.width)
+	{
+		if(theLattice->param.bottomBoundary == BOUNDARY_PARALLEL)
+		{
+			return &PARALLEL_DIRECTOR;
+		}
+		else if(theLattice->param.bottomBoundary == BOUNDARY_PERPENDICULAR)
+		{
+			return &PERPENDICULAR_DIRECTOR;
+		}
+		else
+		{
+			//Boundary cases should of already been handled, something went wrong if we get here!
+			return NULL;
+		}
+	}
+
+	//in left boundary and within lattice along y
+	if(xPos == -1 && yPos >= 0 && yPos < theLattice->param.height)
+	{
+		if(theLattice->param.leftBoundary == BOUNDARY_PARALLEL)
+		{
+			return &PARALLEL_DIRECTOR;
+		}
+		else if(theLattice->param.leftBoundary == BOUNDARY_PERPENDICULAR)
+		{
+			return &PERPENDICULAR_DIRECTOR;
+		}
+		else
+		{
+			//Boundary cases should of already been handled, something went wrong if we get here!
+			return NULL;
+		}
+	}
+
+	//in right boundary and within lattice along y
+	if(xPos == theLattice->param.width && yPos >= 0 && yPos < theLattice->param.height)
+	{
+		if(theLattice->param.rightBoundary == BOUNDARY_PARALLEL)
+		{
+			return &PARALLEL_DIRECTOR;
+		}
+		else if(theLattice->param.rightBoundary == BOUNDARY_PERPENDICULAR)
+		{
+			return &PERPENDICULAR_DIRECTOR;
+		}
+		else
+		{
+			//Boundary cases should of already been handled, something went wrong if we get here!
+			return NULL;
+		}
+	}
+
+	//Every case should already of been handled. An invalid point (xPos,yPos) must of been asked for
 	return NULL;
 }
 
@@ -185,5 +298,11 @@ void latticeDump(LatticeObject* theLattice)
 	printf("\n#End of Lattice Dump");
 }
 
-
-
+/* This function returns the correct modulo for dealing with negative a. Note % does not!
+* 
+* mod(a,b) = a mod b
+*/
+inline int mod(int a, int b)
+{
+	return (a%b + b)%b;
+}

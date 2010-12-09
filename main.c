@@ -37,8 +37,27 @@ int main()
 		return 1;
 	}
 
-	//do stuff with lattice
-	latticeDump(nSystem);
+
+	DirectorElement* element;
+
+	//loop through lattice boundaries on purpose
+	signed int x,y;
+
+	for(y = -1; y <= nSystem->param.height; y++)
+	{
+		
+		for(x = -1; x<= nSystem->param.width; x++)
+		{
+			element = latticeGetN(nSystem,x,y);
+			if(element == NULL)
+			{
+				fprintf(stderr,"Something went wrong");
+			}
+		
+			printf("%d %d %f %f\n",x,y,element->x,element->y);
+		}
+		
+	}
 
 	//remove lattice
 	latticeFree(nSystem);
