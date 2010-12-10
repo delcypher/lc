@@ -39,7 +39,8 @@ int main()
 
 
 	DirectorElement* element;
-
+	
+	/*
 	//loop through lattice boundaries on purpose
 	signed int x,y;
 
@@ -54,11 +55,14 @@ int main()
 				fprintf(stderr,"Something went wrong");
 			}
 		
-			printf("%d %d %f %f\n",x,y,element->x,element->y);
+			printf("%d %d %f %f\n",x,y,(element->x)*0.5,(element->y)*0.5);
 		}
 		
 	}
+	*/
 
+	//latticeTranslatedUnitVectorDump(nSystem);
+	latticeHalfUnitVectorDump(nSystem);
 	//remove lattice
 	latticeFree(nSystem);
 

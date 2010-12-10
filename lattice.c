@@ -67,7 +67,7 @@ const DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, in
 	*/
 
 	//in top boundary and within lattice along x
-	if(yPos == theLattice->param.height && xPos >= 0 && xPos < theLattice->param.width)
+	if(yPos >= theLattice->param.height && xPos >= 0 && xPos < theLattice->param.width)
 	{
 		if(theLattice->param.topBoundary == BOUNDARY_PARALLEL)
 		{
@@ -85,7 +85,7 @@ const DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, in
 	}
 
 	//in bottom boundary and within lattice along x
-	if(yPos == -1 && xPos >= 0 && xPos < theLattice->param.width)
+	if(yPos <= -1 && xPos >= 0 && xPos < theLattice->param.width)
 	{
 		if(theLattice->param.bottomBoundary == BOUNDARY_PARALLEL)
 		{
@@ -103,7 +103,7 @@ const DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, in
 	}
 
 	//in left boundary and within lattice along y
-	if(xPos == -1 && yPos >= 0 && yPos < theLattice->param.height)
+	if(xPos <= -1 && yPos >= 0 && yPos < theLattice->param.height)
 	{
 		if(theLattice->param.leftBoundary == BOUNDARY_PARALLEL)
 		{
@@ -121,7 +121,7 @@ const DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, in
 	}
 
 	//in right boundary and within lattice along y
-	if(xPos == theLattice->param.width && yPos >= 0 && yPos < theLattice->param.height)
+	if(xPos >= theLattice->param.width && yPos >= 0 && yPos < theLattice->param.height)
 	{
 		if(theLattice->param.rightBoundary == BOUNDARY_PARALLEL)
 		{
@@ -262,9 +262,10 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 
 /*
 * This function outputs the current state of the lattice "theLattice" to standard output in a format
-* compatible with GNUplot. A simple plot command is `set key off; plot 'file' with vectors`
+* compatible with the shell script latticedump.sh which uses GNUplot . The director field is plotted as 
+* 1/2 unit vectors rather than unit vectors so that neighbouring vectors when plotted do not overlap.
 */
-void latticeDump(LatticeObject* theLattice)
+void latticeHalfUnitVectorDump(LatticeObject* theLattice)
 {
 	if(theLattice ==NULL)
 	{
@@ -291,11 +292,61 @@ void latticeDump(LatticeObject* theLattice)
 	{
 		for(xPos=0; xPos < theLattice->param.width; xPos++)
 		{
-			printf("%d %d %f %f \n",xPos, yPos, theLattice->lattice[xPos][yPos].x, theLattice->lattice[xPos][yPos].y);
+			printf("%d %d %f %f \n",
+			xPos, 
+			yPos, 
+			(theLattice->lattice[xPos][yPos].x)*0.5, 
+			(theLattice->lattice[xPos][yPos].y)*0.5);
 		}
 	}
 
 	printf("\n#End of Lattice Dump");
+}
+
+/*
+* This function outputs the current state of the lattice "theLattice" to standard output in a format
+* compatible with shell script latticedump.sh which uses GNUplot. The director field is plotted as
+* unit vectors that are translated so that the centre of the vector rather than the end of the vector
+* is plotted at point (xPos,yPos)
+*/
+void latticeTranslatedUnitVectorDump(LatticeObject* theLattice)
+{
+	if(theLattice ==NULL)
+	{
+		fprintf(stderr,"Error: Received NULL pointer to LatticeObject");
+		return;
+	}
+
+	//print lattice information
+	printf("#Lattice Width:%d \n",theLattice->param.width);
+	printf("#Lattice Height:%d \n", theLattice->param.height);
+	printf("#Lattice beta value:%f \n", theLattice->param.beta);
+	printf("#Lattice top Boundary: %d (enum) \n",theLattice->param.topBoundary);
+	printf("#Lattice bottom Boundary: %d (enum) \n",theLattice->param.bottomBoundary);
+	printf("#Lattice left Boundary: %d (enum) \n",theLattice->param.leftBoundary);
+	printf("#Lattice right Boundary: %d (enum) \n",theLattice->param.rightBoundary);
+	printf("#Lattice initial state: %d (enum) \n",theLattice->param.initialState);
+
+	printf("\n\n # (x) (y) (n_x) (n_y)\n");
+
+	//print lattice state
+	int xPos, yPos;
+
+	for(yPos=0; yPos < theLattice->param.height; yPos++)
+	{
+		for(xPos=0; xPos < theLattice->param.width; xPos++)
+		{
+			printf("%f %f %f %f \n",
+			( (float) xPos) - 0.5*(theLattice->lattice[xPos][yPos].x), 
+			( (float) yPos) - 0.5*(theLattice->lattice[xPos][yPos].y), 
+			(theLattice->lattice[xPos][yPos].x), 
+			(theLattice->lattice[xPos][yPos].y));
+		}
+	}
+
+	printf("\n#End of Lattice Dump");
+
+
 }
 
 /* This function returns the correct modulo for dealing with negative a. Note % does not!

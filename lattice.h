@@ -107,10 +107,19 @@
 	
 	/*
 	* This function outputs the current state of the lattice "theLattice" to standard output in a format
-	* compatible with GNUplot. A simple plot command is `set key off; plot 'file' with vectors`
+	* compatible with the shell script latticedump.sh which uses GNUplot . The director field is plotted as 
+	* 1/2 unit vectors rather than unit vectors so that neighbouring vectors when plotted do not overlap.
 	*/
-	void latticeDump(LatticeObject* theLattice);
+	void latticeHalfUnitVectorDump(LatticeObject* theLattice);
 
+	/*
+	* This function outputs the current state of the lattice "theLattice" to standard output in a format
+	* compatible with shell script latticedump.sh which uses GNUplot. The director field is plotted as
+	* unit vectors that are translated so that the centre of the vector rather than the end of the vector
+	* is plotted at point (xPos,yPos)
+	*/
+	void latticeTranslatedUnitVectorDump(LatticeObject* theLattice);
+	
 	/* This function returns the correct modulo for dealing with negative a. Note % does not!
 	 *
 	 * mod(a,b) = a mod b
