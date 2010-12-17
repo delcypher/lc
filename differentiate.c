@@ -176,7 +176,7 @@ float dndy(enum directorComponent dirComp, LatticeObject* l, int xPos, int yPos)
 				break;
 
 				case N_Y:
-					return (latticeGetN(l,xPos,yPos -1)->y - latticeGetN(l, xPos, yPos -1)->y)/2;
+					return (latticeGetN(l,xPos,yPos +1)->y - latticeGetN(l, xPos, yPos -1)->y)/2;
 				break;
 
 				default:
