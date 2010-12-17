@@ -23,12 +23,16 @@ float dndx(enum directorComponent dirComp, LatticeObject* l, int xPos, int yPos)
 		case FORWARD_DIFF:
 		{
 			/*see if we need to flip directorElement to make sure angle between
-			* vectors in < 90deg so cos(theta) < 0.
+			* vectors is < 90deg so cos(theta) < 0.
 			*/
 			if(calculateCosineBetween(latticeGetN(l,xPos,yPos), latticeGetN(l, xPos +1, yPos)) < 0)
 			{
-				//flip vector at location (xPos +1, yPos);
-				flipDirector(latticeGetN(l,xPos +1,yPos));
+				/*flip vector, We could do (xPos,yPos) or (xPos +1,yPos) but (xPos,yPos) should be in lattice
+				* and (xPos +1, yPos) could be PERPENDICULAR_DIRECTOR or PARALLEL_DIRECTOR which it would be
+				* nice if we didn't flip, although it shouldn't cause a problem provided the flipping algorithm
+				* is always used.
+				*/
+				flipDirector(latticeGetN(l,xPos,yPos));
 			}
 
 			switch(dirComp)
@@ -51,12 +55,16 @@ float dndx(enum directorComponent dirComp, LatticeObject* l, int xPos, int yPos)
 		case BACKWARD_DIFF:
 		{
 			/*see if we need to flip directorElement to make sure angle between
-			* vectors in < 90deg so cos(theta) < 0.
+			* vectors is < 90deg so cos(theta) < 0.
 			*/
 			if(calculateCosineBetween(latticeGetN(l,xPos,yPos), latticeGetN(l, xPos -1, yPos)) < 0)
 			{
-				//flip vector at location (xPos -1, yPos);
-				flipDirector(latticeGetN(l,xPos -1,yPos));
+				/*flip vector, We could do (xPos,yPos) or (xPos -1,yPos) but (xPos,yPos) should be in lattice
+				* and (xPos -1, yPos) could be PERPENDICULAR_DIRECTOR or PARALLEL_DIRECTOR which it would be
+				* nice if we didn't flip, although it shouldn't cause a problem provided the flipping algorithm
+				* is always used.
+				*/
+				flipDirector(latticeGetN(l,xPos,yPos));
 			}
 
 			switch(dirComp)
@@ -114,12 +122,16 @@ float dndy(enum directorComponent dirComp, LatticeObject* l, int xPos, int yPos)
 		case FORWARD_DIFF:
 		{
 			/*see if we need to flip directorElement to make sure angle between
-			* vectors in < 90deg so cos(theta) < 0.
+			* vectors is < 90deg so cos(theta) < 0.
 			*/
 			if(calculateCosineBetween(latticeGetN(l,xPos,yPos), latticeGetN(l, xPos, yPos +1)) < 0)
 			{
-				//flip vector at location (xPos, yPos +1);
-				flipDirector(latticeGetN(l,xPos,yPos +1));
+				/*flip vector, We could do (xPos,yPos) or (xPos,yPos +1) but (xPos,yPos) should be in lattice
+				* and (xPos, yPos +1) could be PERPENDICULAR_DIRECTOR or PARALLEL_DIRECTOR which it would be
+				* nice if we didn't flip, although it shouldn't cause a problem provided the flipping algorithm
+				* is always used.
+				*/
+				flipDirector(latticeGetN(l,xPos,yPos));
 			}
 
 			switch(dirComp)
@@ -142,12 +154,16 @@ float dndy(enum directorComponent dirComp, LatticeObject* l, int xPos, int yPos)
 		case BACKWARD_DIFF:
 		{
 			/*see if we need to flip directorElement to make sure angle between
-			* vectors in < 90deg so cos(theta) < 0.
+			* vectors is < 90deg so cos(theta) < 0.
 			*/
 			if(calculateCosineBetween(latticeGetN(l,xPos,yPos), latticeGetN(l, xPos, yPos -1)) < 0)
 			{
-				//flip vector at location (xPos, yPos -1);
-				flipDirector(latticeGetN(l,xPos,yPos -1));
+				/*flip vector, We could do (xPos,yPos) or (xPos,yPos -1) but (xPos,yPos) should be in lattice
+				* and (xPos, yPos -1) could be PERPENDICULAR_DIRECTOR or PARALLEL_DIRECTOR which it would be
+				* nice if we didn't flip, although it shouldn't cause a problem provided the flipping algorithm
+				* is always used.
+				*/
+				flipDirector(latticeGetN(l,xPos,yPos));
 			}
 
 			switch(dirComp)
