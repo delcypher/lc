@@ -16,12 +16,39 @@ const float PI=3.1415926;
 const DirectorElement PERPENDICULAR_DIRECTOR = {0,1};
 const DirectorElement PARALLEL_DIRECTOR = {1,0};
 
+/* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
+*
+*/
+float calculateCosineBetween(DirectorElement* a, DirectorElement* b)
+{
+	float cosine;
+	
+	/*
+	* Calculate cosine using formula for dot product between vectors cos(theta) = a.b/|a||b|
+	* Note if using unit vectors then |a||b| =1, could use this shortcut later.
+	*/
+	cosine = ( (a->x)*(b->x) + (a->y)*(b->y) )/
+		( sqrt( (a->x)*(a->x) + (a->y)*(a->y) )*sqrt( (b->x)*(b->x) + (b->y)*(b->y) ) ) ;
+	
+	return cosine;
+}
+
+/* Flips a DirectorElement (vector in physics sense) in the opposite direction
+*
+*/
+inline void flipDirector(DirectorElement* a)
+{
+	//flip component directions
+	a->x *= -1;
+	a->y *= -1;
+}
+
 /*
 This function returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
 boundary conditions of a LatticeObject (theLattice). You need to pass a pointer to the LatticeObject.
 
 */
-const DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos)
+DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos)
 {
 	/* set xPos & yPos in the lattice taking into account periodic boundary conditions
 	*  of the 2D lattice

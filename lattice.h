@@ -83,13 +83,22 @@
 
 	} LatticeObject;	
 
-	
+	/* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
+	*
+	*/
+	float calculateCosineBetween(DirectorElement* a, DirectorElement* b);
+
+	/* Flips a DirectorElement (vector in physics sense) in the opposite direction
+	*
+	*/
+	inline void flipDirector(DirectorElement* a);
+
 	/*
 	This function returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
 	boundary conditions of a LatticeObject (theLattice). You need to pass a pointer to the LatticeObject.
 	
 	*/
-	const DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos);
+	DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos);
 	
 	
 	/* This function is used free memory allocated by the latticeInitialise function

@@ -25,17 +25,17 @@
 	extern enum differencingSchemes diffScheme;
 	*/
 
-	/* Calculate partial derivative of the "dirComp" component of the director of lattice "theLattice"
+	/* Calculate partial derivative of the "dirComp" component of the director of lattice "l"
 	*  w.r.t to x then evaluated at point (xPos,yPos)
 	* 
 	*/
-	float dndx(enum directorComponent dirComp, LatticeObject* theLattice, int xPos, int yPos);
+	float dndx(enum directorComponent dirComp, LatticeObject* l, int xPos, int yPos);
 
 
-	/* Calculate partial derivative of the "dirComp" component of the director of the lattice "theLattice" w.r.t to y then evaluated at point (xPos,yPos)
+	/* Calculate partial derivative of the "dirComp" component of the director of the lattice "l" w.r.t to y then evaluated at point (xPos,yPos)
 	* 
 	*/
-	float dndy(enum directorComponent dirComp, LatticeObject* theLattice, int xPos, int yPos);
+	float dndy(enum directorComponent dirComp, LatticeObject* l, int xPos, int yPos);
 
 	#define DIFFERENTIATE 1
 #endif
