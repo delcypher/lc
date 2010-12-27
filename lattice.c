@@ -7,6 +7,7 @@
 #include <math.h>
 #include "randgen.h"
 #include "lattice.h"
+#include "differentiate.h"
 
 const float PI=3.1415926;
 
@@ -233,7 +234,8 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 		}
 	}
 
-	
+	//we should reset the random seed so we don't generate the set of pseudo random numbers every time	
+	cpuSetRandomSeed();
 	
 	/* Loop through lattice array (theLattice->lattice[x][y]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
@@ -329,6 +331,108 @@ void latticeHalfUnitVectorDump(LatticeObject* theLattice)
 
 	printf("\n#End of Lattice Dump");
 }
+
+/* Calculate the "free energy per unit area" for a cell at (xPos, yPos) using the frank equation in 2D
+*
+*/
+float latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos)
+{
+	/*   |T|     y|
+	*  |L|X|R|    |
+	*    |B|      |_____
+	*                  x
+	* energy = 0.5*(k_1*firstTerm + k_3*(n_x^2 + n_y^2)*secondTerm)
+	* firstTerm= (dn_x/dx + dn_y/dy)^2
+	* secondTerm = (dn_y/dx - dn_x/dy)^2
+	*
+	* firstTerm & secondTerm are estimated by using every possible combination of differencing type for derivative
+	* and then taking average.
+	*
+	* Note we assume k_1 =1 & k_3=beta*k_1
+	*/
+
+	float firstTerm=0;
+	float secondTerm=0;
+	float temp=0;
+	float temp2=0;
+
+	//Estimate first term by calculating the 4 different ways of calculating the first term and taking the average
+	
+	//Using T & R (forward differencing in both directions)
+	temp = dNxdx_F(l,xPos,yPos) + dNydy_F(l,xPos,yPos);
+	firstTerm = temp*temp;
+
+	//Using B & R (forward differencing in x direction & backward differencing in y direction)
+	temp = dNxdx_F(l,xPos,yPos) + dNydy_B(l,xPos,yPos);
+	firstTerm += temp*temp;	
+
+	//Using B & L (backward differencing in both directions)
+	temp = dNxdx_B(l,xPos,yPos) + dNydy_B(l,xPos,yPos);
+	firstTerm += temp*temp;
+
+	//Using T & L (backward differencing in x direction & forward differencing in y direction)
+	temp = dNxdx_B(l,xPos,yPos) + dNydy_F(l,xPos,yPos);
+	firstTerm += temp*temp;
+
+	//Divide by 4 to get average to estimate first term
+	firstTerm /= 4.0;
+
+	//Estimate second term by calculating the 4 different ways of calculating the first term and taking the average
+	
+	//Using T & R (forward differencing in both directions)
+	temp = dNydx_F(l,xPos,yPos) - dNxdy_F(l,xPos,yPos);
+	secondTerm = temp*temp;
+
+	//Using B & R (forward differencing in x direction & backward differencing in y direction)
+	temp = dNydx_F(l,xPos,yPos) - dNxdy_B(l,xPos,yPos);
+	secondTerm += temp*temp;
+
+	//Using B & L (backward differencing in both directions)
+	temp = dNydx_B(l,xPos,yPos) - dNxdy_B(l,xPos,yPos);
+	secondTerm += temp*temp;
+
+	//Using T & L (backward differencing in x direction & forward differencing in y direction)
+	temp = dNydx_B(l,xPos,yPos) - dNxdy_F(l,xPos,yPos);
+	secondTerm += temp*temp;
+
+	//Divide by 4 to get average to estimate second term
+	secondTerm /= 4.0;
+	
+	//calculate n_x^2
+	temp = latticeGetN(l,xPos,yPos)->x;
+	temp *=temp;
+
+	temp2 = latticeGetN(l,xPos,yPos)->y;
+	temp2 *=temp2;
+	
+	return 0.5*(firstTerm + (l->param.beta)*(temp + temp2)*secondTerm );
+}
+
+
+/* Calculate the "free energy" of entire lattice. Note this calculation may not be very efficient!
+*
+*/
+float latticeCalculateTotalEnergy(const LatticeObject* l)
+{
+	/*
+	* This calculation isn't very efficient as it uses calculateEngergyOfCell() for everycell
+	* which results in various derivatives being calculated more than once.
+	*/
+
+	int xPos,yPos;
+	float energy=0;
+
+	for(yPos=0; yPos < (l->param.height); yPos++)
+	{
+		for(xPos=0; xPos < (l->param.width); xPos++)
+		{
+			energy += latticeCalculateEnergyOfCell(l,xPos,yPos);	
+		}
+	}
+
+	return energy;
+}
+
 
 /*
 * This function outputs the current state of the lattice "theLattice" to standard output in a format

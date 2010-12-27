@@ -17,7 +17,7 @@ LIBRARIES = m
 	${CXX} ${CPPFLAGS} ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library)) -o $@ 
 
 # target : dependencies...
-lattice.o : lattice.c lattice.h randgen.h
+lattice.o : lattice.c lattice.h randgen.h lattice.h
 	${CXX} ${CPPFLAGS} -c lattice.c
 randgen.o : randgen.c randgen.h
 	${CXX} ${CPPFLAGS} -c randgen.c

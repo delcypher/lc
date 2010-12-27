@@ -5,37 +5,29 @@
 #ifndef DIFFERENTIATE
 	
 	#include "lattice.h"
+	
+	//Calculate partial derivative of Nx w.r.t to x using forward differencing at point (xPos,yPos) on LatticeObject l
+	float dNxdx_F(const LatticeObject* l, int xPos, int yPos);
 
-	enum directorComponent
-	{
-		N_X,
-		N_Y,
-	};
+	//Calculate partial derivative of Nx w.r.t to x using backward differencing at point (xPos,yPos) on LatticeObject l
+	float dNxdx_B(const LatticeObject* l, int xPos, int yPos);
 
-	enum differencingSchemes
-	{
-		FORWARD_DIFF,
-		BACKWARD_DIFF,
-		CENTRAL_DIFF
-	};
+	//Calculate partial derivative of Nx w.r.t to y using forward differencing at point (xPos,yPos) on LatticeObject l
+	float dNxdy_F(const LatticeObject* l, int xPos, int yPos);
 
-	/*The differencing scheme to be used by dndx() & dndy()
-	* We will make this unavailable to change for now
-	*
-	extern enum differencingSchemes diffScheme;
-	*/
+	//Calculate partial derivative of Nx w.r.t to y using backward differencing at point (xPos,yPos) on LatticeObject l
+	float dNxdy_B(const LatticeObject* l, int xPos, int yPos);
 
-	/* Calculate partial derivative of the "dirComp" component of the director of lattice "l"
-	*  w.r.t to x then evaluated at point (xPos,yPos)
-	* 
-	*/
-	float dndx(enum directorComponent dirComp, LatticeObject* l, int xPos, int yPos);
+	//Calculate partial derivative of Ny w.r.t to x using forward differencing at point (xPos,yPos) on LatticeObject l
+	float dNydx_F(const LatticeObject* l, int xPos, int yPos);
 
+	//Calculate partial derivative of Ny w.r.t to x using backward differencing at point (xPos,yPos) on LatticeObject l
+	float dNydx_B(const LatticeObject* l, int xPos, int yPos);
 
-	/* Calculate partial derivative of the "dirComp" component of the director of the lattice "l" w.r.t to y then evaluated at point (xPos,yPos)
-	* 
-	*/
-	float dndy(enum directorComponent dirComp, LatticeObject* l, int xPos, int yPos);
+	//Calculate partial derivative of Ny w.r.t to y using forward differencing at point (xPos,yPos) on LatticeObject l
+	float dNydy_F(const LatticeObject* l, int xPos, int yPos);
 
+	//Calculate partial derivative of Ny w.r.t to y using backward differencing at point (xPos,yPos) on LatticeObject l
+	float dNydy_B(const LatticeObject* l, int xPos, int yPos);
 	#define DIFFERENTIATE 1
 #endif

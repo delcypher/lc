@@ -121,6 +121,16 @@
 	*/
 	void latticeHalfUnitVectorDump(LatticeObject* theLattice);
 
+	/* Calculate the "free energy per unit area" for a cell at (xPos, yPos) using the frank equation in 2D
+	*
+	*/
+	float latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos);
+
+	/* Calculate the "free energy" of entire lattice. Note this calculation may not be very efficient!
+	*
+	*/
+	float latticeCalculateTotalEnergy(const LatticeObject* l);
+
 	/*
 	* This function outputs the current state of the lattice "theLattice" to standard output in a format
 	* compatible with shell script latticedump.sh which uses GNUplot. The director field is plotted as

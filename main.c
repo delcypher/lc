@@ -37,33 +37,13 @@ int main()
 		return 1;
 	}
 
-
-	DirectorElement* element;
-	
-	/*
-	//loop through lattice boundaries on purpose
-	signed int x,y;
-
-	for(y = -1; y <= nSystem->param.height; y++)
-	{
-		
-		for(x = -1; x<= nSystem->param.width; x++)
-		{
-			element = latticeGetN(nSystem,x,y);
-			if(element == NULL)
-			{
-				fprintf(stderr,"Something went wrong");
-			}
-		
-			printf("%d %d %f %f\n",x,y,(element->x)*0.5,(element->y)*0.5);
-		}
-		
-	}
-	*/
-
 	//latticeTranslatedUnitVectorDump(nSystem);
 	latticeHalfUnitVectorDump(nSystem);
 	//remove lattice
+
+	float energy = latticeCalculateTotalEnergy(nSystem);
+	printf("Energy of lattice:%f \n",energy);
+
 	latticeFree(nSystem);
 
 	return 0;

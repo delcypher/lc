@@ -3,12 +3,16 @@
 */
 
 #include <stdlib.h>
+#include <time.h>
 
 float cpuRnd()
 {
-	
-
 	return (float) rand()/RAND_MAX;
+}
+
+void cpuSetRandomSeed()
+{
+	srand( time(NULL));
 }
 
 float gpuRnd()

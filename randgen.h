@@ -14,6 +14,12 @@
 	float cpuRnd();
 
 	/*
+	* This will initialise the random seed for the cpuRnd() function
+	* in a way that should hopefully be different every time
+	*/
+	void cpuSetRandomSeed();
+
+	/*
 	* This generates a random number in the range [0,1].
 	* This is a CUDA function to be run on the GPU.
 	*/
