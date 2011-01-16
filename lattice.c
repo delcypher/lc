@@ -216,6 +216,8 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 	if(theLattice->lattice == NULL)
 	{
 		fprintf(stderr,"Error: Couldn't allocate memory for lattice array in LatticeObject.");
+		latticeFree(theLattice); //We should free anything we allocated to prevent memory leaks.
+		return NULL;
 	}
 
 	
