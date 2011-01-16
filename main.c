@@ -33,7 +33,7 @@ int main()
 	
 	if(nSystem == NULL)
 	{
-		fprintf(stderr,"Error: Couldn't construct lattice.");
+		fprintf(stderr,"Error: Couldn't construct lattice.\n");
 		return 1;
 	}
 

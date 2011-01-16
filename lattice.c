@@ -187,13 +187,11 @@ void latticeFree(LatticeObject* theLattice)
 
 LatticeObject* latticeInitialise(LatticeConfig configuration)
 {
-	int xPos, yPos;
-	double randomAngle;
 
 	//check that the width & height have been specified
 	if(configuration.width <= 0 || configuration.height <= 0)
 	{
-		fprintf(stderr, "Error: The width and/or height have not been set to valid values ( > 0). Can't initialise lattice.");
+		fprintf(stderr, "Error: The width and/or height have not been set to valid values ( > 0). Can't initialise lattice.\n");
 		return NULL;
 	}
 
@@ -203,7 +201,7 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 	
 	if(theLattice==NULL)
 	{
-		fprintf(stderr,"Error: Couldn't allocate memory for LatticeObject");
+		fprintf(stderr,"Error: Couldn't allocate memory for LatticeObject\n");
 		return NULL;
 	}
 
@@ -215,19 +213,41 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 	
 	if(theLattice->lattice == NULL)
 	{
-		fprintf(stderr,"Error: Couldn't allocate memory for lattice array in LatticeObject.");
+		fprintf(stderr,"Error: Couldn't allocate memory for lattice array in LatticeObject.\n");
 		latticeFree(theLattice); //We should free anything we allocated to prevent memory leaks.
 		return NULL;
 	}
 
+	//initialise the lattice to a particular state
+	if(latticeReinitialise(theLattice, theLattice->param.initialState) == 0)
+	{
+		fprintf(stderr,"Error: Couldn't set initial lattice state!\n");
+	}
 	
+
+	return theLattice;
+}
+
+
+int latticeReinitialise(LatticeObject* theLattice, enum latticeState initialState)
+{
+	if(theLattice == NULL)
+	{
+		fprintf(stderr,"Error: Can't reinitialise on LatticeObject with NULL pointer\n");
+		return 0;
+	}
+
+	theLattice->param.initialState = initialState;
+
 	//we should reset the random seed so we don't generate the set of pseudo random numbers every time	
 	cpuSetRandomSeed();
 	
 	/* Loop through lattice array (theLattice->lattice[index]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
 	*/
+	int xPos,yPos;
 	int index=0;
+	double randomAngle;
 
 	for (yPos = 0; yPos < theLattice->param.height; yPos++)
 	{
@@ -237,7 +257,7 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 			switch(theLattice->param.initialState)
 			{
 
-				case RANDOM :
+				case RANDOM:
 				{
 					//generate a random angle between 0 & 2*PI radians
 					randomAngle = 2*PI*cpuRnd();
@@ -274,9 +294,8 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 			}
 		}
 	}
-	
 
-	return theLattice;
+	return 1;
 }
 
 /*
@@ -288,7 +307,7 @@ void latticeHalfUnitVectorDump(LatticeObject* theLattice)
 {
 	if(theLattice ==NULL)
 	{
-		fprintf(stderr,"Error: Received NULL pointer to LatticeObject");
+		fprintf(stderr,"Error: Received NULL pointer to LatticeObject.\n");
 		return;
 	}
 
@@ -435,7 +454,7 @@ void latticeTranslatedUnitVectorDump(LatticeObject* theLattice)
 {
 	if(theLattice ==NULL)
 	{
-		fprintf(stderr,"Error: Received NULL pointer to LatticeObject");
+		fprintf(stderr,"Error: Received NULL pointer to LatticeObject.\n");
 		return;
 	}
 

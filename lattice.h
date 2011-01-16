@@ -114,6 +114,13 @@
 	*/
 	LatticeObject* latticeInitialise(LatticeConfig configuration);
 	
+	/* This function is used to reinitialise the state of an existing lattice (how the directors are pointing)
+	*  by passing in an initialState.
+	*  The return value is 0 for failure, 1 for success.
+	*/
+	
+	int latticeReinitialise(LatticeObject* theLattice, enum latticeState initialState);
+
 	/*
 	* This function outputs the current state of the lattice "theLattice" to standard output in a format
 	* compatible with the shell script latticedump.sh which uses GNUplot . The director field is plotted as 
