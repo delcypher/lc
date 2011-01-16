@@ -87,7 +87,7 @@ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos
 	*/
 	if(xPos >= 0 && xPos < theLattice->param.width && yPos >= 0 && yPos < theLattice->param.height)
 	{
-		return &(theLattice->lattice[xPos][yPos]);
+		return &(theLattice->lattice[ xPos + (theLattice->param.width)*yPos ]);
 	}
 
 	/*we now know (xPos,yPos) isn't in lattice so either (xPos,yPos) is on the PARALLEL or PERPENDICULAR
@@ -176,12 +176,6 @@ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos
 */
 void latticeFree(LatticeObject* theLattice)
 {
-	int xPos;
-	for (xPos=0; xPos < theLattice->param.width; xPos++)
-	{
-		free(theLattice->lattice[xPos]); 
-	}
-	
 	free(theLattice->lattice);
 	free(theLattice);
 }
@@ -199,7 +193,7 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 	//check that the width & height have been specified
 	if(configuration.width <= 0 || configuration.height <= 0)
 	{
-		fprintf(stderr, "Error: The width and/or height have not been set. Can't initialise lattice.");
+		fprintf(stderr, "Error: The width and/or height have not been set to valid values ( > 0). Can't initialise lattice.");
 		return NULL;
 	}
 
@@ -216,34 +210,28 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 	//set lattice parameters
 	theLattice->param = configuration;
 
-	//allocate memory for the first index (theLattice[index]) part of array
-	theLattice->lattice = (DirectorElement**) malloc(sizeof(DirectorElement*) * theLattice->param.width);
+	//allocate memory for lattice (theLattice[index]) part of array
+	theLattice->lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (theLattice->param.width)*(theLattice->param.height));
 	
 	if(theLattice->lattice == NULL)
 	{
-		fprintf(stderr,"Error: Couldn't allocate memory for lattice array first dimension in LatticeObject.");
+		fprintf(stderr,"Error: Couldn't allocate memory for lattice array in LatticeObject.");
 	}
 
-	//alocate memory for the second index (thelattice[x][index]) part of the array
-	for (xPos=0; xPos < theLattice->param.width; xPos++)
-	{
-		theLattice->lattice[xPos] = (DirectorElement*) malloc(sizeof(DirectorElement) * theLattice->param.height);
-		if(theLattice->lattice[xPos] == NULL)
-		{
-			fprintf(stderr,"Error: Couldn't allocate memory for lattice array second dimension in LatticeObject.");
-		}
-	}
-
+	
 	//we should reset the random seed so we don't generate the set of pseudo random numbers every time	
 	cpuSetRandomSeed();
 	
-	/* Loop through lattice array (theLattice->lattice[x][y]) and initialise
+	/* Loop through lattice array (theLattice->lattice[index]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
 	*/
+	int index=0;
+
 	for (yPos = 0; yPos < theLattice->param.height; yPos++)
 	{
 		for (xPos = 0; xPos < theLattice->param.width; xPos++)
 		{
+			index = xPos + (theLattice->param.width)*yPos;
 			switch(theLattice->param.initialState)
 			{
 
@@ -251,35 +239,35 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 				{
 					//generate a random angle between 0 & 2*PI radians
 					randomAngle = 2*PI*cpuRnd();
-					theLattice->lattice[xPos][yPos].x=cos(randomAngle);
-					theLattice->lattice[xPos][yPos].y=sin(randomAngle);
+					theLattice->lattice[index].x=cos(randomAngle);
+					theLattice->lattice[index].y=sin(randomAngle);
 				}
 
 				break;
 				
 				case PARALLEL_X:
-					theLattice->lattice[xPos][yPos].x=1;
-					theLattice->lattice[xPos][yPos].y=0;
+					theLattice->lattice[index].x=1;
+					theLattice->lattice[index].y=0;
 				break;
 
 				case PARALLEL_Y:
 				
-					theLattice->lattice[xPos][yPos].x=0;
-					theLattice->lattice[xPos][yPos].y=1;
+					theLattice->lattice[index].x=0;
+					theLattice->lattice[index].y=1;
 				break;
 
 				case BOT_PAR_TOP_NORM:
 					/*
 					* This isn't implemented yet
 					*/
-					theLattice->lattice[xPos][yPos].x=0;
-					theLattice->lattice[xPos][yPos].y=0;
+					theLattice->lattice[index].x=0;
+					theLattice->lattice[index].y=0;
 				break;
 				
 				default:
 					//if we aren't told what to do we will set all zero vectors!
-					theLattice->lattice[xPos][yPos].x=0;
-					theLattice->lattice[xPos][yPos].y=0;
+					theLattice->lattice[index].x=0;
+					theLattice->lattice[index].y=0;
 
 			}
 		}
@@ -315,17 +303,18 @@ void latticeHalfUnitVectorDump(LatticeObject* theLattice)
 	printf("\n\n # (x) (y) (n_x) (n_y)\n");
 
 	//print lattice state
-	int xPos, yPos;
+	int xPos, yPos, index;
 
 	for(yPos=0; yPos < theLattice->param.height; yPos++)
 	{
 		for(xPos=0; xPos < theLattice->param.width; xPos++)
 		{
+			index = xPos + (theLattice->param.width)*yPos;
 			printf("%d %d %f %f \n",
 			xPos, 
 			yPos, 
-			(theLattice->lattice[xPos][yPos].x)*0.5, 
-			(theLattice->lattice[xPos][yPos].y)*0.5);
+			(theLattice->lattice[index].x)*0.5, 
+			(theLattice->lattice[index].y)*0.5);
 		}
 	}
 
@@ -461,17 +450,18 @@ void latticeTranslatedUnitVectorDump(LatticeObject* theLattice)
 	printf("\n\n # (x) (y) (n_x) (n_y)\n");
 
 	//print lattice state
-	int xPos, yPos;
+	int xPos, yPos, index;
 
 	for(yPos=0; yPos < theLattice->param.height; yPos++)
 	{
 		for(xPos=0; xPos < theLattice->param.width; xPos++)
 		{
+			index = xPos + (theLattice->param.width)*yPos;
 			printf("%f %f %f %f \n",
-			( (double) xPos) - 0.5*(theLattice->lattice[xPos][yPos].x), 
-			( (double) yPos) - 0.5*(theLattice->lattice[xPos][yPos].y), 
-			(theLattice->lattice[xPos][yPos].x), 
-			(theLattice->lattice[xPos][yPos].y));
+			( (double) xPos) - 0.5*(theLattice->lattice[index].x), 
+			( (double) yPos) - 0.5*(theLattice->lattice[index].y), 
+			(theLattice->lattice[index].x), 
+			(theLattice->lattice[index].y));
 		}
 	}
 

@@ -78,8 +78,8 @@
 		LatticeConfig param;
 
 	
-		//Define the 2D lattice array
-		DirectorElement** lattice;
+		//Define the 2D lattice array (we use a linear memory block however)
+		DirectorElement* lattice;
 
 	} LatticeObject;	
 
