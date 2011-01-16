@@ -5,7 +5,7 @@
 #ifndef TWO_D_LATTICE
 
 	//The approximate value of PI
-	extern const float PI;
+	extern const double PI;
 
 	/* DirectorElement is a 2D vector (in physics sense)
 	*  expressed in cartesian co-ordinates. Arrays of 
@@ -13,7 +13,7 @@
 	*/
 	typedef struct 
 	{
-		float x,y;
+		double x,y;
 	} DirectorElement;
 
 
@@ -41,7 +41,7 @@
 		* assume k_1 = 1
 		* k_3 = beta* k_1
 		*/
-		float beta;
+		double beta;
 
 		/* These define the different type of boundary conditions on the edges of the lattice
 		 * The BOUNDARY_PARALLEL & BOUNDARY_PERPENDICULAR conditions are relative to the x-axis
@@ -86,7 +86,7 @@
 	/* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
 	*
 	*/
-	float calculateCosineBetween(DirectorElement* a, DirectorElement* b);
+	double calculateCosineBetween(DirectorElement* a, DirectorElement* b);
 
 	/* Flips a DirectorElement (vector in physics sense) in the opposite direction
 	*
@@ -124,12 +124,12 @@
 	/* Calculate the "free energy per unit area" for a cell at (xPos, yPos) using the frank equation in 2D
 	*
 	*/
-	float latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos);
+	double latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos);
 
 	/* Calculate the "free energy" of entire lattice. Note this calculation may not be very efficient!
 	*
 	*/
-	float latticeCalculateTotalEnergy(const LatticeObject* l);
+	double latticeCalculateTotalEnergy(const LatticeObject* l);
 
 	/*
 	* This function outputs the current state of the lattice "theLattice" to standard output in a format

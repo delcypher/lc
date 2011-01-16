@@ -9,7 +9,7 @@
 #include "lattice.h"
 #include "differentiate.h"
 
-const float PI=3.1415926;
+const double PI=3.1415926;
 
 /* Define the perpendicular & parallel directors used by
  * BOUNDARY_PERPENDICULAR & BOUNDARY_PARALLEL respectively
@@ -20,9 +20,9 @@ const DirectorElement PARALLEL_DIRECTOR = {1,0};
 /* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
 *
 */
-float calculateCosineBetween(DirectorElement* a, DirectorElement* b)
+double calculateCosineBetween(DirectorElement* a, DirectorElement* b)
 {
-	float cosine;
+	double cosine;
 	
 	/*
 	* Calculate cosine using formula for dot product between vectors cos(theta) = a.b/|a||b|
@@ -194,7 +194,7 @@ void latticeFree(LatticeObject* theLattice)
 LatticeObject* latticeInitialise(LatticeConfig configuration)
 {
 	int xPos, yPos;
-	float randomAngle;
+	double randomAngle;
 
 	//check that the width & height have been specified
 	if(configuration.width <= 0 || configuration.height <= 0)
@@ -335,7 +335,7 @@ void latticeHalfUnitVectorDump(LatticeObject* theLattice)
 /* Calculate the "free energy per unit area" for a cell at (xPos, yPos) using the frank equation in 2D
 *
 */
-float latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos)
+double latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos)
 {
 	/*   |T|     y|
 	*  |L|X|R|    |
@@ -351,10 +351,10 @@ float latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos)
 	* Note we assume k_1 =1 & k_3=beta*k_1
 	*/
 
-	float firstTerm=0;
-	float secondTerm=0;
-	float temp=0;
-	float temp2=0;
+	double firstTerm=0;
+	double secondTerm=0;
+	double temp=0;
+	double temp2=0;
 
 	//Estimate first term by calculating the 4 different ways of calculating the first term and taking the average
 	
@@ -412,7 +412,7 @@ float latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos)
 /* Calculate the "free energy" of entire lattice. Note this calculation may not be very efficient!
 *
 */
-float latticeCalculateTotalEnergy(const LatticeObject* l)
+double latticeCalculateTotalEnergy(const LatticeObject* l)
 {
 	/*
 	* This calculation isn't very efficient as it uses calculateEngergyOfCell() for everycell
@@ -420,7 +420,7 @@ float latticeCalculateTotalEnergy(const LatticeObject* l)
 	*/
 
 	int xPos,yPos;
-	float energy=0;
+	double energy=0;
 
 	for(yPos=0; yPos < (l->param.height); yPos++)
 	{
@@ -468,8 +468,8 @@ void latticeTranslatedUnitVectorDump(LatticeObject* theLattice)
 		for(xPos=0; xPos < theLattice->param.width; xPos++)
 		{
 			printf("%f %f %f %f \n",
-			( (float) xPos) - 0.5*(theLattice->lattice[xPos][yPos].x), 
-			( (float) yPos) - 0.5*(theLattice->lattice[xPos][yPos].y), 
+			( (double) xPos) - 0.5*(theLattice->lattice[xPos][yPos].x), 
+			( (double) yPos) - 0.5*(theLattice->lattice[xPos][yPos].y), 
 			(theLattice->lattice[xPos][yPos].x), 
 			(theLattice->lattice[xPos][yPos].y));
 		}

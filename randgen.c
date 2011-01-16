@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-float cpuRnd()
+double cpuRnd()
 {
-	return (float) rand()/RAND_MAX;
+	return (double) rand()/RAND_MAX;
 }
 
 void cpuSetRandomSeed()
@@ -15,7 +15,7 @@ void cpuSetRandomSeed()
 	srand( time(NULL));
 }
 
-float gpuRnd()
+double gpuRnd()
 {
 
 

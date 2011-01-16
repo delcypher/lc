@@ -11,7 +11,7 @@
 	* This generates a random number in the range [0,1].
 	* This will be ran on the cpu.
 	*/
-	float cpuRnd();
+	double cpuRnd();
 
 	/*
 	* This will initialise the random seed for the cpuRnd() function
@@ -23,7 +23,7 @@
 	* This generates a random number in the range [0,1].
 	* This is a CUDA function to be run on the GPU.
 	*/
-	float gpuRnd();
+	double gpuRnd();
 
 	#define HETEROGENEOUS_RND
 

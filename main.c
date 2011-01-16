@@ -41,8 +41,8 @@ int main()
 	latticeHalfUnitVectorDump(nSystem);
 	//remove lattice
 
-	float energy = latticeCalculateTotalEnergy(nSystem);
-	printf("Energy of lattice:%f \n",energy);
+	double energy = latticeCalculateTotalEnergy(nSystem);
+	printf("Energy of lattice:%.20f \n",energy);
 
 	latticeFree(nSystem);
 
