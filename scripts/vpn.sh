@@ -10,7 +10,7 @@ declare -x VPN_NAME="bristol"
 function usage()
 {
 	echo "
-Usage: vpn.sh on - Activates VPN and sets up routes to hercules and bluecrystalphase2
+Usage: vpn.sh on - Activates VPN and sets up routes to ${ROUTES[@]} 
        vpn.sh off - Disactivates VPN and routes.
 
 	"
