@@ -14,8 +14,8 @@ const float PI=3.1415926;
 /* Define the perpendicular & parallel directors used by
  * BOUNDARY_PERPENDICULAR & BOUNDARY_PARALLEL respectively
 */
-const DirectorElement PERPENDICULAR_DIRECTOR = {0,1};
-const DirectorElement PARALLEL_DIRECTOR = {1,0};
+DirectorElement PERPENDICULAR_DIRECTOR = {0,1};
+DirectorElement PARALLEL_DIRECTOR = {1,0};
 
 /* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
 *
@@ -37,7 +37,7 @@ float calculateCosineBetween(DirectorElement* a, DirectorElement* b)
 /* Flips a DirectorElement (vector in physics sense) in the opposite direction
 *
 */
-inline void flipDirector(DirectorElement* a)
+void flipDirector(DirectorElement* a)
 {
 	//flip component directions
 	a->x *= -1;
@@ -56,25 +56,25 @@ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos
 	*/
 
 	//Handle xPos going off the lattice in the x direction to the right
-	if(xPos >= theLattice->param.width && theLattice->param.rightBoundary == BOUNDARY_PERIODIC)
+	if(xPos >= theLattice->param.width && theLattice->param.rightBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
 		xPos = mod(xPos, theLattice->param.width);
 	}
 
 	//Handle xPos going off the lattice in x direction to the left
-	if(xPos < 0 && theLattice->param.leftBoundary == BOUNDARY_PERIODIC)
+	if(xPos < 0 && theLattice->param.leftBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
 		xPos = mod(xPos, theLattice->param.width);
 	}
 
 	//Handle yPos going off the lattice in the y directory to the top
-	if(yPos >= theLattice->param.height && theLattice->param.topBoundary == BOUNDARY_PERIODIC)
+	if(yPos >= theLattice->param.height && theLattice->param.topBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
 		yPos = mod(yPos, theLattice->param.height);
 	}
 
 	//Handle yPos going off the lattice in the y directory to the bottom
-	if(yPos < 0  && theLattice->param.bottomBoundary == BOUNDARY_PERIODIC)
+	if(yPos < 0  && theLattice->param.bottomBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
 		yPos = mod(yPos, theLattice->param.height);
 	}
@@ -97,11 +97,11 @@ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos
 	//in top boundary and within lattice along x
 	if(yPos >= theLattice->param.height && xPos >= 0 && xPos < theLattice->param.width)
 	{
-		if(theLattice->param.topBoundary == BOUNDARY_PARALLEL)
+		if(theLattice->param.topBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
 			return &PARALLEL_DIRECTOR;
 		} 
-		else if(theLattice->param.topBoundary == BOUNDARY_PERPENDICULAR)
+		else if(theLattice->param.topBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
 			return &PERPENDICULAR_DIRECTOR;
 		}
@@ -115,11 +115,11 @@ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos
 	//in bottom boundary and within lattice along x
 	if(yPos <= -1 && xPos >= 0 && xPos < theLattice->param.width)
 	{
-		if(theLattice->param.bottomBoundary == BOUNDARY_PARALLEL)
+		if(theLattice->param.bottomBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
 			return &PARALLEL_DIRECTOR;
 		}
-		else if(theLattice->param.bottomBoundary == BOUNDARY_PERPENDICULAR)
+		else if(theLattice->param.bottomBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
 			return &PERPENDICULAR_DIRECTOR;
 		}
@@ -133,11 +133,11 @@ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos
 	//in left boundary and within lattice along y
 	if(xPos <= -1 && yPos >= 0 && yPos < theLattice->param.height)
 	{
-		if(theLattice->param.leftBoundary == BOUNDARY_PARALLEL)
+		if(theLattice->param.leftBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
 			return &PARALLEL_DIRECTOR;
 		}
-		else if(theLattice->param.leftBoundary == BOUNDARY_PERPENDICULAR)
+		else if(theLattice->param.leftBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
 			return &PERPENDICULAR_DIRECTOR;
 		}
@@ -151,11 +151,11 @@ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos
 	//in right boundary and within lattice along y
 	if(xPos >= theLattice->param.width && yPos >= 0 && yPos < theLattice->param.height)
 	{
-		if(theLattice->param.rightBoundary == BOUNDARY_PARALLEL)
+		if(theLattice->param.rightBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
 			return &PARALLEL_DIRECTOR;
 		}
-		else if(theLattice->param.rightBoundary == BOUNDARY_PERPENDICULAR)
+		else if(theLattice->param.rightBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
 			return &PERPENDICULAR_DIRECTOR;
 		}
@@ -205,7 +205,7 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 
 
 	//Try and allocate memory from freestore for LatticeObject
-	LatticeObject* theLattice = malloc(sizeof(LatticeObject));
+	LatticeObject* theLattice = (LatticeObject*) malloc(sizeof(LatticeObject));
 	
 	if(theLattice==NULL)
 	{
@@ -247,7 +247,7 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 			switch(theLattice->param.initialState)
 			{
 
-				case RANDOM :
+				case LatticeConfig::RANDOM:
 				{
 					//generate a random angle between 0 & 2*PI radians
 					randomAngle = 2*PI*cpuRnd();
@@ -257,18 +257,18 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 
 				break;
 				
-				case PARALLEL_X:
+				case LatticeConfig::PARALLEL_X:
 					theLattice->lattice[xPos][yPos].x=1;
 					theLattice->lattice[xPos][yPos].y=0;
 				break;
 
-				case PARALLEL_Y:
+				case LatticeConfig::PARALLEL_Y:
 				
 					theLattice->lattice[xPos][yPos].x=0;
 					theLattice->lattice[xPos][yPos].y=1;
 				break;
 
-				case BOT_PAR_TOP_NORM:
+				case LatticeConfig::BOT_PAR_TOP_NORM:
 					/*
 					* This isn't implemented yet
 					*/
