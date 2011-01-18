@@ -119,7 +119,7 @@
 	*  The return value is 0 for failure, 1 for success.
 	*/
 	
-	int latticeReinitialise(LatticeObject* theLattice, enum latticeState initialState);
+	int latticeReinitialise(LatticeObject* theLattice, enum LatticeConfig::latticeState initialState);
 
 	/*
 	* This function outputs the current state of the lattice "theLattice" to standard output in a format

@@ -229,7 +229,7 @@ LatticeObject* latticeInitialise(LatticeConfig configuration)
 }
 
 
-int latticeReinitialise(LatticeObject* theLattice, enum latticeState initialState)
+int latticeReinitialise(LatticeObject* theLattice, enum LatticeConfig::latticeState initialState)
 {
 	if(theLattice == NULL)
 	{
