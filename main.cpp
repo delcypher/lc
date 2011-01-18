@@ -17,13 +17,13 @@ int main()
 	configuration.width =10;
 	configuration.height=10;
 	//set initial director alignment
-	configuration.initialState = RANDOM;
+	configuration.initialState = LatticeConfig::RANDOM;
 
 	//set boundary conditions
-	configuration.topBoundary = BOUNDARY_PARALLEL;
-	configuration.bottomBoundary = BOUNDARY_PERPENDICULAR;
-	configuration.leftBoundary = BOUNDARY_PERIODIC;
-	configuration.rightBoundary = BOUNDARY_PERIODIC;
+	configuration.topBoundary = LatticeConfig::BOUNDARY_PARALLEL;
+	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
+	configuration.leftBoundary = LatticeConfig::BOUNDARY_PERIODIC;
+	configuration.rightBoundary = LatticeConfig::BOUNDARY_PERIODIC;
 
 	//set lattice beta value
 	configuration.beta = 3.5;

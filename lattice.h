@@ -91,7 +91,7 @@
 	/* Flips a DirectorElement (vector in physics sense) in the opposite direction
 	*
 	*/
-	inline void flipDirector(DirectorElement* a);
+	void flipDirector(DirectorElement* a);
 
 	/*
 	This function returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 

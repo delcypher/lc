@@ -1,7 +1,11 @@
 #These are files that 'git add .' should ignore
 #ignore object files
 *.o
+#ignore dependency files
+*.dep
 #ignore vim swap files
 *.swp
 #ignore executable
 2dlc
+
+
