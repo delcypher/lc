@@ -9,12 +9,22 @@ make
 2. An executable probably named 2dlc will be created (check the makefile to see what it will be called). To execute it run
 ./2dlc
 
+HOW TO ADD YOUR OWN NANOPARTICLES:
+1. Declare your own class deriving from the Nanoparticle class (nanoparticle.h) in it's own header (e.g. mynewnanoparticle.h) in
+   the "nanoparticles" folder. See nanoparticles/circle.h as an example.
+2. Implement your own class in it's own implementation file (e.g. mynewnanoparticle.cpp) . You must implement the processCell() 
+   function. See nanoparticles/circle.h as an example.
+3. Include your new nanoparticle header in main.cu. (i.e. #include "nanoparticles/mynewnanoparticle.h" )
+4. Add your particle to the lattice using latticeAdd() in main.cu
+5. Add your nanoparticle to the variable OBJECTS with a ".o" extension in the makefile. (e.g. mynewnanoparticle.o )
+6. Recompile by running "make".
+
 HOW TO CLEAN UP THE BUILD:
 Compiling the program will generate lots of .o files (object files) & .dep (dependency files for make). Run the following command to clean this up.
-make clean
+"make clean"
 
 WARNINGS:
-1. If you rename any files you should run ``make clean'' to remove old dependency & object files. You should also be using ``git mv'' NOT ``mv''.
+1. If you rename any files you should run "make clean" to remove old dependency & object files. You should also be using "git mv" NOT "mv".
 
 SCRIPTS:
 In the script/ directory are bash shell scripts for doing various useful things.
@@ -24,4 +34,4 @@ vpn.sh - This is used to setup a connection to the UoB VPN if pptpclient has alr
 
 CUDA TOOLS
 1. Device probe - This will list all available CUDA cards on the machine it is run on display their compute capability. To build it run
-``make device-probe''
+"make device-probe"

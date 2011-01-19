@@ -449,7 +449,7 @@ double latticeCalculateTotalEnergy(const LatticeObject* l)
 * unit vectors that are translated so that the centre of the vector rather than the end of the vector
 * is plotted at point (xPos,yPos)
 */
-void latticeTranslatedUnitVectorDump(LatticeObject* theLattice)
+void latticeTranslatedUnitVectorDump(LatticeObject* theLattice, enum dumpMode mode)
 {
 	if(theLattice ==NULL)
 	{
@@ -477,11 +477,40 @@ void latticeTranslatedUnitVectorDump(LatticeObject* theLattice)
 		for(xPos=0; xPos < theLattice->param.width; xPos++)
 		{
 			index = xPos + (theLattice->param.width)*yPos;
-			printf("%f %f %f %f \n",
-			( (double) xPos) - 0.5*(theLattice->lattice[index].x), 
-			( (double) yPos) - 0.5*(theLattice->lattice[index].y), 
-			(theLattice->lattice[index].x), 
-			(theLattice->lattice[index].y));
+			
+			switch(mode)
+			{
+				case EVERYTHING:	
+					printf("%f %f %f %f \n",
+					( (double) xPos) - 0.5*(theLattice->lattice[index].x), 
+					( (double) yPos) - 0.5*(theLattice->lattice[index].y), 
+					(theLattice->lattice[index].x), 
+					(theLattice->lattice[index].y));
+				break;
+
+				case PARTICLES:
+					printf("%f %f %f %f \n",
+					( (double) xPos) - 0.5*(theLattice->lattice[index].x), 
+					( (double) yPos) - 0.5*(theLattice->lattice[index].y), 
+					( (theLattice->lattice[index].isNanoparticle==1)?(theLattice->lattice[index].x):0 ), 
+					( (theLattice->lattice[index].isNanoparticle==1)?(theLattice->lattice[index].y):0 ) 
+					);
+				break;
+
+				case NOT_PARTICLES:
+
+					printf("%f %f %f %f \n",
+					( (double) xPos) - 0.5*(theLattice->lattice[index].x), 
+					( (double) yPos) - 0.5*(theLattice->lattice[index].y), 
+					( (theLattice->lattice[index].isNanoparticle==0)?(theLattice->lattice[index].x):0 ), 
+					( (theLattice->lattice[index].isNanoparticle==0)?(theLattice->lattice[index].y):0 ) 
+					);
+
+				break;
+
+				default:
+					fprintf(stderr,"Error: drawMode not supported");
+			}
 		}
 	}
 
@@ -489,6 +518,50 @@ void latticeTranslatedUnitVectorDump(LatticeObject* theLattice)
 
 
 }
+
+
+/* Adds a nanoparticle (of type that should be derived from class Nanoparticle) to lattice.
+*  The function will return true if successful or false if something goes wrong!
+*/
+bool latticeAdd(LatticeObject* lat, Nanoparticle* np)
+{
+	//check nanoparticle location is inside the lattice.
+	if( np->getX() >= lat->param.width || np->getX() < 0 || np->getY() >= lat->param.height || np->getX() < 0)
+	{
+		fprintf(stderr,"Error: Can't add nanoparticle that is not in the lattice.\n");
+		return false;
+	}
+
+	//Do a dry run adding the nanoparticle. If it fails we know that there is an overlap with an existing nanoparticle
+	for(int y=0; y < lat->param.height; y++)
+	{
+		for(int x=0; x < lat->param.width; x++)
+		{
+			if(! np->processCell(x,y,Nanoparticle::DRY_ADD, latticeGetN(lat,x,y)) )
+			{
+				fprintf(stderr,"Error: Adding nanoparticle on dry run failed.\n");
+				return false;
+			}
+		}
+	}
+
+	//Do actuall run adding the nanoparticle. If it fails we know that there is an overlap with itself
+	for(int y=0; y < lat->param.height; y++)
+	{
+		for(int x=0; x < lat->param.width; x++)
+		{
+			if(! np->processCell(x,y,Nanoparticle::ADD, latticeGetN(lat,x,y)) )
+			{
+				fprintf(stderr,"Error: Adding nanoparticle on actuall run failed.\n");
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+
 
 /* This function returns the correct modulo for dealing with negative a. Note % does not!
 * 

@@ -3,11 +3,14 @@
 #Compiler
 CXX = nvcc
 
+#path to search
+VPATH=nanoparticles
+
 #Compiler flags
 CPPFLAGS = --compiler-options -Wall -g
 
 #Project object files
-OBJECTS =  main.o lattice.o randgen.o differentiate.o
+OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o
 
 #Project libraries to use (space seperated)
 LIBRARIES = m 

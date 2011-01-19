@@ -8,14 +8,19 @@
 #include "differentiate.h"
 #include "lattice.h"
 
+/* Include the nanoparticle header files you wish you use here.
+*  Make sure the nanoparticle is listed in the OBJECTS variable
+*  in the make file too!
+*/
+#include "nanoparticles/circle.h"
 
 int main()
 {
 	LatticeConfig configuration;
 	
 	//setup lattice parameters
-	configuration.width =10;
-	configuration.height=10;
+	configuration.width =20;
+	configuration.height=20;
 	//set initial director alignment
 	configuration.initialState = LatticeConfig::RANDOM;
 
@@ -37,8 +42,14 @@ int main()
 		return 1;
 	}
 
-	//latticeTranslatedUnitVectorDump(nSystem);
-	latticeHalfUnitVectorDump(nSystem);
+	//create circular nanoparticle (x,y,radius, boundary)
+	CircularNanoparticle particle1 = CircularNanoparticle(10,10,5,CircularNanoparticle::PARALLEL);
+	
+	//add nanoparticle to lattice
+	latticeAdd(nSystem,&particle1);
+
+	//Dump the current state of the lattice to standard output.
+	latticeTranslatedUnitVectorDump(nSystem, EVERYTHING);
 	//remove lattice
 
 	double energy = latticeCalculateTotalEnergy(nSystem);

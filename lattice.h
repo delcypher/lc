@@ -3,18 +3,13 @@
 */
 
 #ifndef TWO_D_LATTICE
+	
+	#include "common.h"
+	#include "nanoparticle.h"
 
 	//The approximate value of PI
 	extern const double PI;
 
-	/* DirectorElement is a 2D vector (in physics sense)
-	*  expressed in cartesian co-ordinates. Arrays of 
-	*  these are used to build a vector field.
-	*/
-	typedef struct 
-	{
-		double x,y;
-	} DirectorElement;
 
 
 	/* LatticeConfig is used to hold initial configuration parameters
@@ -93,6 +88,11 @@
 	*/
 	void flipDirector(DirectorElement* a);
 
+	/* Adds a nanoparticle (np) (of type that should be derived from class Nanoparticle) to lattice (lat).
+	*  The function will return true if successful or false if something goes wrong!
+	*/
+	bool latticeAdd(LatticeObject* lat, Nanoparticle* np);
+
 	/*
 	This function returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
 	boundary conditions of a LatticeObject (theLattice). You need to pass a pointer to the LatticeObject.
@@ -138,13 +138,25 @@
 	*/
 	double latticeCalculateTotalEnergy(const LatticeObject* l);
 
+	/* These are the different dumping modes used by latticeTranslatedUnitVectorDump()
+	*  EVERYTHING - NANOPARTICLES AND NORMAL LATTICE POINTS
+	*  PARTICLES - NANOPARTICLES ONLY
+	*  NOT_PARTICLES - NORMAL LATTICE POINTS ONLY
+	*/
+	enum dumpMode
+	{
+		EVERYTHING,
+		PARTICLES,
+		NOT_PARTICLES,
+	};
+
 	/*
 	* This function outputs the current state of the lattice "theLattice" to standard output in a format
 	* compatible with shell script latticedump.sh which uses GNUplot. The director field is plotted as
 	* unit vectors that are translated so that the centre of the vector rather than the end of the vector
-	* is plotted at point (xPos,yPos)
+	* is plotted at point (xPos,yPos).
 	*/
-	void latticeTranslatedUnitVectorDump(LatticeObject* theLattice);
+	void latticeTranslatedUnitVectorDump(LatticeObject* theLattice, enum dumpMode mode);
 	
 	/* This function returns the correct modulo for dealing with negative a. Note % does not!
 	 *
