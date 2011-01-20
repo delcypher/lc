@@ -75,8 +75,88 @@
 	
 		//Define the 2D lattice array (we use a linear memory block however)
 		DirectorElement* lattice;
+		
+		DirectorElement PERPENDICULAR_DIRECTOR;
+		DirectorElement PARALLEL_DIRECTOR;
 
 	} LatticeObject;	
+
+
+	/* The Lattice class is used as a "wrapper" class for LatticeObject that handles
+	*  the device pointers and has associated methods
+	*/
+	class Lattice
+	{
+		private:
+			DirectorElement* devLatticeArray; //pointer to device's lattice ary
+			
+			/* This frees allocated memory of the CUDA device.
+			*  This is called internally by the destructor so you shouldn't to call it yourself.
+			*/
+			void freeCuda();
+		
+			/* This initialises memory on the CUDA device and
+			*  copies the host's LatticeObject to the CUDA device.
+			*/
+			void initialiseCuda();
+
+			public:
+			LatticeObject* hostLatticeObject; //pointer to host's LatticeObject.
+			LatticeObject* devLatticeObject; //pointer to device's LatticeObject.
+			Lattice(LatticeConfig configuration);
+			~Lattice(); //destructor
+
+			//Copies the Host LatticeObject to the device
+			void copyHostToDevice();
+
+			//Copies the Device LatticeObject to the host.
+			void copyDeviceToHost();
+
+			/* Adds a nanoparticle (np) (of type that should be derived from class Nanoparticle) to the lattice.
+			*  The method will return true if successful or false if something goes wrong!
+			*/
+			bool add(Nanoparticle* np);
+
+			/*
+			This method returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
+			boundary conditions of a LatticeObject (theLattice).
+			*/
+			DirectorElement* getN(int xPos, int yPos);
+			
+			void reInitialise(enum LatticeConfig::latticeState initialState);
+
+			/* These are the different dumping modes used by translatedUnitVectorDump()
+			*  EVERYTHING - NANOPARTICLES AND NORMAL LATTICE POINTS
+			*  PARTICLES - NANOPARTICLES ONLY
+			*  NOT_PARTICLES - NORMAL LATTICE POINTS ONLY
+			*/
+			enum dumpMode
+			{
+				EVERYTHING,
+				PARTICLES,
+				NOT_PARTICLES,
+			};
+
+			/*
+			* This method outputs the current state of the lattice to standard output in a format
+			* compatible with shell script latticedump.sh which uses GNUplot. The director field is plotted as
+			* unit vectors that are translated so that the centre of the vector rather than the end of the vector
+			* is plotted at point (xPos,yPos).
+			*/
+			void translatedUnitVectorDump(enum Lattice::dumpMode mode) const;
+
+			/*
+			* This method outputs the current state of the lattice to standard output in a format
+			* compatible with the shell script latticedump.sh which uses GNUplot . The director field is plotted as 
+			* 1/2 unit vectors rather than unit vectors so that neighbouring vectors when plotted do not overlap.
+			*/
+			void HalfUnitVectorDump() const;
+
+			double calculateEnergyOfCell(int xPos, int yPos);
+			double calculateTotalEnergy();
+
+	};
+
 
 	/* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
 	*
@@ -91,72 +171,56 @@
 	/* Adds a nanoparticle (np) (of type that should be derived from class Nanoparticle) to lattice (lat).
 	*  The function will return true if successful or false if something goes wrong!
 	*/
-	bool latticeAdd(LatticeObject* lat, Nanoparticle* np);
-
-	/*
-	This function returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
-	boundary conditions of a LatticeObject (theLattice). You need to pass a pointer to the LatticeObject.
+	//bool latticeAdd(LatticeObject* lat, Nanoparticle* np);
 	
-	*/
-	DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos);
+	//DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos);
 	
 	
 	/* This function is used free memory allocated by the latticeInitialise function
 	*  You should pass it a pointer to a LatticeObject type. 
 	*
 	*/
-	void latticeFree(LatticeObject* theLattice);
+	//void latticeFree(LatticeObject* theLattice);
 	
 
 	/* This function is used in initialise a LatticeObject from the freestore and returns a pointer to 
 	*  the newly made object. Use latticeFree() to remove the object from the freestore
 	*
 	*/
-	LatticeObject* latticeInitialise(LatticeConfig configuration);
+	//LatticeObject* latticeInitialise(LatticeConfig configuration);
 	
 	/* This function is used to reinitialise the state of an existing lattice (how the directors are pointing)
 	*  by passing in an initialState.
 	*  The return value is 0 for failure, 1 for success.
 	*/
 	
-	int latticeReinitialise(LatticeObject* theLattice, enum LatticeConfig::latticeState initialState);
+	//int latticeReinitialise(LatticeObject* theLattice, enum LatticeConfig::latticeState initialState);
 
 	/*
 	* This function outputs the current state of the lattice "theLattice" to standard output in a format
 	* compatible with the shell script latticedump.sh which uses GNUplot . The director field is plotted as 
 	* 1/2 unit vectors rather than unit vectors so that neighbouring vectors when plotted do not overlap.
 	*/
-	void latticeHalfUnitVectorDump(LatticeObject* theLattice);
+	//void latticeHalfUnitVectorDump(LatticeObject* theLattice);
 
 	/* Calculate the "free energy per unit area" for a cell at (xPos, yPos) using the frank equation in 2D
 	*
 	*/
-	double latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos);
+	//double latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos);
 
 	/* Calculate the "free energy" of entire lattice. Note this calculation may not be very efficient!
 	*
 	*/
-	double latticeCalculateTotalEnergy(const LatticeObject* l);
+	//double latticeCalculateTotalEnergy(const LatticeObject* l);
 
-	/* These are the different dumping modes used by latticeTranslatedUnitVectorDump()
-	*  EVERYTHING - NANOPARTICLES AND NORMAL LATTICE POINTS
-	*  PARTICLES - NANOPARTICLES ONLY
-	*  NOT_PARTICLES - NORMAL LATTICE POINTS ONLY
-	*/
-	enum dumpMode
-	{
-		EVERYTHING,
-		PARTICLES,
-		NOT_PARTICLES,
-	};
-
+	
 	/*
 	* This function outputs the current state of the lattice "theLattice" to standard output in a format
 	* compatible with shell script latticedump.sh which uses GNUplot. The director field is plotted as
 	* unit vectors that are translated so that the centre of the vector rather than the end of the vector
 	* is plotted at point (xPos,yPos).
 	*/
-	void latticeTranslatedUnitVectorDump(LatticeObject* theLattice, enum dumpMode mode);
+	//void latticeTranslatedUnitVectorDump(LatticeObject* theLattice, enum dumpMode mode);
 	
 	/* This function returns the correct modulo for dealing with negative a. Note % does not!
 	 *

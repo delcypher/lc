@@ -33,29 +33,21 @@ int main()
 	//set lattice beta value
 	configuration.beta = 3.5;
 
-	//create lattice
-	LatticeObject* nSystem = latticeInitialise(configuration);
-	
-	if(nSystem == NULL)
-	{
-		fprintf(stderr,"Error: Couldn't construct lattice.\n");
-		return 1;
-	}
+	//create lattice object
+	Lattice nSystem = Lattice(configuration);
 
 	//create circular nanoparticle (x,y,radius, boundary)
 	CircularNanoparticle particle1 = CircularNanoparticle(10,10,5,CircularNanoparticle::PARALLEL);
 	
 	//add nanoparticle to lattice
-	latticeAdd(nSystem,&particle1);
+	nSystem.add(&particle1);
 
 	//Dump the current state of the lattice to standard output.
-	latticeTranslatedUnitVectorDump(nSystem, EVERYTHING);
-	//remove lattice
+	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING);
 
-	double energy = latticeCalculateTotalEnergy(nSystem);
+	double energy = nSystem.calculateTotalEnergy();
 	printf("Energy of lattice:%.20f \n",energy);
 
-	latticeFree(nSystem);
 
 	return 0;
 }

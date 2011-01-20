@@ -16,6 +16,7 @@
                 int isNanoparticle;
         } DirectorElement;
 
+	const double PI=3.1415926;
 
 	#define COMMON_2D
 
