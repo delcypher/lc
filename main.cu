@@ -7,6 +7,7 @@
 #include "randgen.h"
 #include "differentiate.h"
 #include "lattice.h"
+#include "devicemanager.h"
 
 /* Include the nanoparticle header files you wish you use here.
 *  Make sure the nanoparticle is listed in the OBJECTS variable
@@ -33,6 +34,9 @@ int main()
 	//set lattice beta value
 	configuration.beta = 3.5;
 
+	//pick a GPU to use
+	printf("#Selecting CUDA device:%d \n",pickGPU(1,3));
+
 	//create lattice object
 	Lattice nSystem = Lattice(configuration);
 
@@ -41,6 +45,9 @@ int main()
 	
 	//add nanoparticle to lattice
 	nSystem.add(&particle1);
+
+	//Initialise the lattice on the device
+	nSystem.initialiseCuda();
 
 	//Dump the current state of the lattice to standard output.
 	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING);

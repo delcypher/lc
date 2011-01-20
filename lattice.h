@@ -90,8 +90,9 @@
 		private:
 			DirectorElement* devLatticeArray; //pointer to device's lattice ary
 			
+		public:
 			/* This frees allocated memory of the CUDA device.
-			*  This is called internally by the destructor so you shouldn't to call it yourself.
+			* 
 			*/
 			void freeCuda();
 		
@@ -100,7 +101,6 @@
 			*/
 			void initialiseCuda();
 
-			public:
 			LatticeObject* hostLatticeObject; //pointer to host's LatticeObject.
 			LatticeObject* devLatticeObject; //pointer to device's LatticeObject.
 			Lattice(LatticeConfig configuration);

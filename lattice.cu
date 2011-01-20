@@ -25,6 +25,7 @@ Lattice::Lattice(LatticeConfig configuration)
 	if(hostLatticeObject==NULL)
 	{
 		fprintf(stderr,"Error: Couldn't allocate memory for LatticeObject on host!\n");
+		exit(1);
 	}
 
 	//set lattice parameters
@@ -51,19 +52,19 @@ Lattice::Lattice(LatticeConfig configuration)
 	{
 		fprintf(stderr,"Error: Couldn't allocate memory for lattice array in LatticeObject.\n");
 		free(hostLatticeObject); //We should free anything we allocated to prevent memory leaks.
+		exit(1);
 	}
 
 	//initialise the lattice to a particular state
 	reInitialise(hostLatticeObject->param.initialState);
 	
-	initialiseCuda();
-
+	//WE DON'T RUN initialiseCuda() here as programmer may wish to modify the lattice first.
 }
 
 //destructor
 Lattice::~Lattice()
 {
-	//freeCuda();
+	freeCuda();
 	free(hostLatticeObject->lattice);
 	free(hostLatticeObject);
 }

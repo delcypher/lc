@@ -1,4 +1,6 @@
 #include <iostream>
+#include "devicemanger.h"
+
 using namespace std;
 
 const int width = 160;
@@ -6,11 +8,10 @@ const int height= 160;
 const int threadDim = 16;
 
 __global__ void kernel(LatticeObject *nSystem, double *energy);
-int pickGPU(int maj, int min);
 
 int main()
 {
-	// Just to make Dan happy
+	// Just to make Dan happy - yes am I :)
 	pickGPU(1,3);
 
 	// Create lattice configuration, CPU and GPU energy variables
@@ -66,22 +67,6 @@ int main()
 	return 0;
 }
 
-int pickGPU(int maj, int min)
-{
-	int dev;
-
-	// Create cudaDeviceProp with the specifications we want
-	cudaDeviceProp prop;
-	memset(&prop, 0, sizeof(cudaDeviceProp));
-	prop.major = maj;
-	prop.minor = min;
-
-	// Use built in functions to pic a device with those specs
-	cudaChooseDevice(&dev, &prop);
-	cudaSetDevice(dev);
-
-	return dev;
-}
 
 __global__ void kernel(LatticeObject *nSystem, double *energy)
 {
