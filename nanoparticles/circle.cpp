@@ -55,6 +55,9 @@
 							return false;
 						}	
 						
+						/* We're in the centre of the circle. The director field
+						*  is not defined here so we set it to zero!
+						*/
 						if(distance==0)
 						{
 							element->isNanoparticle=1;

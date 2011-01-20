@@ -15,6 +15,9 @@ OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o
 #Project libraries to use (space seperated)
 LIBRARIES = m 
 
+#Executable filename
+EXEC_NAME=2dlc
+
 #overwrite implicit rules so we can generate dependency (.dep) files
 %.o : %.cpp
 	${CXX} -c ${CPPFLAGS} $< -o $@
@@ -25,7 +28,7 @@ LIBRARIES = m
 	${CXX} -M ${CPPFLAGS} $< > $*.dep
 
 #default target (link)
-2dlc : ${OBJECTS}
+${EXEC_NAME} : ${OBJECTS}
 	${CXX} ${CPPFLAGS} ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library)) -o $@ 
 	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
 
@@ -39,5 +42,5 @@ device-probe: cuda-tools/device_probe.cu
 #Phont target used to remove generated objects and dependency files
 .PHONY: clean
 clean: 
-	rm $(OBJECTS:.o=.dep) $(OBJECTS)
+	rm $(OBJECTS:.o=.dep) $(OBJECTS) ${EXEC_NAME}
 
