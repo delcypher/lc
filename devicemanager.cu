@@ -34,7 +34,7 @@ int pickGPU(int maj, int min)
 
 	if(deviceCount==0)
 	{
-		fprintf(stderr,"Error: No CUDA devices available");
+		fprintf(stderr,"Error: No CUDA devices available.\n");
 		exit(1);
 	}
 
