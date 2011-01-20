@@ -10,7 +10,7 @@ VPATH=nanoparticles
 CPPFLAGS = --compiler-options -Wall -g
 
 #Project object files
-OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o
+OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o devicemanager.o
 
 #Project libraries to use (space seperated)
 LIBRARIES = m 

@@ -89,7 +89,15 @@
 	{
 		private:
 			DirectorElement* devLatticeArray; //pointer to device's lattice ary
-			void destoryCuda();
+			
+			/* This frees allocated memory of the CUDA device.
+			*  This is called internally by the destructor so you shouldn't to call it yourself.
+			*/
+			void freeCuda();
+		
+			/* This initialises memory on the CUDA device and
+			*  copies the host's LatticeObject to the CUDA device.
+			*/
 			void initialiseCuda();
 
 			public:
@@ -98,7 +106,10 @@
 			Lattice(LatticeConfig configuration);
 			~Lattice(); //destructor
 
+			//Copies the Host LatticeObject to the device
 			void copyHostToDevice();
+
+			//Copies the Device LatticeObject to the host.
 			void copyDeviceToHost();
 
 			/* Adds a nanoparticle (np) (of type that should be derived from class Nanoparticle) to the lattice.
