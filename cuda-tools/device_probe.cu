@@ -20,7 +20,7 @@ int main()
 	for(counter=0; counter < deviceCount; counter++)
 	{
 		cudaGetDeviceProperties(&deviceProperties, counter);
-		cout << "Device " << counter +1 << ":\n";
+		cout << "Device " << counter << ":\n";
 		cout << "Name: " << deviceProperties.name << endl;
 		cout << "Compute capability: " << deviceProperties.major << "." << deviceProperties.minor << endl;
 		cout << "Multiprocessor count: " << deviceProperties.multiProcessorCount << endl;
