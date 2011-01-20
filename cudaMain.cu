@@ -18,7 +18,7 @@ int main()
 	latticeConfig configuration;
 	int noBlocks = width/threadDim * height/threadDim;
 	double energy[noBlocks], *dev_energy, totalEnergy=0;
-	cudaMalloc((void**) dev_energy, noBlocks*sizeof(double));
+	cudaMalloc((void**) &dev_energy, noBlocks*sizeof(double));
 
 	// Configure Lattice
 	configuration.width = width;
