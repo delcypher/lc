@@ -91,6 +91,9 @@
 			DirectorElement* devLatticeArray; //pointer to device's lattice ary
 			
 		public:
+			LatticeObject* hostLatticeObject; //pointer to host's LatticeObject.
+			LatticeObject* devLatticeObject; //pointer to device's LatticeObject.
+
 			/* This frees allocated memory of the CUDA device.
 			* 
 			*/
@@ -101,8 +104,6 @@
 			*/
 			void initialiseCuda();
 
-			LatticeObject* hostLatticeObject; //pointer to host's LatticeObject.
-			LatticeObject* devLatticeObject; //pointer to device's LatticeObject.
 			Lattice(LatticeConfig configuration);
 			~Lattice(); //destructor
 
@@ -117,9 +118,8 @@
 			*/
 			bool add(Nanoparticle* np);
 
-			/*
-			This method returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
-			boundary conditions of a LatticeObject (theLattice).
+			/* This method returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
+			 * boundary conditions of a LatticeObject (theLattice).
 			*/
 			DirectorElement* getN(int xPos, int yPos);
 			
@@ -152,7 +152,12 @@
 			*/
 			void HalfUnitVectorDump() const;
 
+			/* Calculate the Free energy per unit area in the cell located at (xPos,yPos) in the lattice on the HOST!
+			*/
 			double calculateEnergyOfCell(int xPos, int yPos);
+			
+			/* Calculate the Free energy of the lattice on the HOST!
+			*/
 			double calculateTotalEnergy();
 
 	};
