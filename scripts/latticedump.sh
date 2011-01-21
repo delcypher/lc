@@ -3,13 +3,16 @@
 
 function usage()
 {
-	echo "Usage: $0 [--title TITLE] [--png FILE] [--xlabel \"x label\"] [--ylabel \"y label\"] LATTICE_FILE
+	echo "Usage: $0 [--index INDEX] [--title TITLE] [--png FILE] [--xlabel \"x label\"] [--ylabel \"y label\"] LATTICE_FILE
 
 	This program plots the state of a lattice using GNUplot where LATTICE_FILE should be a text file containing
 	the output of latticeDump();
 
 	--help
-		Show this message.
+	Show this message.
+
+	--index INDEX
+	Pick index INDEX from file.
 
 	--title TITLE
 	set graph title
@@ -36,6 +39,8 @@ declare -x X_LABEL;
 declare -x Y_LABEL_CMD;
 declare -x Y_LABEL;
 declare -x LATTICE_FILE;
+declare -x INDEX_CMD;
+
 #start of program
 
 if [ $# -eq 0 ]; then
@@ -48,6 +53,13 @@ for((i=1; i<=$#; i++)); do
 	
 	if [ "${!i}" == "--help" ]; then
 		usage;
+	fi
+
+	if [ "${!i}" == "--index" ]; then
+		i=$((i+1));
+		echo "Pick index ${!i}"
+		INDEX_CMD="index ${!i}"
+		continue;
 	fi
 
 	if [ "${!i}" == "--title" ]; then
@@ -144,6 +156,6 @@ set grid mxtics mytics noxtics noytics
 #Make sure the borders can't draw over the vectors
 set border back
 
-plot "${LATTICE_FILE}" with vectors
+plot "${LATTICE_FILE}" ${INDEX_CMD} with vectors
 COOL
  

@@ -10,6 +10,8 @@
 #include "differentiate.h"
 #include "devicemanager.h"
 
+const int DUMP_PRECISION = 10;
+
 //initialisation constructor
 Lattice::Lattice(LatticeConfig configuration) 
 {
@@ -375,29 +377,29 @@ void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode) const
 			switch(mode)
 			{
 				case EVERYTHING:	
-					printf("%f %f %f %f \n",
+					printf("%f %f %.*f %.*f \n",
 					( (double) xPos) - 0.5*(hostLatticeObject->lattice[index].x), 
 					( (double) yPos) - 0.5*(hostLatticeObject->lattice[index].y), 
-					(hostLatticeObject->lattice[index].x), 
-					(hostLatticeObject->lattice[index].y));
+					DUMP_PRECISION,(hostLatticeObject->lattice[index].x), 
+					DUMP_PRECISION,(hostLatticeObject->lattice[index].y));
 				break;
 
 				case PARTICLES:
-					printf("%f %f %f %f \n",
+					printf("%f %f %.*f %.*f \n",
 					( (double) xPos) - 0.5*(hostLatticeObject->lattice[index].x), 
 					( (double) yPos) - 0.5*(hostLatticeObject->lattice[index].y), 
-					( (hostLatticeObject->lattice[index].isNanoparticle==1)?(hostLatticeObject->lattice[index].x):0 ), 
-					( (hostLatticeObject->lattice[index].isNanoparticle==1)?(hostLatticeObject->lattice[index].y):0 ) 
+					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==1)?(hostLatticeObject->lattice[index].x):0 ), 
+					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==1)?(hostLatticeObject->lattice[index].y):0 ) 
 					);
 				break;
 
 				case NOT_PARTICLES:
 
-					printf("%f %f %f %f \n",
+					printf("%f %f %.*f %.*f \n",
 					( (double) xPos) - 0.5*(hostLatticeObject->lattice[index].x), 
 					( (double) yPos) - 0.5*(hostLatticeObject->lattice[index].y), 
-					( (hostLatticeObject->lattice[index].isNanoparticle==0)?(hostLatticeObject->lattice[index].x):0 ), 
-					( (hostLatticeObject->lattice[index].isNanoparticle==0)?(hostLatticeObject->lattice[index].y):0 ) 
+					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==0)?(hostLatticeObject->lattice[index].x):0 ), 
+					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==0)?(hostLatticeObject->lattice[index].y):0 ) 
 					);
 
 				break;
@@ -434,11 +436,11 @@ void Lattice::HalfUnitVectorDump() const
 		for(xPos=0; xPos < hostLatticeObject->param.width; xPos++)
 		{
 			index = xPos + (hostLatticeObject->param.width)*yPos;
-			printf("%d %d %f %f \n",
+			printf("%d %d %.*f %.*f \n",
 			xPos, 
 			yPos, 
-			(hostLatticeObject->lattice[index].x)*0.5, 
-			(hostLatticeObject->lattice[index].y)*0.5);
+			DUMP_PRECISION,(hostLatticeObject->lattice[index].x)*0.5, 
+			DUMP_PRECISION,(hostLatticeObject->lattice[index].y)*0.5);
 		}
 	}
 

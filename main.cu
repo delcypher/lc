@@ -31,11 +31,11 @@ int main()
 	LatticeConfig configuration;
 	
 	//setup lattice parameters
-	configuration.width = threadDim*10;
-	configuration.height= threadDim*10;
+	configuration.width = threadDim*1;
+	configuration.height= threadDim*1;
 
 	//set initial director alignment
-	configuration.initialState = LatticeConfig::RANDOM;
+	configuration.initialState = LatticeConfig::PARALLEL_X;
 
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PARALLEL;
