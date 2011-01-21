@@ -5,16 +5,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "randgen.h"
 #include "lattice.h"
-#include "differentiate.h"
+#include "dev_differentiate.cuh"
 
-const double PI=3.1415926;
+/* This function returns the correct modulo for dealing with negative a. Note % does not!
+* 
+* dev_mod(a,b) = a mod b
+*/
+__device__ inline int dev_mod(int a, int b)
+{
+	return (a%b + b)%b;
+}
 
 /* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
 *
 */
-__device__ double calculateCosineBetween(DirectorElement* a, DirectorElement* b)
+__device__ double dev_calculateCosineBetween(DirectorElement* a, DirectorElement* b)
 {
 	double cosine;
 	
@@ -31,7 +37,7 @@ __device__ double calculateCosineBetween(DirectorElement* a, DirectorElement* b)
 /* Flips a DirectorElement (vector in physics sense) in the opposite direction
 *
 */
-__device__ void flipDirector(DirectorElement* a)
+__device__ void dev_flipDirector(DirectorElement* a)
 {
 	//flip component directions
 	a->x *= -1;
@@ -43,7 +49,7 @@ This function returns a pointer to the "element" of the director field at (xPos,
 boundary conditions of a LatticeObject (theLattice). You need to pass a pointer to the LatticeObject.
 
 */
-__device__ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos)
+__device__ DirectorElement* latticeGetN(LatticeObject* theLattice, int xPos, int yPos)
 {
 	/* set xPos & yPos in the lattice taking into account periodic boundary conditions
 	*  of the 2D lattice
@@ -52,25 +58,25 @@ __device__ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPo
 	//Handle xPos going off the lattice in the x direction to the right
 	if(xPos >= theLattice->param.width && theLattice->param.rightBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
-		xPos = mod(xPos, theLattice->param.width);
+		xPos = dev_mod(xPos, theLattice->param.width);
 	}
 
 	//Handle xPos going off the lattice in x direction to the left
 	if(xPos < 0 && theLattice->param.leftBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
-		xPos = mod(xPos, theLattice->param.width);
+		xPos = dev_mod(xPos, theLattice->param.width);
 	}
 
 	//Handle yPos going off the lattice in the y directory to the top
 	if(yPos >= theLattice->param.height && theLattice->param.topBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
-		yPos = mod(yPos, theLattice->param.height);
+		yPos = dev_mod(yPos, theLattice->param.height);
 	}
 
 	//Handle yPos going off the lattice in the y directory to the bottom
 	if(yPos < 0  && theLattice->param.bottomBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
-		yPos = mod(yPos, theLattice->param.height);
+		yPos = dev_mod(yPos, theLattice->param.height);
 	}
 	
 	/* All periodic boundary conditions have now been handled
@@ -93,11 +99,11 @@ __device__ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPo
 	{
 		if(theLattice->param.topBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &PARALLEL_DIRECTOR;
+			return &(theLattice->PARALLEL_DIRECTOR);
 		} 
 		else if(theLattice->param.topBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &PERPENDICULAR_DIRECTOR;
+			return &(theLattice->PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
@@ -111,11 +117,11 @@ __device__ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPo
 	{
 		if(theLattice->param.bottomBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &PARALLEL_DIRECTOR;
+			return &(theLattice->PARALLEL_DIRECTOR);
 		}
 		else if(theLattice->param.bottomBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &PERPENDICULAR_DIRECTOR;
+			return &(theLattice->PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
@@ -129,11 +135,11 @@ __device__ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPo
 	{
 		if(theLattice->param.leftBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &PARALLEL_DIRECTOR;
+			return &(theLattice->PARALLEL_DIRECTOR);
 		}
 		else if(theLattice->param.leftBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &PERPENDICULAR_DIRECTOR;
+			return &(theLattice->PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
@@ -147,11 +153,11 @@ __device__ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPo
 	{
 		if(theLattice->param.rightBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &PARALLEL_DIRECTOR;
+			return &(theLattice->PARALLEL_DIRECTOR);
 		}
 		else if(theLattice->param.rightBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &PERPENDICULAR_DIRECTOR;
+			return &(theLattice->PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
@@ -168,7 +174,7 @@ __device__ DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPo
 /* Calculate the "free energy per unit area" for a cell at (xPos, yPos) using the frank equation in 2D
 *
 */
-__device__ double latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos)
+__device__ double latticeCalculateEnergyOfCell(LatticeObject* l, int xPos, int yPos)
 {
 	/*   |T|     y|
 	*  |L|X|R|    |
@@ -242,11 +248,3 @@ __device__ double latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos,
 }
 
 
-/* This function returns the correct modulo for dealing with negative a. Note % does not!
-* 
-* mod(a,b) = a mod b
-*/
-__device__ inline int mod(int a, int b)
-{
-	return (a%b + b)%b;
-}

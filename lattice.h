@@ -173,60 +173,7 @@
 	*/
 	void flipDirector(DirectorElement* a);
 
-	/* Adds a nanoparticle (np) (of type that should be derived from class Nanoparticle) to lattice (lat).
-	*  The function will return true if successful or false if something goes wrong!
-	*/
-	//bool latticeAdd(LatticeObject* lat, Nanoparticle* np);
-	
-	//DirectorElement* latticeGetN(const LatticeObject* theLattice, int xPos, int yPos);
-	
-	
-	/* This function is used free memory allocated by the latticeInitialise function
-	*  You should pass it a pointer to a LatticeObject type. 
-	*
-	*/
-	//void latticeFree(LatticeObject* theLattice);
-	
-
-	/* This function is used in initialise a LatticeObject from the freestore and returns a pointer to 
-	*  the newly made object. Use latticeFree() to remove the object from the freestore
-	*
-	*/
-	//LatticeObject* latticeInitialise(LatticeConfig configuration);
-	
-	/* This function is used to reinitialise the state of an existing lattice (how the directors are pointing)
-	*  by passing in an initialState.
-	*  The return value is 0 for failure, 1 for success.
-	*/
-	
-	//int latticeReinitialise(LatticeObject* theLattice, enum LatticeConfig::latticeState initialState);
-
-	/*
-	* This function outputs the current state of the lattice "theLattice" to standard output in a format
-	* compatible with the shell script latticedump.sh which uses GNUplot . The director field is plotted as 
-	* 1/2 unit vectors rather than unit vectors so that neighbouring vectors when plotted do not overlap.
-	*/
-	//void latticeHalfUnitVectorDump(LatticeObject* theLattice);
-
-	/* Calculate the "free energy per unit area" for a cell at (xPos, yPos) using the frank equation in 2D
-	*
-	*/
-	//double latticeCalculateEnergyOfCell(const LatticeObject* l, int xPos, int yPos);
-
-	/* Calculate the "free energy" of entire lattice. Note this calculation may not be very efficient!
-	*
-	*/
-	//double latticeCalculateTotalEnergy(const LatticeObject* l);
-
-	
-	/*
-	* This function outputs the current state of the lattice "theLattice" to standard output in a format
-	* compatible with shell script latticedump.sh which uses GNUplot. The director field is plotted as
-	* unit vectors that are translated so that the centre of the vector rather than the end of the vector
-	* is plotted at point (xPos,yPos).
-	*/
-	//void latticeTranslatedUnitVectorDump(LatticeObject* theLattice, enum dumpMode mode);
-	
+		
 	/* This function returns the correct modulo for dealing with negative a. Note % does not!
 	 *
 	 * mod(a,b) = a mod b
