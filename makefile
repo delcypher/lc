@@ -6,8 +6,11 @@ CXX = nvcc
 #path to search
 VPATH=nanoparticles
 
-#Compiler flags
-CPPFLAGS = --compiler-options -Wall -g
+#Compiler flags for .cpp files
+CPPFLAGS = -g --compiler-options -Wall
+
+#Compiler options for .cu files
+NVCCFLAGS = -g -G --compiler-options -Wall
 
 #Project object files
 OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o devicemanager.o
@@ -21,11 +24,11 @@ EXEC_NAME=2dlc
 #overwrite implicit rules so we can generate dependency (.dep) files
 %.o : %.cpp
 	${CXX} -c ${CPPFLAGS} $< -o $@
-	${CXX} -M ${CPPFLAGS} $< > $*.dep
+	${CXX} -M $< > $*.dep
 
 %.o : %.cu
-	${CXX} -c ${CPPFLAGS} $< -o $@
-	${CXX} -M ${CPPFLAGS} $< > $*.dep
+	${CXX} -c ${NVCCFLAGS} $< -o $@
+	${CXX} -M $< > $*.dep
 
 #default target (link)
 ${EXEC_NAME} : ${OBJECTS}
@@ -36,7 +39,7 @@ ${EXEC_NAME} : ${OBJECTS}
 -include $(OBJECTS:.o=.d) 
 
 #Small tool targets
-device-probe: cuda-tools/device_probe.cu
+device-probe: cuda-tools/device-probe.cu
 	${CXX} ${CPPFLAGS} $< -o $@	
 
 #Phont target used to remove generated objects and dependency files

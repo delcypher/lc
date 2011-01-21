@@ -35,7 +35,13 @@ int main()
 	configuration.beta = 3.5;
 
 	//pick a GPU to use
-	printf("#Selecting CUDA device:%d \n",pickGPU(1,3));
+	int deviceSelected = pickGPU(1,3);
+	if(deviceSelected==-1)
+	{
+		exit(1);
+	}
+
+	printf("#Selecting CUDA device:%d \n",deviceSelected);
 
 	//create lattice object
 	Lattice nSystem = Lattice(configuration);

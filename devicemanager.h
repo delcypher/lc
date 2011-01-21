@@ -10,7 +10,7 @@
 
 	/* Picks the CUDA device that matches the compute capability maj.min (e.g. 1.3).
 	*  It returns the device number picked.
-	*  If no device is available it will cause the application to exit and print an error message.
+	*  If no device is available it will print an error message to stderr & return -1
 	*/
 	int pickGPU(int maj, int min);
 
