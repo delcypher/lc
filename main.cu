@@ -2,12 +2,19 @@
 *  By Alex Allen & Daniel Liew (2010)
 */
 
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include "randgen.h"
 #include "differentiate.h"
 #include "lattice.h"
+#include "dev_lattice.cuh"
 #include "devicemanager.h"
+
+//a bit of a hack, removed later if possible
+#include "dev_lattice.cu"
+
+using namespace std;
 
 /* Include the nanoparticle header files you wish you use here.
 *  Make sure the nanoparticle is listed in the OBJECTS variable
@@ -85,9 +92,9 @@ __global__ void kernel(LatticeObject *baconlatticetomato)
 	int x = threadIdx.x + blockIdx.x * gridDim.x;
 	int y = threadIdx.y + blockIdx.y * gridDim.y;
 
-	DirectorElement *direl = latticeGetN(baconlatticetomato,x,y);
+	DirectorElement* direl = latticeGetN(baconlatticetomato,x,y);
 
-	if(!direl->isNanoParticle)
+	if(direl->isNanoparticle ==0)
 	{
 		direl->x = 1;
 		direl->y = 0;
