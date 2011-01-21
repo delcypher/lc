@@ -35,7 +35,7 @@ int main()
 	configuration.height= threadDim*1;
 
 	//set initial director alignment
-	configuration.initialState = LatticeConfig::PARALLEL_X;
+	configuration.initialState = LatticeConfig::RANDOM;
 
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PARALLEL;

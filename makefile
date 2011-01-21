@@ -10,7 +10,7 @@ VPATH=nanoparticles
 CPPFLAGS = -g --compiler-options -Wall
 
 #Compiler options for .cu files
-NVCCFLAGS = -g -G --compiler-options -Wall
+NVCCFLAGS = -arch=sm_13 -g -G --compiler-options -Wall
 
 #Project object files
 OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o devicemanager.o  dev_differentiate.o
