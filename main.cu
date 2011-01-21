@@ -15,13 +15,18 @@
 */
 #include "nanoparticles/circle.h"
 
+const int threadDim = 16;
+
+__global__ void kernel(LatticeObject *baconlatticetomato);
+
 int main()
 {
 	LatticeConfig configuration;
 	
 	//setup lattice parameters
-	configuration.width =20;
-	configuration.height=20;
+	configuration.width = threadDim*10;
+	configuration.height= threadDim*10;
+
 	//set initial director alignment
 	configuration.initialState = LatticeConfig::RANDOM;
 
@@ -54,6 +59,15 @@ int main()
 
 	//Initialise the lattice on the device
 	nSystem.initialiseCuda();
+	
+	//Dump the current state of the lattice to standard output.
+	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING);
+
+	//Alex's wizardry
+	dim3 blocks(configuration.width/threadDim, configuration.height/threadDim);
+	dim3 threads(threadDim, threadDim);
+	kernel<<<blocks, threads>>>(nSystem.devLatticeObject);
+	nSystem.copyDeviceToHost();
 
 	//Dump the current state of the lattice to standard output.
 	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING);
@@ -63,4 +77,20 @@ int main()
 
 
 	return 0;
+}
+
+__global__ void kernel(LatticeObject *baconlatticetomato)
+{
+	int x = threadIdx.x + blockIdx.x * gridDim.x;
+	int y = threadIdx.y + blockIdx.y * gridDim.y;
+
+	DirectorElement *direl = latticeGetN(baconlatticetomato,x,y);
+
+	if(!direl->isNanoParticle)
+	{
+		direl->x = 1;
+		direl->y = 0;
+	}
+
+
 }
