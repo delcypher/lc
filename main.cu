@@ -68,6 +68,7 @@ int main()
 	dim3 threads(threadDim, threadDim);
 	kernel<<<blocks, threads>>>(nSystem.devLatticeObject);
 	nSystem.copyDeviceToHost();
+	cout << "\n\n\n";
 
 	//Dump the current state of the lattice to standard output.
 	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING);
