@@ -36,7 +36,7 @@ ${EXEC_NAME} : ${OBJECTS}
 	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
 
 #include prerequesite files in make file
--include $(OBJECTS:.o=.d) 
+-include $(OBJECTS:.o=.dep) 
 
 #Small tool targets
 device-probe: cuda-tools/device-probe.cu
