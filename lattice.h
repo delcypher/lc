@@ -1,4 +1,4 @@
-/* Header file for LatticeObject functions, structs & enums
+/* Header file for Lattice Class & LatticeObject functions, structs & enums
 *  By Alex Allen & Daniel Liew (2010)
 */
 
@@ -6,9 +6,6 @@
 	
 	#include "common.h"
 	#include "nanoparticle.h"
-
-	//The approximate value of PI
-	extern const double PI;
 
 
 
@@ -104,7 +101,11 @@
 			*/
 			void initialiseCuda();
 
+			/* This initialises memory on the host. No memory is allocated
+			*  on the CUDA device until initialiseCuda() is called.
+			*/
 			Lattice(LatticeConfig configuration);
+			
 			~Lattice(); //destructor
 
 			//Copies the Host LatticeObject to the device
@@ -123,6 +124,10 @@
 			*/
 			DirectorElement* getN(int xPos, int yPos);
 			
+			/* This sets the state of the lattice to one of the initialState presets.
+			*  This only affects the lattice on the host. To pass this change to the lattice 
+			*  on the device you should call copyHostToDevice() afterwards.
+			*/
 			void reInitialise(enum LatticeConfig::latticeState initialState);
 
 			/* These are the different dumping modes used by translatedUnitVectorDump()
