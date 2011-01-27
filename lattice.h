@@ -138,19 +138,27 @@
 			*/
 			enum dumpMode
 			{
-				EVERYTHING,
-				PARTICLES,
-				NOT_PARTICLES,
+				EVERYTHING, //prints entire lattice but not the boundary
+				PARTICLES, //prints just the particles
+				NOT_PARTICLES, //prints everything but the particles and boundary
+				BOUNDARY //prints the boundary	
 			};
 
 			/*
-			* This method outputs the current state of the lattice to standard output in a format
+			* This method outputs the current state of the lattice to filestream stream (e.g. stdout) in a format
 			* compatible with shell script latticedump.sh which uses GNUplot. The director field is plotted as
 			* unit vectors that are translated so that the centre of the vector rather than the end of the vector
 			* is plotted at point (xPos,yPos).
 			*/
-			void translatedUnitVectorDump(enum Lattice::dumpMode mode, FILE* stream) const;
-
+			void nDump(enum Lattice::dumpMode mode, FILE* stream);
+			
+			/* This method outputs the current state of the lattice to a filestream stream in a format compatible
+			*  with GNUplot. It outputs two indexes.
+			*  index 0 - BOUNDARY
+			*  index 1 - NOT_PARTICLES 
+			*  index 1 - PARTICLES
+			*/
+			void indexedNDump(FILE* stream);
 			
 			/* Calculate the Free energy per unit area in the cell located at (xPos,yPos) in the lattice on the HOST!
 			*/

@@ -31,8 +31,8 @@ int main()
 	LatticeConfig configuration;
 	
 	//setup lattice parameters
-	configuration.width = threadDim*1;
-	configuration.height= threadDim*1;
+	configuration.width = threadDim*10;
+	configuration.height= threadDim*10;
 
 	//set initial director alignment
 	configuration.initialState = LatticeConfig::RANDOM;
@@ -65,23 +65,24 @@ int main()
 	nSystem.add(&particle1);
 
 	//Initialise the lattice on the device
-	nSystem.initialiseCuda();
+	//nSystem.initialiseCuda();
 	
 	//Dump the current state of the lattice to standard output.
-	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING,stdout);
+	//nSystem.nDump(Lattice::BOUNDARY,stdout);
+	nSystem.indexedNDump(stdout);
 
 	//Alex's wizardry
-	dim3 blocks(configuration.width/threadDim, configuration.height/threadDim);
-	dim3 threads(threadDim, threadDim);
-	kernel<<<blocks, threads>>>(nSystem.devLatticeObject);
-	nSystem.copyDeviceToHost();
+	//dim3 blocks(configuration.width/threadDim, configuration.height/threadDim);
+	//dim3 threads(threadDim, threadDim);
+	//kernel<<<blocks, threads>>>(nSystem.devLatticeObject);
+	//nSystem.copyDeviceToHost();
 	cout << "\n\n\n";
 
 	//Dump the current state of the lattice to standard output.
-	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING,stdout);
+	//nSystem.nDump(Lattice::EVERYTHING,stdout);
 
 	double energy = nSystem.calculateTotalEnergy();
-	printf("Energy of lattice:%.20f \n",energy);
+	printf("#Energy of lattice:%.20f \n",energy);
 
 
 	return 0;

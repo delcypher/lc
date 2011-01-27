@@ -58,7 +58,11 @@ Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(pr
 
 	//initialise the lattice to a particular state
 	reInitialise(hostLatticeObject->param.initialState);
-	
+
+	//Make sure the device pointers are initialised so that in freeCuda() we don't call cudaFree() on NULL pointers.
+	devLatticeObject=NULL;
+	devLatticeArray=NULL;
+
 	//WE DON'T RUN initialiseCuda() here as programmer may wish to modify the lattice first.
 }
 
@@ -74,9 +78,15 @@ Lattice::~Lattice()
 void Lattice::freeCuda()
 {
 	//free memory for the lattice array on device
-	deviceErrorHandle( cudaFree(devLatticeArray) );
+	if(devLatticeArray!=NULL)
+	{
+		deviceErrorHandle( cudaFree(devLatticeArray) );
+	}
 	//free memory for the Lattice object on device
-	deviceErrorHandle( cudaFree(devLatticeObject) );
+	if(devLatticeObject!=NULL)
+	{
+		deviceErrorHandle( cudaFree(devLatticeObject) );
+	}
 
 }
 
@@ -113,6 +123,12 @@ void Lattice::copyHostToDevice()
 
 void Lattice::copyDeviceToHost()
 {
+	if(devLatticeObject==NULL || devLatticeArray==NULL)
+	{
+		fprintf(stderr,"Error: Calling copyDeviceToHost() failed because the Lattice Object wasn't initialised properly on the deviced.");
+		return;
+	}
+
 	DirectorElement* tempHostArray; //a pointer to the host's lattice array
 	tempHostArray=hostLatticeObject->lattice; //copy the host's pointer
 
@@ -349,7 +365,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 
 }
 
-void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode, FILE* stream) const
+void Lattice::nDump(enum Lattice::dumpMode mode, FILE* stream)
 {
 
 	//print lattice information
@@ -365,42 +381,70 @@ void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode, FILE* stream
 	fprintf(stream,"\n\n # (x) (y) (n_x) (n_y)\n");
 
 	//print lattice state
-	int xPos, yPos, index;
-
-	for(yPos=0; yPos < hostLatticeObject->param.height; yPos++)
+	int xPos, yPos, xInitial, yInitial, xFinal, yFinal;
+	
+	if(mode==BOUNDARY)
 	{
-		for(xPos=0; xPos < hostLatticeObject->param.width; xPos++)
+		//in BOUNDARY mode we go +/- 1 outside of lattice.
+		xInitial=-1;
+		yInitial=-1;
+		xFinal= hostLatticeObject->param.width;
+		yFinal= hostLatticeObject->param.height;
+	}
+	else
+	{
+		//not in boundary mode so we will dump just in lattice
+		xInitial=0;
+		yInitial=0;
+		xFinal = hostLatticeObject->param.width -1;
+		yFinal = hostLatticeObject->param.height -1;
+	}
+
+	for(yPos=yInitial; yPos <= yFinal ; yPos++)
+	{
+		for(xPos=xInitial; xPos <= xFinal; xPos++)
 		{
-			index = xPos + (hostLatticeObject->param.width)*yPos;
 			
 			switch(mode)
 			{
 				case EVERYTHING:	
 					fprintf(stream,"%f %f %.*f %.*f \n",
-					( (double) xPos) - 0.5*(hostLatticeObject->lattice[index].x), 
-					( (double) yPos) - 0.5*(hostLatticeObject->lattice[index].y), 
-					DUMP_PRECISION,(hostLatticeObject->lattice[index].x), 
-					DUMP_PRECISION,(hostLatticeObject->lattice[index].y));
+					( (double) xPos) - 0.5*(getN(xPos,yPos)->x), 
+					( (double) yPos) - 0.5*(getN(xPos,yPos)->y), 
+					DUMP_PRECISION,(getN(xPos,yPos)->x), 
+					DUMP_PRECISION,(getN(xPos,yPos)->y));
 				break;
 
 				case PARTICLES:
 					fprintf(stream,"%f %f %.*f %.*f \n",
-					( (double) xPos) - 0.5*(hostLatticeObject->lattice[index].x), 
-					( (double) yPos) - 0.5*(hostLatticeObject->lattice[index].y), 
-					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==1)?(hostLatticeObject->lattice[index].x):0 ), 
-					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==1)?(hostLatticeObject->lattice[index].y):0 ) 
+					( (double) xPos) - 0.5*(getN(xPos,yPos)->x), 
+					( (double) yPos) - 0.5*(getN(xPos,yPos)->y), 
+					DUMP_PRECISION,( (getN(xPos,yPos)->isNanoparticle==1)?(getN(xPos,yPos)->x):0 ), 
+					DUMP_PRECISION,( (getN(xPos,yPos)->isNanoparticle==1)?(getN(xPos,yPos)->y):0 ) 
 					);
 				break;
 
 				case NOT_PARTICLES:
 
 					fprintf(stream,"%f %f %.*f %.*f \n",
-					( (double) xPos) - 0.5*(hostLatticeObject->lattice[index].x), 
-					( (double) yPos) - 0.5*(hostLatticeObject->lattice[index].y), 
-					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==0)?(hostLatticeObject->lattice[index].x):0 ), 
-					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==0)?(hostLatticeObject->lattice[index].y):0 ) 
+					( (double) xPos) - 0.5*(getN(xPos,yPos)->x), 
+					( (double) yPos) - 0.5*(getN(xPos,yPos)->y), 
+					DUMP_PRECISION,( (getN(xPos,yPos)->isNanoparticle==0)?(getN(xPos,yPos)->x):0 ), 
+					DUMP_PRECISION,( (getN(xPos,yPos)->isNanoparticle==0)?(getN(xPos,yPos)->y):0 ) 
 					);
 
+				break;
+				
+				case BOUNDARY:
+					if(xPos==xInitial || xPos==xFinal || yPos==yInitial || yPos==yFinal)
+					{
+						fprintf(stream,"%f %f %.*f %.*f \n",
+						( (double) xPos) - 0.5*(getN(xPos,yPos)->x), 
+						( (double) yPos) - 0.5*(getN(xPos,yPos)->y), 
+						DUMP_PRECISION,(getN(xPos,yPos)->x), 
+						DUMP_PRECISION,(getN(xPos,yPos)->y));
+
+					}
 				break;
 
 				default:
@@ -413,6 +457,16 @@ void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode, FILE* stream
 
 }
 
+void Lattice::indexedNDump(FILE* stream)
+{
+	fprintf(stream,"\n#BOUNDARY DUMP\n");
+	nDump(BOUNDARY,stream);
+	fprintf(stream,"\n#NOT_PARTICLES\n\n");
+	nDump(NOT_PARTICLES,stream);
+	fprintf(stream,"\n#PARTICLES\n\n");
+	nDump(PARTICLES,stream);
+	fprintf(stream,"\n\n");
+}
 
 double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 {
