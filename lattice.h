@@ -86,7 +86,8 @@
 	{
 		private:
 			DirectorElement* devLatticeArray; //pointer to device's lattice ary
-			
+			const int DUMP_PRECISION; //the precision for output used by translatedUnitVectorDump()
+
 		public:
 			LatticeObject* hostLatticeObject; //pointer to host's LatticeObject.
 			LatticeObject* devLatticeObject; //pointer to device's LatticeObject.
@@ -104,7 +105,7 @@
 			/* This initialises memory on the host. No memory is allocated
 			*  on the CUDA device until initialiseCuda() is called.
 			*/
-			Lattice(LatticeConfig configuration);
+			Lattice(LatticeConfig configuration, int precision);
 			
 			~Lattice(); //destructor
 
@@ -148,15 +149,9 @@
 			* unit vectors that are translated so that the centre of the vector rather than the end of the vector
 			* is plotted at point (xPos,yPos).
 			*/
-			void translatedUnitVectorDump(enum Lattice::dumpMode mode) const;
+			void translatedUnitVectorDump(enum Lattice::dumpMode mode, FILE* stream) const;
 
-			/*
-			* This method outputs the current state of the lattice to standard output in a format
-			* compatible with the shell script latticedump.sh which uses GNUplot . The director field is plotted as 
-			* 1/2 unit vectors rather than unit vectors so that neighbouring vectors when plotted do not overlap.
-			*/
-			void HalfUnitVectorDump() const;
-
+			
 			/* Calculate the Free energy per unit area in the cell located at (xPos,yPos) in the lattice on the HOST!
 			*/
 			double calculateEnergyOfCell(int xPos, int yPos);
@@ -164,6 +159,8 @@
 			/* Calculate the Free energy of the lattice on the HOST!
 			*/
 			double calculateTotalEnergy();
+
+			int getDumpPrecision() { return DUMP_PRECISION;}
 
 	};
 

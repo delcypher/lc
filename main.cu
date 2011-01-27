@@ -55,8 +55,8 @@ int main()
 
 	printf("#Selecting CUDA device:%d \n",deviceSelected);
 
-	//create lattice object
-	Lattice nSystem = Lattice(configuration);
+	//create lattice object, with (configuration, dump precision)
+	Lattice nSystem = Lattice(configuration,10);
 
 	//create circular nanoparticle (x,y,radius, boundary)
 	CircularNanoparticle particle1 = CircularNanoparticle(10,10,5,CircularNanoparticle::PARALLEL);
@@ -68,7 +68,7 @@ int main()
 	nSystem.initialiseCuda();
 	
 	//Dump the current state of the lattice to standard output.
-	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING);
+	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING,stdout);
 
 	//Alex's wizardry
 	dim3 blocks(configuration.width/threadDim, configuration.height/threadDim);
@@ -78,7 +78,7 @@ int main()
 	cout << "\n\n\n";
 
 	//Dump the current state of the lattice to standard output.
-	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING);
+	nSystem.translatedUnitVectorDump(Lattice::EVERYTHING,stdout);
 
 	double energy = nSystem.calculateTotalEnergy();
 	printf("Energy of lattice:%.20f \n",energy);

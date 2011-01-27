@@ -10,10 +10,9 @@
 #include "differentiate.h"
 #include "devicemanager.h"
 
-const int DUMP_PRECISION = 10;
 
 //initialisation constructor
-Lattice::Lattice(LatticeConfig configuration) 
+Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(precision)
 {
 	//check that the width & height have been specified
 	if(configuration.width <= 0 || configuration.height <= 0)
@@ -350,20 +349,20 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 
 }
 
-void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode) const
+void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode, FILE* stream) const
 {
 
 	//print lattice information
-	printf("#Lattice Width:%d \n",hostLatticeObject->param.width);
-	printf("#Lattice Height:%d \n", hostLatticeObject->param.height);
-	printf("#Lattice beta value:%f \n", hostLatticeObject->param.beta);
-	printf("#Lattice top Boundary: %d (enum) \n",hostLatticeObject->param.topBoundary);
-	printf("#Lattice bottom Boundary: %d (enum) \n",hostLatticeObject->param.bottomBoundary);
-	printf("#Lattice left Boundary: %d (enum) \n",hostLatticeObject->param.leftBoundary);
-	printf("#Lattice right Boundary: %d (enum) \n",hostLatticeObject->param.rightBoundary);
-	printf("#Lattice initial state: %d (enum) \n",hostLatticeObject->param.initialState);
+	fprintf(stream,"#Lattice Width:%d \n",hostLatticeObject->param.width);
+	fprintf(stream,"#Lattice Height:%d \n", hostLatticeObject->param.height);
+	fprintf(stream,"#Lattice beta value:%f \n", hostLatticeObject->param.beta);
+	fprintf(stream,"#Lattice top Boundary: %d (enum) \n",hostLatticeObject->param.topBoundary);
+	fprintf(stream,"#Lattice bottom Boundary: %d (enum) \n",hostLatticeObject->param.bottomBoundary);
+	fprintf(stream,"#Lattice left Boundary: %d (enum) \n",hostLatticeObject->param.leftBoundary);
+	fprintf(stream,"#Lattice right Boundary: %d (enum) \n",hostLatticeObject->param.rightBoundary);
+	fprintf(stream,"#Lattice initial state: %d (enum) \n",hostLatticeObject->param.initialState);
 
-	printf("\n\n # (x) (y) (n_x) (n_y)\n");
+	fprintf(stream,"\n\n # (x) (y) (n_x) (n_y)\n");
 
 	//print lattice state
 	int xPos, yPos, index;
@@ -377,7 +376,7 @@ void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode) const
 			switch(mode)
 			{
 				case EVERYTHING:	
-					printf("%f %f %.*f %.*f \n",
+					fprintf(stream,"%f %f %.*f %.*f \n",
 					( (double) xPos) - 0.5*(hostLatticeObject->lattice[index].x), 
 					( (double) yPos) - 0.5*(hostLatticeObject->lattice[index].y), 
 					DUMP_PRECISION,(hostLatticeObject->lattice[index].x), 
@@ -385,7 +384,7 @@ void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode) const
 				break;
 
 				case PARTICLES:
-					printf("%f %f %.*f %.*f \n",
+					fprintf(stream,"%f %f %.*f %.*f \n",
 					( (double) xPos) - 0.5*(hostLatticeObject->lattice[index].x), 
 					( (double) yPos) - 0.5*(hostLatticeObject->lattice[index].y), 
 					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==1)?(hostLatticeObject->lattice[index].x):0 ), 
@@ -395,7 +394,7 @@ void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode) const
 
 				case NOT_PARTICLES:
 
-					printf("%f %f %.*f %.*f \n",
+					fprintf(stream,"%f %f %.*f %.*f \n",
 					( (double) xPos) - 0.5*(hostLatticeObject->lattice[index].x), 
 					( (double) yPos) - 0.5*(hostLatticeObject->lattice[index].y), 
 					DUMP_PRECISION,( (hostLatticeObject->lattice[index].isNanoparticle==0)?(hostLatticeObject->lattice[index].x):0 ), 
@@ -410,43 +409,10 @@ void Lattice::translatedUnitVectorDump(enum Lattice::dumpMode mode) const
 		}
 	}
 
-	printf("\n#End of Lattice Dump");
+	fprintf(stream,"\n#End of Lattice Dump");
 
 }
 
-void Lattice::HalfUnitVectorDump() const
-{
-	//print lattice information
-	printf("#Lattice Width:%d \n",hostLatticeObject->param.width);
-	printf("#Lattice Height:%d \n", hostLatticeObject->param.height);
-	printf("#Lattice beta value:%f \n", hostLatticeObject->param.beta);
-	printf("#Lattice top Boundary: %d (enum) \n",hostLatticeObject->param.topBoundary);
-	printf("#Lattice bottom Boundary: %d (enum) \n",hostLatticeObject->param.bottomBoundary);
-	printf("#Lattice left Boundary: %d (enum) \n",hostLatticeObject->param.leftBoundary);
-	printf("#Lattice right Boundary: %d (enum) \n",hostLatticeObject->param.rightBoundary);
-	printf("#Lattice initial state: %d (enum) \n",hostLatticeObject->param.initialState);
-
-	printf("\n\n # (x) (y) (n_x) (n_y)\n");
-
-	//print lattice state
-	int xPos, yPos, index;
-
-	for(yPos=0; yPos < hostLatticeObject->param.height; yPos++)
-	{
-		for(xPos=0; xPos < hostLatticeObject->param.width; xPos++)
-		{
-			index = xPos + (hostLatticeObject->param.width)*yPos;
-			printf("%d %d %.*f %.*f \n",
-			xPos, 
-			yPos, 
-			DUMP_PRECISION,(hostLatticeObject->lattice[index].x)*0.5, 
-			DUMP_PRECISION,(hostLatticeObject->lattice[index].y)*0.5);
-		}
-	}
-
-	printf("\n#End of Lattice Dump");
-
-}
 
 double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 {
