@@ -179,6 +179,5 @@ plot "${LATTICE_FILE}" index 2 with vectors lt 3
 unset multiplot
 
 pause -1
-
 COOL
  
