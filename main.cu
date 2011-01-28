@@ -11,8 +11,12 @@
 #include "dev_lattice.cuh"
 #include "devicemanager.h"
 
-//a bit of a hack, removed later if possible
+/* CUDA does not support external (i.e. to other objects used in iterative compilation) function calls.
+*  So we must include the implementations of the device functions in the same file (and hence object) as
+*  our kernel function(s). This slows down compilation but at least it works!
+*/
 #include "dev_lattice.cu"
+#include "dev_differentiate.cu"
 
 using namespace std;
 
@@ -65,7 +69,7 @@ int main()
 	nSystem.add(&particle1);
 
 	//Initialise the lattice on the device
-	//nSystem.initialiseCuda();
+	nSystem.initialiseCuda();
 	
 	//Dump the current state of the lattice to standard output.
 	//nSystem.nDump(Lattice::BOUNDARY,stdout);

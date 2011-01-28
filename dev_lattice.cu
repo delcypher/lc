@@ -198,19 +198,19 @@ __device__ double latticeCalculateEnergyOfCell(LatticeObject* l, int xPos, int y
 	//Estimate first term by calculating the 4 different ways of calculating the first term and taking the average
 	
 	//Using T & R (forward differencing in both directions)
-	temp = dNxdx_F(l,xPos,yPos) + dNydy_F(l,xPos,yPos);
+	temp = dev_dNxdx_F(l,xPos,yPos) + dev_dNydy_F(l,xPos,yPos);
 	firstTerm = temp*temp;
 
 	//Using B & R (forward differencing in x direction & backward differencing in y direction)
-	temp = dNxdx_F(l,xPos,yPos) + dNydy_B(l,xPos,yPos);
+	temp = dev_dNxdx_F(l,xPos,yPos) + dev_dNydy_B(l,xPos,yPos);
 	firstTerm += temp*temp;	
 
 	//Using B & L (backward differencing in both directions)
-	temp = dNxdx_B(l,xPos,yPos) + dNydy_B(l,xPos,yPos);
+	temp = dev_dNxdx_B(l,xPos,yPos) + dev_dNydy_B(l,xPos,yPos);
 	firstTerm += temp*temp;
 
 	//Using T & L (backward differencing in x direction & forward differencing in y direction)
-	temp = dNxdx_B(l,xPos,yPos) + dNydy_F(l,xPos,yPos);
+	temp = dev_dNxdx_B(l,xPos,yPos) + dev_dNydy_F(l,xPos,yPos);
 	firstTerm += temp*temp;
 
 	//Divide by 4 to get average to estimate first term
@@ -219,19 +219,19 @@ __device__ double latticeCalculateEnergyOfCell(LatticeObject* l, int xPos, int y
 	//Estimate second term by calculating the 4 different ways of calculating the first term and taking the average
 	
 	//Using T & R (forward differencing in both directions)
-	temp = dNydx_F(l,xPos,yPos) - dNxdy_F(l,xPos,yPos);
+	temp = dev_dNydx_F(l,xPos,yPos) - dev_dNxdy_F(l,xPos,yPos);
 	secondTerm = temp*temp;
 
 	//Using B & R (forward differencing in x direction & backward differencing in y direction)
-	temp = dNydx_F(l,xPos,yPos) - dNxdy_B(l,xPos,yPos);
+	temp = dev_dNydx_F(l,xPos,yPos) - dev_dNxdy_B(l,xPos,yPos);
 	secondTerm += temp*temp;
 
 	//Using B & L (backward differencing in both directions)
-	temp = dNydx_B(l,xPos,yPos) - dNxdy_B(l,xPos,yPos);
+	temp = dev_dNydx_B(l,xPos,yPos) - dev_dNxdy_B(l,xPos,yPos);
 	secondTerm += temp*temp;
 
 	//Using T & L (backward differencing in x direction & forward differencing in y direction)
-	temp = dNydx_B(l,xPos,yPos) - dNxdy_F(l,xPos,yPos);
+	temp = dev_dNydx_B(l,xPos,yPos) - dev_dNxdy_F(l,xPos,yPos);
 	secondTerm += temp*temp;
 
 	//Divide by 4 to get average to estimate second term

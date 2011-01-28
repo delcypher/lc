@@ -13,7 +13,7 @@ CPPFLAGS = -g --host-compilation c++ --compiler-options -Wall
 NVCCFLAGS = -arch=sm_13 --host-compilation c++ -g -G --compiler-options -Wall
 
 #Project object files
-OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o devicemanager.o  dev_differentiate.o
+OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o devicemanager.o
 
 #Project libraries to use (space seperated)
 LIBRARIES = m 
