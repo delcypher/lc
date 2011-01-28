@@ -3,8 +3,8 @@
 */
 
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include "randgen.h"
 #include "differentiate.h"
 #include "lattice.h"

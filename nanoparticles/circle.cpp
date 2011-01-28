@@ -3,8 +3,8 @@
 */
 #include "../nanoparticle.h"
 #include "circle.h"
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 	CircularNanoparticle::CircularNanoparticle(int xCentre, int yCentre, int radius, enum boundary boundaryType) : 
 	Nanoparticle(xCentre,yCentre)

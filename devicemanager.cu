@@ -1,5 +1,5 @@
 /* CUDA device manager by Dan Liew & Alex Allen */
-#include <stdio.h>
+#include <cstdio>
 #include "devicemanager.h"
 
 bool deviceErrorHandle(cudaError_t error)

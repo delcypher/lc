@@ -2,8 +2,8 @@
 *  By Alex Allen & Daniel Liew (2010)
 */
 
-#include <stdlib.h>
-#include <time.h>
+#include <cstdlib>
+#include <ctime>
 
 double cpuRnd()
 {

@@ -2,9 +2,9 @@
 *  By Alex Allen & Daniel Liew (2010)
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
 #include "lattice.h"
 #include "dev_differentiate.cuh"
 
