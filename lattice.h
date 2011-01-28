@@ -146,14 +146,14 @@
 
 			/*
 			* This method outputs the current state of the lattice to filestream stream (e.g. stdout) in a format
-			* compatible with shell script latticedump.sh which uses GNUplot. The director field is plotted as
+			* compatible with the GNUplot script "ldump.gnu". The director field is plotted as
 			* unit vectors that are translated so that the centre of the vector rather than the end of the vector
 			* is plotted at point (xPos,yPos).
 			*/
 			void nDump(enum Lattice::dumpMode mode, FILE* stream);
 			
 			/* This method outputs the current state of the lattice to a filestream stream in a format compatible
-			*  with GNUplot. It outputs two indexes.
+			*  with the GNUplot script "ildump.gnu". It outputs three indexes.
 			*  index 0 - BOUNDARY
 			*  index 1 - NOT_PARTICLES 
 			*  index 1 - PARTICLES
