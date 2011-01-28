@@ -28,12 +28,13 @@ using namespace std;
 
 const int threadDim = 16;
 
-__global__ void kernel(LatticeObject *baconlatticetomato);
+__global__ void kernel(LatticeObject *baconlatticetomato, double *blockEnergies);
 
 int main()
 {
 	LatticeConfig configuration;
-	
+
+	cout << "Setting lattice config parameters" << endl;	
 	//setup lattice parameters
 	configuration.width = threadDim*10;
 	configuration.height= threadDim*10;
@@ -62,11 +63,17 @@ int main()
 	//create lattice object, with (configuration, dump precision)
 	Lattice nSystem = Lattice(configuration,10);
 
+	cout << "Creating nanoparticle" << endl; 
+
 	//create circular nanoparticle (x,y,radius, boundary)
 	CircularNanoparticle particle1 = CircularNanoparticle(10,10,5,CircularNanoparticle::PARALLEL);
 	
+	cout << "Adding nanoparticle" << endl;
+
 	//add nanoparticle to lattice
 	nSystem.add(&particle1);
+
+	cout << "Initialise lattice on device" << endl;
 
 	//Initialise the lattice on the device
 	nSystem.initialiseCuda();
@@ -75,12 +82,31 @@ int main()
 	//nSystem.nDump(Lattice::BOUNDARY,stdout);
 	nSystem.indexedNDump(stdout);
 
-	//Alex's wizardry
-	//dim3 blocks(configuration.width/threadDim, configuration.height/threadDim);
-	//dim3 threads(threadDim, threadDim);
-	//kernel<<<blocks, threads>>>(nSystem.devLatticeObject);
-	//nSystem.copyDeviceToHost();
-	cout << "\n\n\n";
+        //Alex's wizardry
+        int xblocks = configuration.width/threadDim, yblocks = configuration.height/threadDim;
+        dim3 blocks(xblocks, yblocks);
+        dim3 threads(threadDim, threadDim);
+
+	cout << "Create variables and allocate device memory" << endl;
+
+        double totalEnergy=0, blockEnergies[xblocks * yblocks], *dev_blockEnergies;
+        deviceErrorHandle(cudaMalloc((void**) &dev_blockEnergies, sizeof(double) * xblocks * yblocks));
+
+	cout << "Run kernel" << endl;
+        kernel<<<blocks, threads>>>(nSystem.devLatticeObject, dev_blockEnergies);
+   
+	cout << "Copy energy from device to host" << endl;
+	cudaMemcpy(blockEnergies, dev_blockEnergies, blocks.x * blocks.y * sizeof(double), cudaMemcpyDeviceToHost);
+	
+	cout << "Copy nSystem from device to host" << endl; 
+	nSystem.copyDeviceToHost();
+
+	cout << "Sum block energies" << endl;
+        int i;
+        for(i=0; i<xblocks*yblocks; i++)
+        {
+                totalEnergy+=blockEnergies[i];
+        }
 
 	//Dump the current state of the lattice to standard output.
 	//nSystem.nDump(Lattice::EVERYTHING,stdout);
@@ -92,18 +118,26 @@ int main()
 	return 0;
 }
 
-__global__ void kernel(LatticeObject *baconlatticetomato)
+__global__ void kernel(LatticeObject *baconlatticetomato, double *blockEnergies)
 {
-	int x = threadIdx.x + blockIdx.x * gridDim.x;
-	int y = threadIdx.y + blockIdx.y * gridDim.y;
+        int x = threadIdx.x + blockIdx.x * blockDim.x;
+        int y = threadIdx.y + blockIdx.y * blockDim.y;
+        __shared__ int energy[threadDim*threadDim];
+        int threadID = threadIdx.x + threadIdx.y * blockDim.x * gridDim.x;
+        int j = blockDim.x * blockDim.y / 2;
+        int blockID = blockIdx.x + blockIdx.y * gridDim.x;
 
-	DirectorElement* direl = latticeGetN(baconlatticetomato,x,y);
+        energy[threadID] = latticeCalculateEnergyOfCell(baconlatticetomato, x,y);
 
-	if(direl->isNanoparticle ==0)
-	{
-		direl->x = 1;
-		direl->y = 0;
-	}
+        // sum energy in a block
+        __syncthreads();
 
+        while(j!=0)
+        {
+                if(threadID<j) energy[threadID] += energy[threadID+j];
+                __syncthreads();
+                j/=2;
+        }
+        if(threadID==0) blockEnergies[blockID] = energy[0];
 
 }
