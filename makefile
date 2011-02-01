@@ -39,8 +39,8 @@ ${EXEC_NAME} : ${OBJECTS}
 -include $(OBJECTS:.o=.dep) 
 
 #Small tool targets
-device-probe: cuda-tools/device-probe.cu
-	${CXX} ${CPPFLAGS} $< -o $@	
+device-probe: cuda-tools/device-probe.cu devicemanager.o
+	${CXX} ${NVCCFLAGS} $^ -o $@	
 
 #Phont target used to remove generated objects and dependency files
 .PHONY: clean
