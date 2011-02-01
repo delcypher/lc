@@ -122,7 +122,7 @@ __global__ void kernel(LatticeObject *baconlatticetomato, double *blockEnergies)
 {
         int x = threadIdx.x + blockIdx.x * blockDim.x;
         int y = threadIdx.y + blockIdx.y * blockDim.y;
-        __shared__ int energy[threadDim*threadDim];
+        __shared__ double energy[threadDim*threadDim];
         int threadID = threadIdx.x + threadIdx.y * blockDim.x * gridDim.x;
         int j = blockDim.x * blockDim.y / 2;
         int blockID = blockIdx.x + blockIdx.y * gridDim.x;
