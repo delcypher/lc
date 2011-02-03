@@ -212,7 +212,7 @@ __device__ double latticeCalculateEnergyOfCell(LatticeObject* l, int xPos, int y
 	//Divide by 4 to get average to estimate first term
 	firstTerm /= 4.0;
 
-	//Estimate second term by calculating the 4 different ways of calculating the first term and taking the average
+	//Estimate second term by calculating the 4 different ways of calculating the second term and taking the average
 	
 	//Using T & R (forward differencing in both directions)
 	temp = dev_dNydx_F(l,xPos,yPos) - dev_dNxdy_F(l,xPos,yPos);
