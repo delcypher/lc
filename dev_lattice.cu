@@ -1,10 +1,6 @@
 /* Implementation of the LatticeObject functions
 *  By Alex Allen & Daniel Liew (2010)
 */
-
-#include <cstdlib>
-#include <cstdio>
-#include <cmath>
 #include "lattice.h"
 #include "dev_differentiate.cuh"
 
