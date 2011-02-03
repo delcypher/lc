@@ -1,4 +1,5 @@
 #include <iostream>
+#include "../devicemanager.h"
 #include <cuda_runtime.h>
 using namespace std;
 
@@ -13,7 +14,7 @@ int main()
 	int counter=0;
 	cudaDeviceProp deviceProperties;
 
-	cudaGetDeviceCount(&deviceCount);
+	deviceErrorHandle( cudaGetDeviceCount(&deviceCount) );
 	
 	cout << "\nFound " << deviceCount << " CUDA devices.\n\n";
 
