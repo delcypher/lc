@@ -5,7 +5,9 @@
 *.dep
 #ignore vim swap files
 *.swp
-#ignore executable
+#ignore executables
 2dlc
+device-probe
+mod-test
 
 

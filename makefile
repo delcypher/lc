@@ -4,13 +4,13 @@
 CXX = nvcc
 
 #path to search
-VPATH=nanoparticles
+VPATH=nanoparticles 
 
 #Compiler flags for .cpp files
 CPPFLAGS = -g --host-compilation c++ --compiler-options -Wall
 
 #Compiler options for .cu files
-NVCCFLAGS = -arch=sm_13 --host-compilation c++ -g -G --compiler-options -Wall
+NVCCFLAGS = -arch=compute_13 -code=compute_13 --host-compilation c++ -g -G --compiler-options -Wall
 
 #Project object files
 OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o devicemanager.o
@@ -41,6 +41,12 @@ ${EXEC_NAME} : ${OBJECTS}
 #Small tool targets
 device-probe: cuda-tools/device-probe.cu devicemanager.o
 	${CXX} ${NVCCFLAGS} $^ -o $@	
+
+#TEST HARNESSES
+
+mod-test: tests/mod-test.cu lattice.o differentiate.o devicemanager.o randgen.o
+	${CXX} ${NVCCFLAGS} $^ -o $@
+
 
 #Phont target used to remove generated objects and dependency files
 .PHONY: clean

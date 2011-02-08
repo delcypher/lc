@@ -27,10 +27,18 @@ WARNINGS:
 1. If you rename any files you should run "make clean" to remove old dependency & object files. You should also be using "git mv" NOT "mv".
 
 SCRIPTS:
-In the script/ directory are bash shell scripts for doing various useful things.
+In the script/ directory are bash shell and gnuplot scripts for doing various useful things.
 
-latticedump.sh - This is used to show the state of a LatticeObject from a latticeDump() using gnuplot. Run it for usage options.
-vpn.sh - This is used to setup a connection to the UoB VPN if pptpclient has already been configured on a GNU/Linux system with ppsetup.
+vpn.sh - This is a bash shell script used to setup a connection to the UoB VPN if pptpclient has already been configured on a GNU/Linux system with ppsetup.
+ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
+ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
+
+
+TEST HARNESSES:
+Test harnesses are in the test/ directory. See the makefile for the target name to build. For example to build the mod-test harness run
+"make mod-test"
+
+See the source code for a particular test harnesses to understand how to use it.
 
 CUDA TOOLS
 1. Device probe - This will list all available CUDA cards on the machine it is run on display their compute capability. To build it run

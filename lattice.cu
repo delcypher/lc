@@ -593,11 +593,3 @@ void flipDirector(DirectorElement* a)
 }
 
 
-/* This function returns the correct modulo for dealing with negative a. Note % does not!
-* 
-* mod(a,b) = a mod b
-*/
-inline int mod(int a, int b)
-{
-	return (a%b + b)%b;
-}

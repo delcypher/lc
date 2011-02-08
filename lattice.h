@@ -188,7 +188,10 @@
 	 *
 	 * mod(a,b) = a mod b
 	*/
-	inline int mod(int a, int b);
+	inline int mod(int a, int b)
+	{
+		return (a%b + b)%b;
+	}
 
 	#define TWO_D_LATTICE 1	
 #endif
