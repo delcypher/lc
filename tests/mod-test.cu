@@ -55,7 +55,10 @@ int main(int n, char* argv[])
 	//allocate space on device for input & output arrays
 	int* dev_input;
 	int* dev_output;
-	deviceErrorHandle( cudaSetDevice(1) );
+	
+	//let CUDA run time automatically pick device instead of using cudaSetDevice()
+	//deviceErrorHandle( cudaSetDevice(1) );
+
 	deviceErrorHandle( cudaMalloc( (void**) &dev_input ,sizeof(int)*numberOfItems) );
 	deviceErrorHandle( cudaMalloc( (void**) &dev_output ,sizeof(int)*numberOfItems) );
 
@@ -79,12 +82,15 @@ int main(int n, char* argv[])
 	//Display input to output
 	for(int counter=0; counter < numberOfItems; counter++)
 	{
-		if(host_output[counter] != devices_output[counter])
-		{
-			printf("FAIL...");
-		}
+		
 		printf("mod(%d,%d) = %d ",host_input[counter],modulo,host_output[counter]);
 		printf(", dev_mod(%d,%d) = %d \n",host_input[counter],modulo,devices_output[counter]);
+
+		if(host_output[counter] != devices_output[counter])
+		{
+			printf("FAIL!");
+			exit(2);
+		}
 	}
 
 	//free memory
