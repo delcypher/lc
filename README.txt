@@ -2,18 +2,12 @@
 
 This program provides a means to model a Liquid crystal in 2D by minimising the free energy per unit area (frank equation). As this is in 2D there is no twist term in the the frank equation. This model uses Nvidia's CUDA so you will need the CUDA SDK installed as well as a Nvidia graphics card that supports CUDA.
 
-DIRECTORIES:
-bin/ - contains compiled programs
-build / - contains .o & .dep files for iterative compilation
-scripts/ - contains GNUplot & BASH shell scripts
-tests/ - contains different test harnesses
-
 HOW TO COMPILE AND RUN:
 0. Make sure the CUDA SDK is installed.
-1. Make sure that LD_LIBRARY_PATH and PATH have the paths to the CUDA libraries and CUDA binaries added respectively.
-2. run the following command
+1. run the following command
 make
-3. An executable probably named 2dlc will be created (check the makefile to see what it will be called) in the bin/ directory.
+2. An executable probably named 2dlc will be created (check the makefile to see what it will be called). To execute it run
+./2dlc
 
 HOW TO ADD YOUR OWN NANOPARTICLES:
 1. Declare your own class deriving from the Nanoparticle class (nanoparticle.h) in it's own header (e.g. mynewnanoparticle.h) in
@@ -33,7 +27,7 @@ WARNINGS:
 1. If you rename any files you should run "make clean" to remove old dependency & object files. You should also be using "git mv" NOT "mv".
 
 SCRIPTS:
-In the scripts/ directory are bash shell and gnuplot scripts for doing various useful things.
+In the script/ directory are bash shell and gnuplot scripts for doing various useful things.
 
 vpn.sh - This is a bash shell script used to setup a connection to the UoB VPN if pptpclient has already been configured on a GNU/Linux system with ppsetup.
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
