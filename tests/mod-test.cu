@@ -5,17 +5,37 @@
 #include "../dev_lattice.cuh"
 #include "../dev_differentiate.cuh"
 
+#include "exitcodes.h"
 
 /* Test harness to test the mod() & dev_mod()  functions
 *  ./host-mod-test <lower_range> <upper_range> <modulo>
 */
 
-//CUDA kernel's can't call external object functions so include them here
+//CUDA kernels can't call external object functions so include them here
 #include "../dev_lattice.cu"
 #include "../dev_differentiate.cu"
 
 //kernel to use dev_mod()
 __global__ void kernel(int* input, int* output,int modulo);
+
+//global arrays and device pointers
+int* host_input;
+int* host_output;
+int* devices_output;
+int* dev_input;
+int* dev_output;
+
+//function to free memory on host and device
+void cleanup()
+{
+	//free memory
+	deviceErrorHandle( cudaFree(dev_input) );
+	deviceErrorHandle( cudaFree(dev_output) );
+	free(host_input);
+	free(host_output);
+	free(devices_output);
+}
+
 
 int main(int n, char* argv[])
 {
@@ -24,7 +44,7 @@ int main(int n, char* argv[])
 	if (n!=4)
 	{
 		fprintf(stderr,"Need arguments <lower_range> <upper_range> <modulo>\n");
-		exit(1);
+		exit(TH_BAD_ARGUMENT);
 	}
 
 	lowRange = atoi(argv[1]);
@@ -34,7 +54,7 @@ int main(int n, char* argv[])
 	if (lowRange >= highRange)
 	{
 		fprintf(stderr,"<upper_range> must be greater than <lower_range>\n");
-		exit(1);
+		exit(TH_BAD_ARGUMENT);
 	}
 	
 	int numberOfItems = highRange - lowRange +1;
@@ -42,9 +62,9 @@ int main(int n, char* argv[])
 	printf("Low:%d , High:%d, Modulo:%d\n",lowRange,highRange,modulo);
 
 	//allocate memory  and initialise for array of numbers
-	int* host_input = (int*) calloc(numberOfItems,sizeof(int));
-	int* host_output = (int*) calloc(numberOfItems,sizeof(int));
-	int* devices_output = (int*) calloc(numberOfItems,sizeof(int));
+	host_input = (int*) calloc(numberOfItems,sizeof(int));
+	host_output = (int*) calloc(numberOfItems,sizeof(int));
+	devices_output = (int*) calloc(numberOfItems,sizeof(int));
 
 	//fill host input array
 	for(int counter=0; counter < numberOfItems; counter++)
@@ -53,8 +73,6 @@ int main(int n, char* argv[])
 	}
 
 	//allocate space on device for input & output arrays
-	int* dev_input;
-	int* dev_output;
 	
 	//let CUDA run time automatically pick device instead of using cudaSetDevice()
 	//deviceErrorHandle( cudaSetDevice(1) );
@@ -89,19 +107,14 @@ int main(int n, char* argv[])
 		if(host_output[counter] != devices_output[counter])
 		{
 			printf("FAIL!");
-			exit(2);
+			cleanup();
+			exit(TH_FAIL);
 		}
 	}
-
-	//free memory
-	deviceErrorHandle( cudaFree(dev_input) );
-	deviceErrorHandle( cudaFree(dev_output) );
-	cudaFree(dev_output);
-	free(host_input);
-	free(host_output);
-	free(devices_output);
-
-	return 0;
+	
+	cleanup();
+	
+	return TH_SUCCESS;
 }
 
 __global__ void kernel(int* input, int* output, int modulo)
