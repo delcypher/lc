@@ -1,0 +1,5 @@
+#This gitignore file means the repository copy of this directory should only ever contain this .gitignore file
+#Ignore all files
+*
+#except this one
+!.gitignore
