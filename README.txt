@@ -5,8 +5,6 @@ This program provides a means to model a Liquid crystal in 2D by minimising the 
 DIRECTORIES:
 bin/ - contains compiled programs
 build / - contains .o & .dep files for iterative compilation
-cuda-tools/ - contains source code from programs to test various things related to CUDA.
-nanoparticles/ - contains the classes that derive from the Nanoparticle class (nanoparticle.h).
 scripts/ - contains GNUplot & BASH shell scripts
 tests/ - contains different test harnesses
 
