@@ -9,5 +9,7 @@
 2dlc
 device-probe
 mod-test
+host-initialise-test
+copy-to-device-test
 
 
