@@ -54,7 +54,15 @@
 			RANDOM,
 			PARALLEL_X,
 			PARALLEL_Y,
-			BOT_PAR_TOP_NORM
+
+			/* TOP_PERP_BOT_PAR should be used in conjunction with
+			*  param.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL
+			*  param.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+			*
+			*  This is the minimum free energy configuration for the analytical
+			*  solution for when k_1 = k_3 using the above boundary conditions.
+			*/
+			TOP_PERP_BOT_PAR
 		} initialState;
 
 	} LatticeConfig;

@@ -316,7 +316,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 	*/
 	int xPos,yPos;
 	int index=0;
-	double randomAngle;
+	double angle;
 
 	for (yPos = 0; yPos < hostLatticeObject->param.height; yPos++)
 	{
@@ -329,9 +329,9 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 				case LatticeConfig::RANDOM:
 				{
 					//generate a random angle between 0 & 2*PI radians
-					randomAngle = 2*PI*cpuRnd();
-					hostLatticeObject->lattice[index].x=cos(randomAngle);
-					hostLatticeObject->lattice[index].y=sin(randomAngle);
+					angle = 2*PI*cpuRnd();
+					hostLatticeObject->lattice[index].x=cos(angle);
+					hostLatticeObject->lattice[index].y=sin(angle);
 				}
 
 				break;
@@ -346,12 +346,19 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					hostLatticeObject->lattice[index].y=1;
 				break;
 
-				case LatticeConfig::BOT_PAR_TOP_NORM:
-					/*
-					* This isn't implemented yet
+				case LatticeConfig::TOP_PERP_BOT_PAR:
+				{
+					/* This should be used in conjunction with
+					*  param.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL
+					*  param.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+					*
+					*  This is the minimum free energy configuration for the analytical
+					*  solution for when k_1 = k_3 using the above boundary conditions.
 					*/
-					hostLatticeObject->lattice[index].x=0;
-					hostLatticeObject->lattice[index].y=0;
+					angle = PI*(yPos + 1)/(2*(hostLatticeObject->param.height +1));
+					hostLatticeObject->lattice[index].x=cos(angle);
+					hostLatticeObject->lattice[index].y=sin(angle);
+				}
 				break;
 				
 				default:
