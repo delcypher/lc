@@ -50,6 +50,9 @@ mod-test: mod-test.o lattice.o differentiate.o devicemanager.o randgen.o
 host-initialise-test: host-initialise-test.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
 	${CXX} ${NVCCFLAGS} $^ -o $@
 
+copy-to-device-test: copy-to-device-test.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
+	${CXX} ${NVCCFLAGS} $^ -o $@
+
 getNtest: getNtest.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
 	${CXX} ${NVCCFLAGS} $^ -o $@
 

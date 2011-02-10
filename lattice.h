@@ -177,6 +177,8 @@
 			double calculateTotalEnergy();
 
 			int getDumpPrecision() { return DUMP_PRECISION;}
+			
+			DirectorElement* getDeviceLatticeArrayPointer() { return devLatticeArray;};
 
 	};
 
