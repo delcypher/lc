@@ -86,6 +86,9 @@ diftest: diftest.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
 #TEST HARNESSES END
 
 
+diftest: diftest.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
+	${CXX} ${NVCCFLAGS} $^ -o $@
+
 #Phont target used to remove generated objects and dependency files
 .PHONY: clean
 clean: 
