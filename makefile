@@ -53,6 +53,8 @@ host-initialise-test: host-initialise-test.o lattice.o differentiate.o randgen.o
 copy-to-device-test: copy-to-device-test.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
 	${CXX} ${NVCCFLAGS} $^ -o $@
 
+getNtest: getNtest.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
+	${CXX} ${NVCCFLAGS} $^ -o $@
 
 #Phont target used to remove generated objects and dependency files
 .PHONY: clean
