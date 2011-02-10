@@ -42,19 +42,49 @@ ${EXEC_NAME} : ${OBJECTS}
 device-probe: cuda-tools/device-probe.cu devicemanager.o
 	${CXX} ${NVCCFLAGS} $^ -o $@	
 
-#TEST HARNESSES
+#Test Harnesses must be defined between the "#TEST HARNESSES START" and "#TEST HARNESSES END" lines
+#After the rule definition you must supply the arguments to call the test harnesses with on the next line(s).
+#
+#A line starting with "#ARGS <parameter1> <parameter2> ..." indicates to run that test harness with those parameters.
+#If "#ARGS" is specified more than once then the test harness will be run for each set of arguments.
+
+#TEST HARNESSES START
 
 mod-test: mod-test.o lattice.o differentiate.o devicemanager.o randgen.o
 	${CXX} ${NVCCFLAGS} $^ -o $@
+#ARGS -12 12 3
+#ARGS 0 12 5
 
 host-initialise-test: host-initialise-test.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
 	${CXX} ${NVCCFLAGS} $^ -o $@
+#ARGS 30 30 0
+#ARGS 30 30 1
+#ARGS 30 30 2
+#ARGS 30 30 3
 
 copy-to-device-test: copy-to-device-test.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
 	${CXX} ${NVCCFLAGS} $^ -o $@
+#ARGS 30 30 0
+#ARGS 30 30 1
+#ARGS 30 30 2
+#ARGS 30 30 3
 
 getNtest: getNtest.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
 	${CXX} ${NVCCFLAGS} $^ -o $@
+#ARGS 0 0
+#ARGS 1 0
+#ARGS 0 1
+#ARGS 1 1
+#ARGS -1 0
+#ARGS 0 -1
+#ARGS -1 -1
+
+diftest: diftest.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
+	${CXX} ${NVCCFLAGS} $^ -o $@
+#ARGS IGNORED_ARGUMENT
+
+#TEST HARNESSES END
+
 
 #Phont target used to remove generated objects and dependency files
 .PHONY: clean

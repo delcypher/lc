@@ -1,7 +1,3 @@
-/* Main section of code where the LatticeObject is setup and processed
-*  By Alex Allen & Daniel Liew (2010)
-*/
-
 #include "exitcodes.h"
 #include <iostream>
 #include <cstdio>
@@ -28,7 +24,7 @@ using namespace std;
 */
 #include "nanoparticles/circle.h"
 
-const int threadDim = 8;
+const int threadDim = 16;
 
 __global__ void kernel(LatticeObject *baconlatticetomato, double *dataOne, double *dataTwo, int xoffset, int yoffset);
 
@@ -57,8 +53,8 @@ int main(int argc, char *argv[])
 	LatticeConfig configuration;
  
 	//setup lattice parameters
-	configuration.width = threadDim*1;
-	configuration.height= threadDim*1;
+	configuration.width = threadDim*10;
+	configuration.height= threadDim*10;
 
 	//set initial director alignment
 	configuration.initialState = LatticeConfig::RANDOM;
