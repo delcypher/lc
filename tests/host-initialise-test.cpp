@@ -1,7 +1,7 @@
 /* This is a test for initialising the lattice on the host by visual expection.
 *  The standard output of this program can be given to gnuplot script "ildump.gnu"
 *
-*  ./test-host-initialise <width> <height> 
+*  ./test-host-initialise <width> <height> <initial_state_enum>
 *
 *  It is not actually much of a test harness as the program "should" never return
 *  TH_FAIL
@@ -28,9 +28,9 @@ using namespace std;
 int main(int n, char* argv[])
 {
 
-	if(n!=3)
+	if(n!=4)
 	{
-		cerr << "Usage: " << argv[0] << " <width> <height> \n";
+		cerr << "Usage: " << argv[0] << " <width> <height> <initial_state_enum>\n";
 		exit(TH_BAD_ARGUMENT);
 	}
 
@@ -40,7 +40,7 @@ int main(int n, char* argv[])
 	configuration.height= atoi(argv[2]);
 
 	//set initial director alignment
-	configuration.initialState = LatticeConfig::TOP_PERP_BOT_PAR;
+	configuration.initialState = (LatticeConfig::latticeState) atoi(argv[3]);
 
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
