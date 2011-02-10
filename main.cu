@@ -27,7 +27,7 @@ using namespace std;
 */
 #include "nanoparticles/circle.h"
 
-const int threadDim = 16;
+const int threadDim = 8;
 
 __global__ void kernel(LatticeObject *baconlatticetomato, double *blockEnergies);
 
@@ -38,8 +38,8 @@ int main()
 
 	cout << "# Setting lattice config parameters" << endl;	
 	//setup lattice parameters
-	configuration.width = threadDim*2;
-	configuration.height= threadDim*2;
+	configuration.width = threadDim*10;
+	configuration.height= threadDim*10;
 
 	//set initial director alignment
 	configuration.initialState = LatticeConfig::RANDOM;
@@ -86,26 +86,27 @@ int main()
 
         //Alex's wizardry
         int xblocks = configuration.width/threadDim, yblocks = configuration.height/threadDim;
+	int arraySize = xblocks*threadDim * yblocks*threadDim;
         dim3 blocks(xblocks, yblocks);
         dim3 threads(threadDim, threadDim);
 
 	cout << "# Create variables and allocate device memory" << endl;
 
-        double totalEnergy=0, blockEnergies[xblocks * yblocks], *dev_blockEnergies;
-        deviceErrorHandle(cudaMalloc((void**) &dev_blockEnergies, sizeof(double) * xblocks * yblocks));
+        double totalEnergy=0, blockEnergies[arraySize], *dev_blockEnergies;
+        deviceErrorHandle(cudaMalloc((void**) &dev_blockEnergies, arraySize*sizeof(double)));
 
 	cout << "# Run kernel" << endl;
         kernel<<<blocks, threads>>>(nSystem.devLatticeObject, dev_blockEnergies);
    
 	cout << "# Copy energy from device to host" << endl;
-	cudaMemcpy(blockEnergies, dev_blockEnergies, xblocks * yblocks * sizeof(double), cudaMemcpyDeviceToHost);
+	cudaMemcpy(blockEnergies, dev_blockEnergies, arraySize*sizeof(double), cudaMemcpyDeviceToHost);
 	
 	cout << "# Copy nSystem from device to host" << endl; 
 	nSystem.copyDeviceToHost();
 
 	cout << "# Sum block energies" << endl;
         int i;
-        for(i=0; i<xblocks*yblocks; i++)
+        for(i=0; i<arraySize; i++)
         {
                 totalEnergy+=blockEnergies[i];
         }
@@ -116,14 +117,15 @@ int main()
 	double energy = nSystem.calculateTotalEnergy();
 	cout << "# Energy calculated on CPU: " << energy << endl;
 	cout << "# Energy calculated on GPU: " << totalEnergy << endl;
+/*
 	cout << "# Block energies were: ";
 
-	for(i=0; i<xblocks*yblocks; i++)
+	for(i=0; i<arraySize; i++)
 	{
 		cout << blockEnergies[i] << " ";
 	}
 	cout << endl;
-
+*/
 	fclose(fout);
 
 	return 0;
@@ -131,23 +133,9 @@ int main()
 
 __global__ void kernel(LatticeObject *baconlatticetomato, double *blockEnergies)
 {
-        __shared__ double energy[threadDim*threadDim];
         int x = threadIdx.x + blockIdx.x * blockDim.x;
         int y = threadIdx.y + blockIdx.y * blockDim.y;
-        int blockID = blockIdx.x + blockIdx.y * gridDim.x;
-        int threadID = threadIdx.x + threadIdx.y * blockDim.x;
-        int j = blockDim.x * blockDim.y / 2;
+        int threadID = x + y * blockDim.x * gridDim.x;
 
-        energy[threadID] = latticeCalculateEnergyOfCell(baconlatticetomato, x,y);
-
-        // sum energy in a block
-        __syncthreads();
-
-        while(j!=0)
-        {
-                if(threadID<j) energy[threadID] += energy[threadID+j];
-                __syncthreads();
-                j/=2;
-        }
-        if(threadID==0) blockEnergies[blockID] = energy[0];
+        blockEnergies[threadID] = latticeCalculateEnergyOfCell(baconlatticetomato, x,y);
 }
