@@ -2,7 +2,7 @@
 *  By Alex Allen & Daniel Liew (2010)
 */
 
-#ifndef HETEROGENEOUS_RND
+#ifndef AWESOME_RND
 	/* Header file for Heterogeneous random number generators
 	*  
 	*/
@@ -19,12 +19,6 @@
 	*/
 	void cpuSetRandomSeed();
 
-	/*
-	* This generates a random number in the range [0,1].
-	* This is a CUDA function to be run on the GPU.
-	*/
-	double gpuRnd();
-
-	#define HETEROGENEOUS_RND
+	#define AWESOME_RND
 
 #endif

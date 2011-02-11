@@ -15,10 +15,4 @@ void cpuSetRandomSeed()
 	srand( time(NULL));
 }
 
-double gpuRnd()
-{
-
-
-	return 0;
-}
 

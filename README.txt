@@ -1,9 +1,9 @@
 2D Liquid Crystal Lattice model by Alex Allen & Dan Liew
 
-This program provides a means to model a Liquid crystal in 2D by minimising the free energy per unit area (frank equation). As this is in 2D there is no twist term in the the frank equation. This model uses Nvidia's CUDA so you will need the CUDA SDK installed as well as a Nvidia graphics card that supports CUDA.
+This program provides a means to model a Liquid crystal in 2D by minimising the free energy per unit area (frank equation). As this is in 2D there is no twist term in the the frank equation. 
+This is our attempt to get some code that is actually useful as our previous attempts with CUDA were getting no where.
 
 HOW TO COMPILE AND RUN:
-0. Make sure the CUDA SDK is installed.
 1. run the following command
 make
 2. An executable probably named 2dlc will be created (check the makefile to see what it will be called). To execute it run
@@ -33,13 +33,9 @@ vpn.sh - This is a bash shell script used to setup a connection to the UoB VPN i
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
 ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
 
-
 TEST HARNESSES:
 Test harnesses are in the test/ directory. See the makefile for the target name to build. For example to build the mod-test harness run
 "make mod-test"
 
 See the source code for a particular test harnesses to understand how to use it.
 
-CUDA TOOLS
-1. Device probe - This will list all available CUDA cards on the machine it is run on display their compute capability. To build it run
-"make device-probe"
