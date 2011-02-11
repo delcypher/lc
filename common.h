@@ -16,8 +16,8 @@
                 int isNanoparticle;
         } DirectorElement;
 
-	//PI to 20d.p taken from Wolfram alpha
-	const double PI=3.14159265358979323846;
+	//PI to 58d.p taken from Wolfram alpha ( http://www.wolframalpha.com/input/?i=pi )
+	const double PI=3.1415926535897932384626433832795028841971693993751058209749;
 
 	#define COMMON_2D
 
