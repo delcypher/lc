@@ -7,10 +7,10 @@ CXX = nvcc
 VPATH=nanoparticles tests
 
 #Compiler flags for .cpp files
-CPPFLAGS = -g --host-compilation c++ --compiler-options -Wall
+CPPFLAGS = -g --compiler-options -Wall
 
 #Compiler options for .cu files
-NVCCFLAGS = -arch=compute_13 -code=compute_13 --host-compilation c++ -g -G --compiler-options -Wall
+NVCCFLAGS = -arch=compute_13 -code=compute_13 -g -G --compiler-options -Wall
 
 #Project object files
 OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o devicemanager.o
