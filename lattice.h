@@ -93,35 +93,17 @@
 	class Lattice
 	{
 		private:
-			DirectorElement* devLatticeArray; //pointer to device's lattice ary
 			const int DUMP_PRECISION; //the precision for output used by translatedUnitVectorDump()
 
 		public:
-			LatticeObject* hostLatticeObject; //pointer to host's LatticeObject.
-			LatticeObject* devLatticeObject; //pointer to device's LatticeObject.
-
-			/* This frees allocated memory of the CUDA device.
-			* 
-			*/
-			void freeCuda();
-		
-			/* This initialises memory on the CUDA device and
-			*  copies the host's LatticeObject to the CUDA device.
-			*/
-			void initialiseCuda();
-
 			/* This initialises memory on the host. No memory is allocated
-			*  on the CUDA device until initialiseCuda() is called.
+			* on the CUDA device until initialiseCuda() is called.
 			*/
 			Lattice(LatticeConfig configuration, int precision);
 			
 			~Lattice(); //destructor
 
-			//Copies the Host LatticeObject to the device
-			void copyHostToDevice();
-
-			//Copies the Device LatticeObject to the host.
-			void copyDeviceToHost();
+			LatticeObject* hostLatticeObject; //pointer to host's LatticeObject.
 
 			/* Adds a nanoparticle (np) (of type that should be derived from class Nanoparticle) to the lattice.
 			*  The method will return true if successful or false if something goes wrong!
@@ -178,7 +160,6 @@
 
 			int getDumpPrecision() { return DUMP_PRECISION;}
 			
-			DirectorElement* getDeviceLatticeArrayPointer() { return devLatticeArray;};
 
 	};
 

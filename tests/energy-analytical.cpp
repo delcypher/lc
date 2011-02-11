@@ -17,9 +17,9 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include "randgen.h"
 #include "differentiate.h"
-#include <cmath>
 #include "lattice.h"
 #include "exitcodes.h"
 

@@ -8,7 +8,6 @@
 #include "randgen.h"
 #include "lattice.h"
 #include "differentiate.h"
-#include "devicemanager.h"
 
 
 //initialisation constructor
@@ -59,89 +58,16 @@ Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(pr
 	//initialise the lattice to a particular state
 	reInitialise(hostLatticeObject->param.initialState);
 
-	//Make sure the device pointers are initialised so that in freeCuda() we don't call cudaFree() on NULL pointers.
-	devLatticeObject=NULL;
-	devLatticeArray=NULL;
 
-	//WE DON'T RUN initialiseCuda() here as programmer may wish to modify the lattice first.
 }
 
 //destructor
 Lattice::~Lattice()
 {
-	freeCuda();
 	free(hostLatticeObject->lattice);
 	free(hostLatticeObject);
 }
 
-
-void Lattice::freeCuda()
-{
-	//free memory for the lattice array on device
-	if(devLatticeArray!=NULL)
-	{
-		deviceErrorHandle( cudaFree(devLatticeArray) );
-	}
-	//free memory for the Lattice object on device
-	if(devLatticeObject!=NULL)
-	{
-		deviceErrorHandle( cudaFree(devLatticeObject) );
-	}
-
-}
-
-void Lattice::initialiseCuda()
-{
-
-	//allocate memory on device for Lattice object
-	deviceErrorHandle( cudaMalloc((void**) &devLatticeObject,sizeof(LatticeObject)) );
-
-	//allocate memory on device for lattice array
-	deviceErrorHandle( cudaMalloc((void**) &devLatticeArray,sizeof(DirectorElement)*(hostLatticeObject->param.width)*(hostLatticeObject->param.height)) );
-	
-	copyHostToDevice();
-}
-
-void Lattice::copyHostToDevice()
-{
-	DirectorElement* tempHostArray; //a pointer to the host's lattice array
-	tempHostArray=hostLatticeObject->lattice; //copy the host's pointer
-
-	//modify host's LatticeObject's lattice array to point to device's lattice array for copy
-        hostLatticeObject->lattice=devLatticeArray;
-
-        //copy modified host's LatticeObject
-        deviceErrorHandle( cudaMemcpy(devLatticeObject,hostLatticeObject,sizeof(LatticeObject),cudaMemcpyHostToDevice) );
-
-        //set host's LatticeObject's lattice array to point back to host's lattice array
-        hostLatticeObject->lattice=tempHostArray;
-
-        //copy host's lattice array to device lattice array
-        deviceErrorHandle( cudaMemcpy(devLatticeArray,hostLatticeObject->lattice,sizeof(DirectorElement)*(hostLatticeObject->param.width)*(hostLatticeObject->param.height),cudaMemcpyHostToDevice) );
-	
-}
-
-void Lattice::copyDeviceToHost()
-{
-	if(devLatticeObject==NULL || devLatticeArray==NULL)
-	{
-		fprintf(stderr,"Error: Calling copyDeviceToHost() failed because the Lattice Object wasn't initialised properly on the deviced.");
-		return;
-	}
-
-	DirectorElement* tempHostArray; //a pointer to the host's lattice array
-	tempHostArray=hostLatticeObject->lattice; //copy the host's pointer
-
-	//copy device's LatticeObject to host
-	deviceErrorHandle( cudaMemcpy(hostLatticeObject,devLatticeObject,sizeof(LatticeObject),cudaMemcpyDeviceToHost) );
-
-	//set the host's lattice array pointer to point to the host's lattice array
-	hostLatticeObject->lattice=tempHostArray;
-
-	//copy device's lattice array to host's lattice array
-	deviceErrorHandle( cudaMemcpy(hostLatticeObject->lattice,devLatticeArray,sizeof(DirectorElement)*(hostLatticeObject->param.width)*(hostLatticeObject->param.height),cudaMemcpyDeviceToHost) );
-
-}
 
 bool Lattice::add(Nanoparticle* np)
 {

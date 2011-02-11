@@ -22,7 +22,7 @@ using namespace std;
 *  in the make file too!
 */
 #include "nanoparticles/circle.h"
-
+#include "nanoparticles/ellipse.h"
 
 
 int main(int n, char* argv[])
@@ -54,15 +54,17 @@ int main(int n, char* argv[])
 	//create lattice object, with (configuration, dump precision)
 	Lattice nSystem = Lattice(configuration,10);
 
-	cout << "# Creating nanoparticle" << endl; 
 
 	//create circular nanoparticle (x,y,radius, boundary)
 	CircularNanoparticle particle1 = CircularNanoparticle(10,10,5,CircularNanoparticle::PARALLEL);
-	
-	cout << "# Adding nanoparticle" << endl;
 
-	//add nanoparticle to lattice
+	//create elliptical nanoparticle
+	//(xCentre,yCentre, a, b, theta, boundary)
+	EllipticalNanoparticle particle2 = EllipticalNanoparticle(20,20,8,4,PI/4,EllipticalNanoparticle::PARALLEL);
+
+	//add nanoparticles to lattice
 	nSystem.add(&particle1);
+	nSystem.add(&particle2);
 
 	//Dump the current state of the lattice to standard output.
 	//nSystem.nDump(Lattice::BOUNDARY,stdout);

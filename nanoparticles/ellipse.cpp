@@ -32,7 +32,7 @@
 		pointTheta = atan2(y-myPos, x-mxPos);
 		angle = pointTheta - theta;
 
-		r = a*b / sqrt(a*a*cos(angle)*cos(angle) + b*b*sin(angle)*sin(angle) );
+		r = a*b / sqrt(b*b*cos(angle)*cos(angle) + a*a*sin(angle)*sin(angle) );
 		
 
 		if(distance <= r)
