@@ -346,7 +346,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					hostLatticeObject->lattice[index].y=1;
 				break;
 
-				case LatticeConfig::TOP_PERP_BOT_PAR:
+				case LatticeConfig::UNIFORM_FREE_ENERGY:
 				{
 					/* This should be used in conjunction with
 					*  param.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL
