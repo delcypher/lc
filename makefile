@@ -50,6 +50,11 @@ device-probe: cuda-tools/device-probe.cu devicemanager.o
 
 #TEST HARNESSES START
 
+host-energy-analytical: host-energy-analytical.o lattice.o differentiate.o randgen.o devicemanager.o
+	${CXX} ${NVCCFLAGS} $^ -o $@
+#ARGS 50 50 1e-14 1e-4
+#ARGS 50 50 1e-20 1e-22
+
 mod-test: mod-test.o lattice.o differentiate.o devicemanager.o randgen.o
 	${CXX} ${NVCCFLAGS} $^ -o $@
 #ARGS -12 12 3
@@ -82,6 +87,7 @@ getNtest: getNtest.o lattice.o differentiate.o randgen.o circle.o devicemanager.
 diftest: diftest.o lattice.o differentiate.o randgen.o circle.o devicemanager.o
 	${CXX} ${NVCCFLAGS} $^ -o $@
 #ARGS IGNORED_ARGUMENT
+
 
 #TEST HARNESSES END
 
