@@ -39,9 +39,13 @@ ${EXEC_NAME} : ${OBJECTS}
 
 #TEST HARNESSES START
 
-energy-analytical: energy-analytical.o lattice.o differentiate.o randgen.o
+k1_equal_k3_ea: k1_equal_k3_ea.o lattice.o differentiate.o randgen.o
 	${CXX} ${CPPFLAGS} $^ -o $@
 #ARGS 50 50 1e-14 1e-4
+
+k1_dominant_ea: k1_dominant_ea.o lattice.o differentiate.o randgen.o
+	${CXX} ${CPPFLAGS} $^ -o $@
+#ARGS 50 50 1e-13 1e-13
 
 initialise-test: initialise-test.o lattice.o differentiate.o randgen.o circle.o ellipse.o
 	${CXX} $^ ${CPPFLAGS} -o $@

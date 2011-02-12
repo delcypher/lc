@@ -2,10 +2,10 @@
 *  the same answer as a known analytical solution.
 * 
 *  The lattice is configured in the known minimum free energy per unit volume
-*  state (which is constant).
+*  state (which is constant) where the K_1 term dominates.
 *
 *  The configuration is n = (cos(theta), sin(theta), 0)
-*  theta = (PI/2)(y + 1)/(height +1)
+*  theta = (PI/2) - arccos( (y + 1)/(height +1) )
 *
 * We check two things:
 * - That every cell has the same calculated free energy per unit volume
@@ -55,7 +55,7 @@ int main(int n, char* argv[])
 	if(n!=5)
 	{
 		cerr << "Usage: " << argv[0] << 
-		"<width> <height> <cell_cell_relative_error_tolerance> <cell_analytical_relative_error_tolerance>\n\n" <<
+		" <width> <height> <cell_cell_relative_error_tolerance> <cell_analytical_relative_error_tolerance>\n\n" <<
 		"Relative errors should be expressed as a decimal fraction.\n";
 		exit(TH_BAD_ARGUMENT);
 	}
@@ -73,7 +73,7 @@ int main(int n, char* argv[])
 	cellAnalyticalTolerance = atof(argv[4]);
 
 	//set initial director alignment
-	configuration.initialState = LatticeConfig::K1_EQUAL_K3;
+	configuration.initialState = LatticeConfig::K1_DOMINANT;
 
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
@@ -81,8 +81,8 @@ int main(int n, char* argv[])
 	configuration.leftBoundary = LatticeConfig::BOUNDARY_PERIODIC;
 	configuration.rightBoundary = LatticeConfig::BOUNDARY_PERIODIC;
 
-	//set lattice beta value (assume k_1 = k_3)
-	configuration.beta = 1;
+	//set lattice beta value (assume k_1 >> k_3)
+	configuration.beta = 0;
 
 	//create lattice object, with (configuration, dump precision)
 	Lattice nSystem = Lattice(configuration,10);
@@ -128,7 +128,7 @@ int main(int n, char* argv[])
 
 
 	//assume k_1 =1
-	analyticalFreeEnergy=PI*PI/(8*(configuration.height +1)*(configuration.height +1));
+	analyticalFreeEnergy= (double) 1/( 2*(configuration.height +1)*(configuration.height +1) );
 
 	//loop over each calculated energy for a cell and compare to analyticalFreeEnergy
 	for(int y=0; y < configuration.height; y++)
@@ -154,7 +154,7 @@ int main(int n, char* argv[])
 	
 	cout << "Cell-Cell failures (RE " << cellCellTolerance 
 		<< "):" << 100*( (double) failedCellCellCount)/(configuration.width*configuration.height)  << 
-		"% of lattice. Cell-analytical failures (" << 
+		"% of lattice. Cell-analytical failures (RE " << 
 		cellAnalyticalTolerance << 
 		"): " << 
 		100*( (double) failedCellAnalyticalCount)/(configuration.width*configuration.height)  <<
