@@ -243,6 +243,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 	int xPos,yPos;
 	int index=0;
 	double angle;
+	bool badState=false;
 
 	for (yPos = 0; yPos < hostLatticeObject->param.height; yPos++)
 	{
@@ -272,28 +273,47 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					hostLatticeObject->lattice[index].y=1;
 				break;
 
-				case LatticeConfig::UNIFORM_FREE_ENERGY:
+				case LatticeConfig::K1_EQUAL_K3:
 				{
-					/* This should be used in conjunction with
-					*  param.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL
-					*  param.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
-					*
-					*  This is the minimum free energy configuration for the analytical
-					*  solution for when k_1 = k_3 using the above boundary conditions.
-					*/
-					angle = PI*(yPos + 1)/(2*(hostLatticeObject->param.height +1));
+					angle = PI*( (double) (yPos + 1)/(2*(hostLatticeObject->param.height +1)) );
+					hostLatticeObject->lattice[index].x=cos(angle);
+					hostLatticeObject->lattice[index].y=sin(angle);
+				}
+
+				break;
+
+				case LatticeConfig::K1_DOMINANT:
+				{
+					//the cast to double is important else we will do division with ints and discard remainder
+					angle = PI/2 - acos( (double) (yPos + 1)/(hostLatticeObject->param.height + 1));
+					hostLatticeObject->lattice[index].x=cos(angle);
+					hostLatticeObject->lattice[index].y=sin(angle);
+				}
+
+				break;
+
+				case LatticeConfig::K3_DOMINANT:
+				{
+					//the cast to double is important else we will do division with ints and discard remainder
+					angle = PI/2 -asin(1 - (double) (yPos +1)/(hostLatticeObject->param.height +1)   );
 					hostLatticeObject->lattice[index].x=cos(angle);
 					hostLatticeObject->lattice[index].y=sin(angle);
 				}
 				break;
-				
+
 				default:
 					//if we aren't told what to do we will set all zero vectors!
 					hostLatticeObject->lattice[index].x=0;
 					hostLatticeObject->lattice[index].y=0;
+					badState=true;
 
 			}
 		}
+	}
+
+	if(badState)
+	{
+		fprintf(stderr,"Error: Lattice has been but in bad state as supplied initial state %d is not supported.\n",hostLatticeObject->param.initialState);
 	}
 
 }

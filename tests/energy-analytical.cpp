@@ -73,7 +73,7 @@ int main(int n, char* argv[])
 	cellAnalyticalTolerance = atof(argv[4]);
 
 	//set initial director alignment
-	configuration.initialState = LatticeConfig::UNIFORM_FREE_ENERGY;
+	configuration.initialState = LatticeConfig::K1_EQUAL_K3;
 
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;

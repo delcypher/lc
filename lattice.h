@@ -49,20 +49,23 @@
 			BOUNDARY_PERIODIC
 		} topBoundary, bottomBoundary, leftBoundary, rightBoundary;
 
+
 		enum latticeState
 		{
 			RANDOM,
 			PARALLEL_X,
 			PARALLEL_Y,
 
-			/* UNIFORM_FREE_ENERGY should be used in conjunction with
+			/* K1_EQUAL_K3, K1_DOMINANT & K3_DOMINANT should be used in conjunction with
 			*  param.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL
 			*  param.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
 			*
-			*  This is the minimum free energy configuration for the analytical
-			*  solution for when k_1 = k_3 using the above boundary conditions.
+			*  These are the minimum free energy configurations for the analytical
+			*  solutions using the above boundary conditions and assuming the behaviour of K_1 and K_3.
 			*/
-			UNIFORM_FREE_ENERGY
+			K1_EQUAL_K3,
+			K1_DOMINANT,
+			K3_DOMINANT
 		} initialState;
 
 	} LatticeConfig;

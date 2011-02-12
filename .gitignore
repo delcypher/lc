@@ -7,10 +7,7 @@
 *.swp
 #ignore executables
 2dlc
-device-probe
-mod-test
-host-initialise-test
-copy-to-device-test
-host-energy-analytical
+initialise-test
+energy-analytical
 
 
