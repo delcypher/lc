@@ -47,6 +47,10 @@ k1_dominant_ea: k1_dominant_ea.o lattice.o differentiate.o randgen.o
 	${CXX} ${CPPFLAGS} $^ -o $@
 #ARGS 50 50 1e-13 1e-13
 
+k3_dominant_ea: k3_dominant_ea.o lattice.o differentiate.o randgen.o
+	${CXX} ${CPPFLAGS} $^ -o $@
+#ARGS 50 50 1e-13 1e-13
+
 initialise-test: initialise-test.o lattice.o differentiate.o randgen.o circle.o ellipse.o
 	${CXX} $^ ${CPPFLAGS} -o $@
 #ARGS 30 30 0
