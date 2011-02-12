@@ -3,21 +3,16 @@
 */
 
 #ifndef AWESOME_RND
-	/* Header file for Heterogeneous random number generators
-	*  
-	*/
+	// Header file for Heterogeneous random number generators
+	
+	// This sets the seed for the random number generator
+	void sgenrand(unsigned long seed);
 
-	/*
-	* This generates a random number in the range [0,1].
-	* This will be ran on the cpu.
-	*/
-	double cpuRnd();
+	// This generates a random number in the range [0,1]
+	double rnd();
 
-	/*
-	* This will initialise the random seed for the cpuRnd() function
-	* in a way that should hopefully be different every time
-	*/
-	void cpuSetRandomSeed();
+	// Set seed = unix time
+	void setSeed();
 
 	#define AWESOME_RND
 
