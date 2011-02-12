@@ -235,7 +235,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 	hostLatticeObject->param.initialState = initialState;
 
 	//we should reset the random seed so we don't generate the set of pseudo random numbers every time	
-	cpuSetRandomSeed();
+	setSeed();
 	
 	/* Loop through lattice array (hostLatticeObject->lattice[index]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
@@ -256,7 +256,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 				case LatticeConfig::RANDOM:
 				{
 					//generate a random angle between 0 & 2*PI radians
-					angle = 2*PI*cpuRnd();
+					angle = 2*PI*rnd();
 					hostLatticeObject->lattice[index].x=cos(angle);
 					hostLatticeObject->lattice[index].y=sin(angle);
 				}
