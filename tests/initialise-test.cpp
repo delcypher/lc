@@ -56,11 +56,11 @@ int main(int n, char* argv[])
 
 
 	//create circular nanoparticle (x,y,radius, boundary)
-	CircularNanoparticle particle1 = CircularNanoparticle(10,10,5,CircularNanoparticle::PARALLEL);
+	CircularNanoparticle particle1 = CircularNanoparticle(7,7,5,CircularNanoparticle::PARALLEL);
 
 	//create elliptical nanoparticle
 	//(xCentre,yCentre, a, b, theta, boundary)
-	EllipticalNanoparticle particle2 = EllipticalNanoparticle(20,20,8,4,PI/4,EllipticalNanoparticle::PARALLEL);
+	EllipticalNanoparticle particle2 = EllipticalNanoparticle(20,20,10,5,PI/4,EllipticalNanoparticle::PARALLEL);
 
 	//add nanoparticles to lattice
 	nSystem.add(&particle1);

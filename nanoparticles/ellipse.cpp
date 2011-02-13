@@ -61,7 +61,7 @@
 							return false;
 						}	
 						
-						/* We're in the centre of the circle. The director field
+						/* We're in the centre of the ellipse. The director field
 						*  is not defined here so we set it to zero!
 						*/
 						if(distance==0)
@@ -72,14 +72,23 @@
 							return true;
 						}
 
+						double fac1 = (y- myPos)*cos(theta) - (x - mxPos)*sin(theta);
+                                                double fac2 = (x - mxPos)*cos(theta) + (y - myPos)*sin(theta);
+                                                double numerator=0;
+                                                double denominator=0;
+
 						if(mBoundary== PARALLEL)
 						{
-							vectorAngle= atan2(-(x - mxPos),(y - myPos));
+							numerator = a*a*sin(theta)*fac1 - b*b*cos(theta)*fac2;
+							denominator = b*b*sin(theta)*fac2 + a*a*cos(theta)*fac1;
+							vectorAngle= atan2(numerator,denominator);
 						}
 						else
 						{
 							//assume perpendicular boundary wanted
-							vectorAngle= atan2((y - myPos),(x - mxPos));
+							numerator = b*b*sin(theta)*fac2 + a*a*cos(theta)*fac1;
+							denominator = b*b*cos(theta)*fac2 - a*a*sin(theta)*fac1;
+							vectorAngle= atan2(numerator,denominator);
 						}
 
 						
