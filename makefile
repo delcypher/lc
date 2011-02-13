@@ -58,6 +58,9 @@ initialise-test: initialise-test.o lattice.o differentiate.o randgen.o circle.o 
 #ARGS 30 30 2
 #ARGS 30 30 3
 
+uniform-rnd: uniform-rnd.o randgen.o
+	${CXX} $^ ${CPPFLAGS} -o $@
+
 #TEST HARNESSES END
 
 #Phont target used to remove generated objects and dependency files
