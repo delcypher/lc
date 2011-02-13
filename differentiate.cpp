@@ -26,7 +26,7 @@
 	{
 		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos +1, yPos)) < 0)
 		{
-			flipDirector(l->getN(xPos,yPos));
+			flipDirector(l->setN(xPos,yPos));
 		}
 
 		return l->getN(xPos + 1,yPos)->x - l->getN(xPos, yPos)->x;
@@ -38,7 +38,7 @@
 	{
 		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos -1, yPos)) < 0)
 		{
-			flipDirector(l->getN(xPos,yPos));
+			flipDirector(l->setN(xPos,yPos));
 		}
 
 		return l->getN(xPos,yPos)->x - l->getN(xPos -1, yPos)->x;
@@ -50,7 +50,7 @@
 	{
 		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos, yPos +1)) < 0)
 		{
-			flipDirector(l->getN(xPos,yPos));
+			flipDirector(l->setN(xPos,yPos));
 		}
 
 		return l->getN(xPos,yPos +1)->x - l->getN(xPos, yPos)->x;
@@ -62,7 +62,7 @@
 	{
 		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos, yPos -1)) < 0)
 		{
-			flipDirector(l->getN(xPos,yPos));
+			flipDirector(l->setN(xPos,yPos));
 		}
 
 		return l->getN(xPos,yPos)->x - l->getN(xPos, yPos -1)->x;
@@ -74,7 +74,7 @@
 	{
 		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos +1, yPos)) < 0)
 		{
-			flipDirector(l->getN(xPos,yPos));
+			flipDirector(l->setN(xPos,yPos));
 		}
 
 		return l->getN(xPos +1 ,yPos)->y - l->getN(xPos, yPos)->y;
@@ -86,7 +86,7 @@
 	{
 		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos -1, yPos)) < 0)
 		{
-			flipDirector(l->getN(xPos,yPos));
+			flipDirector(l->setN(xPos,yPos));
 		}
 
 		return l->getN(xPos,yPos)->y - l->getN(xPos -1, yPos)->y;
@@ -98,7 +98,7 @@
 	{
 		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos, yPos +1)) < 0)
 		{
-			flipDirector(l->getN(xPos,yPos));
+			flipDirector(l->setN(xPos,yPos));
 		}
 
 		return l->getN(xPos,yPos +1)->y - l->getN(xPos,yPos)->y;
@@ -110,7 +110,7 @@
 	{
 		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos, yPos -1)) < 0)
 		{
-			flipDirector(l->getN(xPos,yPos));
+			flipDirector(l->setN(xPos,yPos));
 		}
 
 		return l->getN(xPos,yPos)->y - l->getN(xPos,yPos -1)->y;

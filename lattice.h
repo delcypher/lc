@@ -84,8 +84,8 @@
 		//Define the 2D lattice array (we use a linear memory block however)
 		DirectorElement* lattice;
 		
-		DirectorElement PERPENDICULAR_DIRECTOR;
-		DirectorElement PARALLEL_DIRECTOR;
+		const DirectorElement PERPENDICULAR_DIRECTOR;
+		const DirectorElement PARALLEL_DIRECTOR;
 
 	} LatticeObject;	
 
@@ -106,7 +106,7 @@
 			
 			~Lattice(); //destructor
 
-			LatticeObject* hostLatticeObject; //pointer to host's LatticeObject.
+			LatticeObject hostLatticeObject; //The host's LatticeObject.
 
 			/* Adds a nanoparticle (np) (of type that should be derived from class Nanoparticle) to the lattice.
 			*  The method will return true if successful or false if something goes wrong!
@@ -114,10 +114,16 @@
 			bool add(Nanoparticle* np);
 
 			/* This method returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
-			 * boundary conditions of a LatticeObject (theLattice).
+			 * boundary conditions of a LatticeObject (theLattice). Note that if you wish to change the director value at point (x,y)
+			 * you should use getN().
 			*/
-			DirectorElement* getN(int xPos, int yPos);
-			
+			const DirectorElement* getN(int xPos, int yPos);
+		
+			/* This is like getN() accept it allows you to change the director value at point (x,y).
+			*  Use with CAUTION!
+			*/
+			DirectorElement * setN(int xPos, int yPos);
+
 			/* This sets the state of the lattice to one of the initialState presets.
 			*  This only affects the lattice on the host. To pass this change to the lattice 
 			*  on the device you should call copyHostToDevice() afterwards.
@@ -170,7 +176,7 @@
 	/* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
 	*
 	*/
-	double calculateCosineBetween(DirectorElement* a, DirectorElement* b);
+	double calculateCosineBetween(const DirectorElement* a, const DirectorElement* b);
 
 	/* Flips a DirectorElement (vector in physics sense) in the opposite direction
 	*
