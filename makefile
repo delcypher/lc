@@ -63,5 +63,5 @@ initialise-test: initialise-test.o lattice.o differentiate.o randgen.o circle.o 
 #Phont target used to remove generated objects and dependency files
 .PHONY: clean
 clean: 
-	rm $(OBJECTS:.o=.dep) $(OBJECTS) ${EXEC_NAME}
+	rm *.dep *.o ${EXEC_NAME} $(shell grep -Eo '^[a-z0-9_-]+:' makefile | sed 's/://' | sed 's/^clean//' )
 
