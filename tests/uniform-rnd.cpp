@@ -20,7 +20,7 @@ int main(int n, char* argv[])
 	
 	if(n!=3)
 	{
-		cerr << "Usage: ./" << argv[0] << " <no_to_generate> <no_of_bins>" << endl <<
+		cerr << "Usage: " << argv[0] << " <no_to_generate> <no_of_bins>" << endl <<
 		"  <no_to_generate> - How many random numbers to generate" << endl <<
 		"  <no_of_bins> - How many bins to use for binning data" << endl;
 		exit(TH_BAD_ARGUMENT);

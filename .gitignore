@@ -9,5 +9,8 @@
 2dlc
 initialise-test
 energy-analytical
-
+k1_equal_k3_ea
+k3_dominant_ea
+k1_dominant_ea
+uniform-rnd
 
