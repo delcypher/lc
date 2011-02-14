@@ -3,6 +3,7 @@
 #ifndef NANOPARTICLE
 	
 	#include "common.h"
+	#include "directorelement.h"
 
 	class Nanoparticle
 	{

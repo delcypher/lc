@@ -10,7 +10,7 @@ VPATH=nanoparticles tests
 CPPFLAGS = -g -Wall -I$(shell pwd)
 
 #Project object files
-OBJECTS =  main.o lattice.o randgen.o differentiate.o circle.o ellipse.o
+OBJECTS =  main.o directorelement.o lattice.o randgen.o differentiate.o circle.o ellipse.o 
 
 #Project libraries to use (space seperated)
 LIBRARIES = m 
@@ -39,19 +39,19 @@ ${EXEC_NAME} : ${OBJECTS}
 
 #TEST HARNESSES START
 
-k1_equal_k3_ea: k1_equal_k3_ea.o lattice.o differentiate.o randgen.o
+k1_equal_k3_ea: k1_equal_k3_ea.o lattice.o directorelement.o differentiate.o randgen.o
 	${CXX} ${CPPFLAGS} $^ -o $@
 #ARGS 50 50 1e-14 1e-4
 
-k1_dominant_ea: k1_dominant_ea.o lattice.o differentiate.o randgen.o
+k1_dominant_ea: k1_dominant_ea.o lattice.o directorelement.o differentiate.o randgen.o
 	${CXX} ${CPPFLAGS} $^ -o $@
 #ARGS 50 50 1e-13 1e-13
 
-k3_dominant_ea: k3_dominant_ea.o lattice.o differentiate.o randgen.o
+k3_dominant_ea: k3_dominant_ea.o lattice.o directorelement.o differentiate.o randgen.o
 	${CXX} ${CPPFLAGS} $^ -o $@
 #ARGS 50 50 1e-13 1e-13
 
-initialise-test: initialise-test.o lattice.o differentiate.o randgen.o circle.o ellipse.o
+initialise-test: initialise-test.o lattice.o directorelement.o differentiate.o randgen.o circle.o ellipse.o
 	${CXX} $^ ${CPPFLAGS} -o $@
 #ARGS 30 30 0
 #ARGS 30 30 1
@@ -60,6 +60,7 @@ initialise-test: initialise-test.o lattice.o differentiate.o randgen.o circle.o 
 
 uniform-rnd: uniform-rnd.o randgen.o
 	${CXX} $^ ${CPPFLAGS} -o $@
+
 
 #TEST HARNESSES END
 

@@ -5,8 +5,9 @@
 #ifndef TWO_D_LATTICE
 	
 	#include "common.h"
+	#include "directorelement.h"
 	#include "nanoparticle.h"
-
+	
 
 
 	/* LatticeConfig is used to hold initial configuration parameters
@@ -178,27 +179,6 @@
 			
 
 	};
-
-
-	/* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
-	*
-	*/
-	double calculateCosineBetween(const DirectorElement* a, const DirectorElement* b);
-
-	/* Flips a DirectorElement (vector in physics sense) in the opposite direction
-	*
-	*/
-	void flipDirector(DirectorElement* a);
-
-		
-	/* This function returns the correct modulo for dealing with negative a. Note % does not!
-	 *
-	 * mod(a,b) = a mod b
-	*/
-	inline int mod(int a, int b)
-	{
-		return (a%b + b)%b;
-	}
 
 	#define TWO_D_LATTICE 1	
 #endif

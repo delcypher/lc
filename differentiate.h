@@ -5,7 +5,8 @@
 #ifndef DIFFERENTIATE
 	
 	#include "lattice.h"
-	
+	#include "directorelement.h"
+
 	//Calculate partial derivative of Nx w.r.t to x using forward differencing at point (xPos,yPos) on LatticeObject l
 	double dNxdx_F(Lattice* l, int xPos, int yPos);
 
