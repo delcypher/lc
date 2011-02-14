@@ -86,6 +86,13 @@
 		
 		const DirectorElement PERPENDICULAR_DIRECTOR;
 		const DirectorElement PARALLEL_DIRECTOR;
+		
+		/* This DUMMY_DIRECTOR exists so that a pointer to something that isn't
+		*  NULL is returned by getN() and setN() if an invalid point in the lattice
+		*  is requested. It should be initialised to {0,0,0} but access via setN()
+		*  can allow its value to be changed which the user "should" be warned about.
+		*/
+		const DirectorElement DUMMY_DIRECTOR; 
 
 	} LatticeObject;	
 

@@ -30,7 +30,10 @@ Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(pr
 	//Really BAD way to intialise PERPENDICULAR_DIRECTOR
 	const DirectorElement tempPerpendicular = {0,1,0};
 	memcpy( (DirectorElement*) &(hostLatticeObject.PERPENDICULAR_DIRECTOR),&tempPerpendicular,sizeof(DirectorElement));
-	
+
+	//Really BAD way to initialise DUMMY_DIRECTOR
+	memset( (DirectorElement*) (&hostLatticeObject.DUMMY_DIRECTOR),0,sizeof(DirectorElement));
+
 	//allocate memory for lattice (hostLatticeObject[index]) part of array
 	hostLatticeObject.lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (hostLatticeObject.param.width)*(hostLatticeObject.param.height));
 	
@@ -151,7 +154,8 @@ const DirectorElement* Lattice::getN(int xPos, int yPos)
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
-			return NULL;
+			fprintf(stderr,"Error: Attempt to access boundary at (%d,%d) where an unsupported boundary is set.\n",xPos,yPos);
+			return &(hostLatticeObject.DUMMY_DIRECTOR);
 		}
 	}
 
@@ -169,7 +173,8 @@ const DirectorElement* Lattice::getN(int xPos, int yPos)
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
-			return NULL;
+			fprintf(stderr,"Error: Attempt to access boundary at (%d,%d) where an unsupported boundary is set.\n",xPos,yPos);
+			return &(hostLatticeObject.DUMMY_DIRECTOR);
 		}
 	}
 
@@ -187,7 +192,8 @@ const DirectorElement* Lattice::getN(int xPos, int yPos)
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
-			return NULL;
+			fprintf(stderr,"Error: Attempt to access boundary at (%d,%d) where an unsupported boundary is set.\n",xPos,yPos);
+			return &(hostLatticeObject.DUMMY_DIRECTOR);
 		}
 	}
 
@@ -205,12 +211,14 @@ const DirectorElement* Lattice::getN(int xPos, int yPos)
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
-			return NULL;
+			fprintf(stderr,"Error: Attempt to access boundary at (%d,%d) where an unsupported boundary is set.\n",xPos,yPos);
+			return &(hostLatticeObject.DUMMY_DIRECTOR);
 		}
 	}
 
 	//Every case should already of been handled. An invalid point (xPos,yPos) must of been asked for
-	return NULL;
+	fprintf(stderr,"Error: Attempt to access boundary a point (%d,%d) which couldn't be handled!\n",xPos,yPos);
+	return &(hostLatticeObject.DUMMY_DIRECTOR);
 
 }
 
@@ -275,12 +283,20 @@ DirectorElement* Lattice::setN(int xPos, int yPos)
 	{
 		//We shouldn't be trying to change the boundary!
 		fprintf(stderr,"Error: setN() tried to access boundary at (%d,%d).\n",xPos,yPos);
-		return NULL;
+
+		/* Note the cast to (DirectorElement*) is to drop the const declaration so we can return the correct type.
+		*  This will allow someone to change the DUMMY_DIRECTOR which isn't desirable but it's better than SEGFAULT'ing.
+		*/
+		return (DirectorElement*) &(hostLatticeObject.DUMMY_DIRECTOR);
 	}
 
 	//Every case should already of been handled. An invalid point (xPos,yPos) must of been asked for
-	fprintf(stderr,"Error: setN() point (%d,%d) which does NOT exist in lattice.\n",xPos,yPos);
-	return NULL;
+	fprintf(stderr,"Error: setN() tried to access point (%d,%d) which does NOT exist in lattice.\n",xPos,yPos);
+
+	/* Note the cast to (DirectorElement*) is to drop the const declaration so we can return the correct type.
+	*  This will allow someone to change the DUMMY_DIRECTOR which isn't desirable but it's better than SEGFAULT'ing.
+	*/
+	return (DirectorElement*) &(hostLatticeObject.DUMMY_DIRECTOR);
 
 }
 
