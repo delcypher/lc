@@ -24,16 +24,15 @@
         */
         void flipDirector(DirectorElement* a);
 
-
-        /* This function returns the correct modulo for dealing with negative a. Note % does not!
-         *
-         * mod(a,b) = a mod b
-        */
-        inline int mod(int a, int b)
-        {
-                return (a%b + b)%b;
-        }
-
+	/* Set the Angle(in radians) the DirectorElement makes with the x-axis
+	*
+	*/
+	void setDirectorAngle(DirectorElement* a, double angle);
+	
+	/* Rotate the DirectorElement by an angle "angle" in radians.
+	*
+	*/
+	void rotateDirector(DirectorElement* a, double angle);
 
 	#define DIRECTOR_ELEMENT 1
 #endif
