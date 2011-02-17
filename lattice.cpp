@@ -229,74 +229,7 @@ DirectorElement* Lattice::setN(int xPos, int yPos)
 	/* set xPos & yPos in the lattice taking into account periodic boundary conditions
 	*  of the 2D lattice
 	*/
-
-	//Handle xPos going off the lattice in the x direction to the right
-	if(xPos >= hostLatticeObject.param.width && hostLatticeObject.param.rightBoundary == LatticeConfig::BOUNDARY_PERIODIC)
-	{
-		xPos = mod(xPos, hostLatticeObject.param.width);
-	}
-
-	//Handle xPos going off the lattice in x direction to the left
-	if(xPos < 0 && hostLatticeObject.param.leftBoundary == LatticeConfig::BOUNDARY_PERIODIC)
-	{
-		xPos = mod(xPos, hostLatticeObject.param.width);
-	}
-
-	//Handle yPos going off the lattice in the y directory to the top
-	if(yPos >= hostLatticeObject.param.height && hostLatticeObject.param.topBoundary == LatticeConfig::BOUNDARY_PERIODIC)
-	{
-		yPos = mod(yPos, hostLatticeObject.param.height);
-	}
-
-	//Handle yPos going off the lattice in the y directory to the bottom
-	if(yPos < 0  && hostLatticeObject.param.bottomBoundary == LatticeConfig::BOUNDARY_PERIODIC)
-	{
-		yPos = mod(yPos, hostLatticeObject.param.height);
-	}
-	
-	/* All periodic boundary conditions have now been handled
-	*/
-
-	/*
-	* If the requested "DirectorElement" is in the lattice array just return it.
-	*/
-	if(xPos >= 0 && xPos < hostLatticeObject.param.width && yPos >= 0 && yPos < hostLatticeObject.param.height)
-	{
-		return &(hostLatticeObject.lattice[ xPos + (hostLatticeObject.param.width)*yPos ]);
-	}
-
-	/*we now know (xPos,yPos) isn't in lattice so either (xPos,yPos) is on the PARALLEL or PERPENDICULAR
-	* boundary or an invalid point has been requested
-	*/
-
-	//in top boundary and within lattice along x OR
-	//in bottom boundary and within lattice along x OR
-	//in left boundary and within lattice along y OR
-	//in right boundary and within lattice along y OR
-	if
-	( 
-		(yPos >= hostLatticeObject.param.height && xPos >= 0 && xPos < hostLatticeObject.param.width) ||
-		(yPos <= -1 && xPos >= 0 && xPos < hostLatticeObject.param.width) ||
-		(xPos <= -1 && yPos >= 0 && yPos < hostLatticeObject.param.height) ||
-		(xPos >= hostLatticeObject.param.width && yPos >= 0 && yPos < hostLatticeObject.param.height)
-	)
-	{
-		//We shouldn't be trying to change the boundary!
-		fprintf(stderr,"Error: setN() tried to access boundary at (%d,%d).\n",xPos,yPos);
-
-		/* Note the cast to (DirectorElement*) is to drop the const declaration so we can return the correct type.
-		*  This will allow someone to change the DUMMY_DIRECTOR which isn't desirable but it's better than SEGFAULT'ing.
-		*/
-		return (DirectorElement*) &(hostLatticeObject.DUMMY_DIRECTOR);
-	}
-
-	//Every case should already of been handled. An invalid point (xPos,yPos) must of been asked for
-	fprintf(stderr,"Error: setN() tried to access point (%d,%d) which does NOT exist in lattice.\n",xPos,yPos);
-
-	/* Note the cast to (DirectorElement*) is to drop the const declaration so we can return the correct type.
-	*  This will allow someone to change the DUMMY_DIRECTOR which isn't desirable but it's better than SEGFAULT'ing.
-	*/
-	return (DirectorElement*) &(hostLatticeObject.DUMMY_DIRECTOR);
+	return (DirectorElement*) getN(xPos,yPos);
 
 }
 
