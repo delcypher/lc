@@ -15,6 +15,7 @@
 
 			EllipticalNanoparticle(int xCentre, int yCentre, double aValue, double bValue, double thetaValue, enum boundary boundaryType);
 			bool processCell(int x, int y, enum writeMethods method, DirectorElement* element);
+			std::string getDescription();
 	};
 
 		#define ELLIPTICAL_NANOPARTICLE

@@ -114,4 +114,22 @@
 		
 	}
 
+std::string EllipticalNanoparticle::getDescription()
+{
+	std::stringstream description(std::stringstream::out);
+	description << "Elliptical Nanoparticle: " <<
+	"a:" <<
+	a <<
+	", b:" <<
+	b <<
+	", Rotation angle w.r.t x-axis (Radians):" <<
+	theta <<
+	" @ (" <<
+	mxPos <<
+	"," <<
+	myPos <<
+	")";
+	
+	return description.str();
 
+}

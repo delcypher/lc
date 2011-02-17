@@ -4,6 +4,8 @@
 	
 	#include "common.h"
 	#include "directorelement.h"
+	#include <string>
+	#include <sstream>
 
 	class Nanoparticle
 	{
@@ -40,6 +42,9 @@
 			//simple accessor methods
 			int getX() { return mxPos;}
 			int getY() { return myPos;}
+			
+			//Returns a string object describing the Nanoparticle 
+			virtual std::string getDescription() =0;
 	};
 
 	#define NANOPARTICLE

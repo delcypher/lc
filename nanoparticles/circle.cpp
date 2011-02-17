@@ -5,6 +5,7 @@
 #include "circle.h"
 #include <cmath>
 #include <cstdio>
+#include <string>
 
 	CircularNanoparticle::CircularNanoparticle(int xCentre, int yCentre, int radius, enum boundary boundaryType) : 
 	Nanoparticle(xCentre,yCentre)
@@ -99,4 +100,17 @@
 		
 	}
 
-
+std::string CircularNanoparticle::getDescription()
+{
+	std::stringstream description (std::stringstream::out);
+	description << "Circular Nanoparticle: Radius:" 
+		<< mRadius << 
+		", Boundary(enum):" <<
+		mBoundary <<
+		" @ (" << 
+		mxPos << 
+		"," << 
+		myPos << 
+		")";
+	return description.str();
+}
