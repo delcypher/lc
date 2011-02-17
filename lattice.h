@@ -37,7 +37,7 @@
 		double beta;
 
 		//Temperature of lattice for Monte Carlo algorithm
-		double temperature;
+		double iTk;
 
 		/* These define the different type of boundary conditions on the edges of the lattice
 		 * The BOUNDARY_PARALLEL & BOUNDARY_PERPENDICULAR conditions are relative to the x-axis

@@ -272,7 +272,7 @@ DirectorElement* Lattice::setN(int xPos, int yPos)
 	//in top boundary and within lattice along x OR
 	//in bottom boundary and within lattice along x OR
 	//in left boundary and within lattice along y OR
-	//in right boundary and within lattice along y OR
+	//in right boundary and within lattice along y
 	if
 	( 
 		(yPos >= hostLatticeObject.param.height && xPos >= 0 && xPos < hostLatticeObject.param.width) ||
