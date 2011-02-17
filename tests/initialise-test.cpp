@@ -71,7 +71,7 @@ int main(int n, char* argv[])
 	
 	//Dump the current state of the lattice to standard output.
 	//nSystem.nDump(Lattice::BOUNDARY,stdout);
-	//nSystem.indexedNDump(stdout);
+	nSystem.indexedNDump(stdout);
 
 
 	return TH_SUCCESS;
