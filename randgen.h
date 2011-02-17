@@ -13,7 +13,10 @@
 
 	// Set seed = unix time
 	void setSeed();
-
+	
+	//This generatures a random number in the range ??
+	unsigned long intRnd();
+	
 	#define AWESOME_RND
 
 #endif

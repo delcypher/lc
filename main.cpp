@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include "randgen.h"
 #include "differentiate.h"
 #include "lattice.h"
@@ -35,6 +36,7 @@ int main()
 	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL;
 	configuration.leftBoundary = LatticeConfig::BOUNDARY_PERIODIC;
 	configuration.rightBoundary = LatticeConfig::BOUNDARY_PERIODIC;
+	configuration.temperature = 1;
 
 	//set lattice beta value
 	configuration.beta = 3.5;
@@ -61,7 +63,7 @@ int main()
 	setSeed(); // for rng
 
 	DirectorElement *temp;
-	int xVal, yVal;
+	int x, y;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 
 	cout << "Starting Monte Carlo process\n";
@@ -69,9 +71,9 @@ int main()
 	{
 		for(int i=0; i < configuration.width*configuration.height; i++)
 		{
-			xVal = intRnd()%configuration.width;
-			yVal = intRnd()%configuration.height;
-			temp = nSystem.getN(x,y);
+			x = intRnd()%configuration.width;
+			y = intRnd()%configuration.height;
+			temp = nSystem.setN(x,y);
 			angle = (2*rnd()-1)*PI*0.5; // optimize later
 			oldNx = temp->x;
 			oldNy = temp->y;
