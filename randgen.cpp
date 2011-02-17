@@ -68,7 +68,46 @@ double rnd()
 	y ^= temperingShiftL(y);
 
 	return  ( (double) y / (unsigned long) 0xffffffff);
+}
 
+unsigned long intRnd()
+{
+        unsigned long y;
+        static unsigned long mag01[2] = { 0x0, matrixA };
+        // mag01[x] = x * matrixA for x=0,1
+
+        if(mti >= N) // generate N words at one time
+        {
+                int kk;
+
+                // if sgenrand() has not been called a default initial seed is used
+                if(mti == N+1) sgenrand(4357);
+
+                for(kk=0;kk<N-M;kk++)
+                {
+                        y = (mt[kk]&upperMask)|(mt[kk+1]&lowerMask);
+                        mt[kk] = mt[kk+M] ^ (y >> 1) ^ mag01[y & 0x1];
+                }
+
+                for(;kk<N-1;kk++)
+                {
+                        y = (mt[kk]&upperMask)|(mt[kk+1]&lowerMask);
+                        mt[kk] = mt[kk+(M-N)] ^ (y >> 1) ^ mag01[y & 0x1];
+                }
+
+                y = (mt[N-1]&upperMask)|(mt[0]&lowerMask);
+                mt[N-1] = mt[M-1] ^ (y >> 1) ^ mag01[y & 0x1];
+
+                mti = 0;
+        }
+
+        y = mt[mti++];
+        y ^= temperingShiftU(y);
+        y ^= temperingShiftS(y) & temperingMaskB;
+        y ^= temperingShiftT(y) & temperingMaskC;
+        y ^= temperingShiftL(y);
+
+        return  y;
 }
 
 void setSeed()
