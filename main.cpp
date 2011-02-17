@@ -22,8 +22,8 @@ using namespace std;
 int main()
 {
 	LatticeConfig configuration;
-	FILE* fout = fopen("dump.txt", "w");
-	ofstream dump("annealing.dump");
+	FILE* fout = fopen("perp-lattice.dump", "w");
+	ofstream dump("perp-annealing.dump");
 	if(!dump)
 	{
 		cout << "I hate you so I'm not going to work properly for you." << endl;
@@ -32,15 +32,15 @@ int main()
 
 	cout << "# Setting lattice config parameters" << endl;	
 	//setup lattice parameters
-	configuration.width = 100;
-	configuration.height= 100;
+	configuration.width = 50;
+	configuration.height= 50;
 
 	//set initial director alignment
 	configuration.initialState = LatticeConfig::RANDOM;
 
 	//set boundary conditions
-	configuration.topBoundary = LatticeConfig::BOUNDARY_PARALLEL;
-	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL;
+	configuration.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
+	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
 	configuration.leftBoundary = LatticeConfig::BOUNDARY_PERIODIC;
 	configuration.rightBoundary = LatticeConfig::BOUNDARY_PERIODIC;
 	configuration.iTk = 1;
@@ -63,7 +63,6 @@ int main()
 
 	//Dump the current state of the lattice to standard output.
 	//nSystem.nDump(Lattice::BOUNDARY,stdout);
-	nSystem.indexedNDump(fout);
 
 	double energy = nSystem.calculateTotalEnergy();
 
@@ -71,20 +70,29 @@ int main()
 
 	DirectorElement *temp;
 	int x, y, accept = 0, deny = 0;
+	unsigned long loopMax = 100000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 	double aAngle = PI * 0.5; // acceptiance angle
 	double curAccept = 0, desAccept = 0.5;
+	double progress = 0, oldProgress = 0;
 
-	cout << "Starting Monte Carlo process\n";
-	cout << "\nStep    Acceptance angle    1/Tk" << endl;
+	cout << "# Starting Monte Carlo process\n";
+	dump << "\n# Step    Acceptance angle    1/Tk" << endl;
 
-	for(unsigned long steps = 0; steps < 100000; steps++)
+	for(unsigned long steps = 0; steps < loopMax; steps++)
 	{
+		progress = (double) steps / loopMax * 100;
+		if(progress - oldProgress > 1) 
+		{
+			cout  << "\r" << progress << "%  ";
+			oldProgress = progress;
+			cout.flush();
+		}
+
 		for(int i=0; i < configuration.width*configuration.height; i++)
 		{
 			x = intRnd() % configuration.width;
 			y = intRnd() % configuration.height;
-			cout << i << " " << x << " " << y << endl;
 			temp = nSystem.setN(x,y);
 			angle = (2*rnd()-1)*aAngle; // optimize later
 			oldNx = temp->x;
@@ -128,16 +136,15 @@ int main()
 		deny = 0;
 
 		// cooling algorithm
-		if(!steps%150000) configuration.iTk *= 1.01;
+		if(!steps%150000 && steps!=0) configuration.iTk *= 1.01;
 
-		dump << steps << "           " << aAngle << "             " << configuration.iTk << endl;
-
-//		cout << "\r" << steps/100000 << "%";
-
-		
-
+		// output junk
+		if(!steps%10) dump << steps << "           " << aAngle << "             " << configuration.iTk << endl;
 	}
-	cout << endl;
+	
+	cout << "\r100%  " << endl;	
+
+	nSystem.indexedNDump(fout);
 
 	fclose(fout);
 
