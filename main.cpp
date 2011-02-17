@@ -3,6 +3,7 @@
 */
 
 #include <iostream>
+#include <fstream>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -22,6 +23,12 @@ int main()
 {
 	LatticeConfig configuration;
 	FILE* fout = fopen("dump.txt", "w");
+	ofstream dump("annealing.dump");
+	if(!dump)
+	{
+		cout << "I hate you so I'm not going to work properly for you." << endl;
+		return -180;
+	}
 
 	cout << "# Setting lattice config parameters" << endl;	
 	//setup lattice parameters
@@ -36,7 +43,7 @@ int main()
 	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL;
 	configuration.leftBoundary = LatticeConfig::BOUNDARY_PERIODIC;
 	configuration.rightBoundary = LatticeConfig::BOUNDARY_PERIODIC;
-	configuration.temperature = 1;
+	configuration.iTk = 1;
 
 	//set lattice beta value
 	configuration.beta = 3.5;
@@ -63,18 +70,23 @@ int main()
 	setSeed(); // for rng
 
 	DirectorElement *temp;
-	int x, y;
+	int x, y, accept = 0, deny = 0;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
+	double aAngle = PI * 0.5; // acceptiance angle
+	double curAccept = 0, desAccept = 0.5;
 
 	cout << "Starting Monte Carlo process\n";
-	for(unsigned long steps; steps < 100000; steps++)
+	cout << "\nStep    Acceptance angle    1/Tk" << endl;
+
+	for(unsigned long steps = 0; steps < 100000; steps++)
 	{
 		for(int i=0; i < configuration.width*configuration.height; i++)
 		{
-			x = intRnd()%configuration.width;
-			y = intRnd()%configuration.height;
+			x = intRnd() % configuration.width;
+			y = intRnd() % configuration.height;
+			cout << i << " " << x << " " << y << endl;
 			temp = nSystem.setN(x,y);
-			angle = (2*rnd()-1)*PI*0.5; // optimize later
+			angle = (2*rnd()-1)*aAngle; // optimize later
 			oldNx = temp->x;
 			oldNy = temp->y;
 
@@ -98,20 +110,34 @@ int main()
 			if(dE>0) // if the energy increases, determine if change is accepted of rejected
 			{
 				rollOfTheDice = rnd();
-				if(rollOfTheDice > exp(-dE/configuration.temperature)) // reject change
+				if(rollOfTheDice > exp(-dE*configuration.iTk)) // reject change
 				{
 					temp->x = oldNx;
 					temp->y = oldNy;
+					deny++;
 				}
+				else accept++;
 			}
-			// else accept change
+			else accept++;
 		}
+		
+		// coning algorithm
+		curAccept = (double) accept / (accept+deny);
+		aAngle *= curAccept / desAccept; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
+		accept = 0;
+		deny = 0;
 
-		cout << "\r" << steps << " monte carlo steps complete.";
+		// cooling algorithm
+		if(!steps%150000) configuration.iTk *= 1.01;
 
-			
+		dump << steps << "           " << aAngle << "             " << configuration.iTk << endl;
+
+//		cout << "\r" << steps/100000 << "%";
+
+		
 
 	}
+	cout << endl;
 
 	fclose(fout);
 

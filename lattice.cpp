@@ -230,7 +230,6 @@ DirectorElement* Lattice::setN(int xPos, int yPos)
 	*  of the 2D lattice
 	*/
 	return (DirectorElement*) getN(xPos,yPos);
-
 }
 
 void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
