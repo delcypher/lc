@@ -81,6 +81,8 @@ initialise-test: initialise-test.o lattice.o directorelement.o differentiate.o r
 uniform-rnd: uniform-rnd.o randgen.o
 	${CXX} $^ ${CPPFLAGS} -o $@
 
+rotate-director-test: rotate-director-test.o lattice.o directorelement.o differentiate.o randgen.o circle.o ellipse.o
+	${CXX} $^ ${CPPFLAGS} -o $@
 
 #TEST HARNESSES END
 
