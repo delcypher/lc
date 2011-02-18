@@ -6,8 +6,28 @@ CXX = g++
 #paths to search
 VPATH=nanoparticles tests
 
+#Set defaults that can be overriden by command line passing
+debug=1
+profile=0
+
+#decide whether to build for debugging or optimize the code
+ifeq (${debug},1)
+  DEBUG_OR_OPT= -g
+else
+  #Agressively optimize
+  DEBUG_OR_OPT= -O3
+endif
+
+#decice whether or not to produce code for profiling with gprof
+ifeq (${profile},1)
+  PROFILE_OPT= -pg
+else
+  PROFILE_OPT=
+endif
+
+
 #Compiler flags for .cpp files
-CPPFLAGS = -g -Wall -I$(shell pwd)
+CPPFLAGS = ${DEBUG_OR_OPT} ${PROFILE_OPT} -Wall -I$(shell pwd)
 
 #Project object files
 OBJECTS =  main.o directorelement.o lattice.o randgen.o differentiate.o circle.o ellipse.o 
