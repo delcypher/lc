@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 # Script to compile and run all test harnesses automatically. This is intended to be used for checking for
 # regressions. If you're making a major change to the code you should run this script after you have done
 # so to help you find bugs you have introduced!
@@ -11,6 +11,9 @@
 
 #path to makefile
 MAKEFILE="makefile"
+#Options to pass to make (e.g. -j4 , debug=1, profile=1, etc..)
+MAKEFILE_OPTS="";
+
 
 #check makefile exists
 if [ ! -r "$MAKEFILE" ]; then
@@ -65,7 +68,7 @@ cyanmessage "Found $total test harnesses.\n"
 #loop over the different targets
 for ((counter=0; counter < $total; counter++)) do
 	cyanmessage "Building ${TARGETS[$counter]}..."
-	make "${TARGETS[$counter]}" 1> /dev/null
+	make "${TARGETS[$counter]}" ${MAKEFILE_OPTS} 1> /dev/null
 
 	if [ $? -ne 0 ]; then
 		redmessage "Compilation failed. Trying next target.\n"
