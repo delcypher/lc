@@ -173,9 +173,9 @@ int main(int n, char* argv[])
 }
 
 
-double relativeError(double expected, double recieved)
+double relativeError(double expected, double received)
 {
-	double rError= (recieved /expected) -1;
+	double rError= (received /expected) -1;
 	return rError;
 }
 

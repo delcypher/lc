@@ -84,6 +84,9 @@ uniform-rnd: uniform-rnd.o randgen.o
 rotate-director-test: rotate-director-test.o lattice.o directorelement.o differentiate.o randgen.o circle.o ellipse.o
 	${CXX} $^ ${CPPFLAGS} -o $@
 
+calc-cosine-between-test: calc-cosine-between-test.o directorelement.o
+	${CXX} $^ ${CPPFLAGS} -o $@
+
 #TEST HARNESSES END
 
 #Phont target used to remove generated objects and dependency files
