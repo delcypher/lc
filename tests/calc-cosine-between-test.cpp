@@ -11,6 +11,7 @@
 #include "directorelement.h"
 #include "exitcodes.h"
 #include "common.h"
+#include <cstdlib>
 
 using namespace std;
 

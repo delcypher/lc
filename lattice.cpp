@@ -3,6 +3,7 @@
 */
 
 #include <cstdlib>
+#include <iostream>
 #include <cstdio>
 #include <cmath>
 #include "randgen.h"
@@ -10,13 +11,15 @@
 #include "differentiate.h"
 #include <cstring>
 
+using namespace std;
+
 //initialisation constructor
 Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(precision)
 {
 	//check that the width & height have been specified
 	if(configuration.width <= 0 || configuration.height <= 0)
 	{
-		fprintf(stderr, "Error: The width and/or height have not been set to valid values ( > 0). Can't initialise lattice.\n");
+		cerr << "Error: The width and/or height have not been set to valid values ( > 0). Can't initialise lattice." << endl;
 	}
 	
 
@@ -39,7 +42,7 @@ Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(pr
 	
 	if(hostLatticeObject.lattice == NULL)
 	{
-		fprintf(stderr,"Error: Couldn't allocate memory for lattice array in LatticeObject.\n");
+		cerr << "Error: Couldn't allocate memory for lattice array in LatticeObject.\n" << endl;
 		exit(1);
 	}
 
@@ -61,7 +64,7 @@ bool Lattice::add(Nanoparticle* np)
 	//check nanoparticle location is inside the lattice.
 	if( np->getX() >= hostLatticeObject.param.width || np->getX() < 0 || np->getY() >= hostLatticeObject.param.height || np->getX() < 0)
 	{
-		fprintf(stderr,"Error: Can't add nanoparticle that is not in the lattice.\n");
+		cerr << "Error: Can't add nanoparticle that is not in the lattice.\n" << endl;
 		return false;
 	}
 
@@ -72,7 +75,7 @@ bool Lattice::add(Nanoparticle* np)
 		{
 			if(! np->processCell(x,y,Nanoparticle::DRY_ADD, setN(x,y)) )
 			{
-				fprintf(stderr,"Error: Adding nanoparticle on dry run failed.\n");
+				cerr << "Error: Adding nanoparticle on dry run failed." << endl;
 				return false;
 			}
 		}
@@ -85,7 +88,7 @@ bool Lattice::add(Nanoparticle* np)
 		{
 			if(! np->processCell(x,y,Nanoparticle::ADD, setN(x,y)) )
 			{
-				fprintf(stderr,"Error: Adding nanoparticle on actuall run failed.\n");
+				cerr << "Error: Adding nanoparticle on actuall run failed." << endl;
 				return false;
 			}
 		}
@@ -154,7 +157,7 @@ const DirectorElement* Lattice::getN(int xPos, int yPos)
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
-			fprintf(stderr,"Error: Attempt to access boundary at (%d,%d) where an unsupported boundary is set.\n",xPos,yPos);
+			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
 			return &(hostLatticeObject.DUMMY_DIRECTOR);
 		}
 	}
@@ -173,7 +176,7 @@ const DirectorElement* Lattice::getN(int xPos, int yPos)
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
-			fprintf(stderr,"Error: Attempt to access boundary at (%d,%d) where an unsupported boundary is set.\n",xPos,yPos);
+			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
 			return &(hostLatticeObject.DUMMY_DIRECTOR);
 		}
 	}
@@ -192,7 +195,7 @@ const DirectorElement* Lattice::getN(int xPos, int yPos)
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
-			fprintf(stderr,"Error: Attempt to access boundary at (%d,%d) where an unsupported boundary is set.\n",xPos,yPos);
+			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
 			return &(hostLatticeObject.DUMMY_DIRECTOR);
 		}
 	}
@@ -211,13 +214,13 @@ const DirectorElement* Lattice::getN(int xPos, int yPos)
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
-			fprintf(stderr,"Error: Attempt to access boundary at (%d,%d) where an unsupported boundary is set.\n",xPos,yPos);
+			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
 			return &(hostLatticeObject.DUMMY_DIRECTOR);
 		}
 	}
 
 	//Every case should already of been handled. An invalid point (xPos,yPos) must of been asked for
-	fprintf(stderr,"Error: Attempt to access boundary a point (%d,%d) which couldn't be handled!\n",xPos,yPos);
+	cerr << "Error: Attempt to access boundary a point (" << xPos << ","  << yPos << ") which couldn't be handled!" << endl;
 	return &(hostLatticeObject.DUMMY_DIRECTOR);
 
 }
@@ -315,7 +318,9 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 
 	if(badState)
 	{
-		fprintf(stderr,"Error: Lattice has been but in bad state as supplied initial state %d is not supported.\n",hostLatticeObject.param.initialState);
+		cerr << "Error: Lattice has been put in bad state as supplied initial state " << 
+		hostLatticeObject.param.initialState <<
+		" is not supported." << endl;
 	}
 
 }
@@ -403,7 +408,7 @@ void Lattice::nDump(enum Lattice::dumpMode mode, FILE* stream)
 				break;
 
 				default:
-					fprintf(stderr,"Error: drawMode not supported");
+					cerr << "Error: dumpMode not supported" << endl;
 			}
 		}
 	}
