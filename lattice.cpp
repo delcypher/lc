@@ -46,6 +46,13 @@ Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(pr
 		exit(1);
 	}
 
+	//set every lattice point to not be a nanoparticle
+	for(int point=0; point < (hostLatticeObject.param.width)*(hostLatticeObject.param.height) ; point++)
+	{
+		hostLatticeObject.lattice[point].isNanoparticle=0;
+	}
+
+
 	//initialise the lattice to a particular state
 	reInitialise(hostLatticeObject.param.initialState);
 
@@ -255,63 +262,64 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 		for (xPos = 0; xPos < hostLatticeObject.param.width; xPos++)
 		{
 			index = xPos + (hostLatticeObject.param.width)*yPos;
-			switch(hostLatticeObject.param.initialState)
+
+			//only set if the lattice cell isn't a nanoparticle.
+			if(hostLatticeObject.lattice[index].isNanoparticle==0)
 			{
-
-				case LatticeConfig::RANDOM:
+				switch(hostLatticeObject.param.initialState)
 				{
-					//generate a random angle between 0 & 2*PI radians
-					angle = 2*PI*rnd();
-					hostLatticeObject.lattice[index].x=cos(angle);
-					hostLatticeObject.lattice[index].y=sin(angle);
+
+					case LatticeConfig::RANDOM:
+					{
+						//generate a random angle between 0 & 2*PI radians
+						angle = 2*PI*rnd();
+						setDirectorAngle(&(hostLatticeObject.lattice[index]), angle);
+					}
+
+					break;
+					
+					case LatticeConfig::PARALLEL_X:
+						hostLatticeObject.lattice[index].x=1;
+						hostLatticeObject.lattice[index].y=0;
+					break;
+
+					case LatticeConfig::PARALLEL_Y:
+						hostLatticeObject.lattice[index].x=0;
+						hostLatticeObject.lattice[index].y=1;
+					break;
+
+					case LatticeConfig::K1_EQUAL_K3:
+					{
+						angle = PI*( (double) (yPos + 1)/(2*(hostLatticeObject.param.height +1)) );
+						setDirectorAngle(&(hostLatticeObject.lattice[index]), angle);
+					}
+
+					break;
+
+					case LatticeConfig::K1_DOMINANT:
+					{
+						//the cast to double is important else we will do division with ints and discard remainder
+						angle = PI/2 - acos( (double) (yPos + 1)/(hostLatticeObject.param.height + 1));
+						setDirectorAngle(&(hostLatticeObject.lattice[index]), angle);
+					}
+
+					break;
+
+					case LatticeConfig::K3_DOMINANT:
+					{
+						//the cast to double is important else we will do division with ints and discard remainder
+						angle = PI/2 -asin(1 - (double) (yPos +1)/(hostLatticeObject.param.height +1)   );
+						setDirectorAngle(&(hostLatticeObject.lattice[index]), angle);
+					}
+					break;
+
+					default:
+						//if we aren't told what to do we will set all zero vectors!
+						hostLatticeObject.lattice[index].x=0;
+						hostLatticeObject.lattice[index].y=0;
+						badState=true;
+
 				}
-
-				break;
-				
-				case LatticeConfig::PARALLEL_X:
-					hostLatticeObject.lattice[index].x=1;
-					hostLatticeObject.lattice[index].y=0;
-				break;
-
-				case LatticeConfig::PARALLEL_Y:
-					hostLatticeObject.lattice[index].x=0;
-					hostLatticeObject.lattice[index].y=1;
-				break;
-
-				case LatticeConfig::K1_EQUAL_K3:
-				{
-					angle = PI*( (double) (yPos + 1)/(2*(hostLatticeObject.param.height +1)) );
-					hostLatticeObject.lattice[index].x=cos(angle);
-					hostLatticeObject.lattice[index].y=sin(angle);
-				}
-
-				break;
-
-				case LatticeConfig::K1_DOMINANT:
-				{
-					//the cast to double is important else we will do division with ints and discard remainder
-					angle = PI/2 - acos( (double) (yPos + 1)/(hostLatticeObject.param.height + 1));
-					hostLatticeObject.lattice[index].x=cos(angle);
-					hostLatticeObject.lattice[index].y=sin(angle);
-				}
-
-				break;
-
-				case LatticeConfig::K3_DOMINANT:
-				{
-					//the cast to double is important else we will do division with ints and discard remainder
-					angle = PI/2 -asin(1 - (double) (yPos +1)/(hostLatticeObject.param.height +1)   );
-					hostLatticeObject.lattice[index].x=cos(angle);
-					hostLatticeObject.lattice[index].y=sin(angle);
-				}
-				break;
-
-				default:
-					//if we aren't told what to do we will set all zero vectors!
-					hostLatticeObject.lattice[index].x=0;
-					hostLatticeObject.lattice[index].y=0;
-					badState=true;
-
 			}
 		}
 	}

@@ -136,8 +136,7 @@
 			DirectorElement * setN(int xPos, int yPos);
 
 			/* This sets the state of the lattice to one of the initialState presets.
-			*  This only affects the lattice on the host. To pass this change to the lattice 
-			*  on the device you should call copyHostToDevice() afterwards.
+			*  Note: This only affects lattice cells that aren't marked as Nanoparticles.
 			*/
 			void reInitialise(enum LatticeConfig::latticeState initialState);
 
