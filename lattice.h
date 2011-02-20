@@ -159,7 +159,7 @@
 			* unit vectors that are translated so that the centre of the vector rather than the end of the vector
 			* is plotted at point (xPos,yPos).
 			*/
-			void nDump(enum Lattice::dumpMode mode, FILE* stream);
+			void nDump(enum Lattice::dumpMode mode, std::ostream& stream);
 			
 			/* This method outputs the current state of the lattice to a filestream stream in a format compatible
 			*  with the GNUplot script "ildump.gnu". It outputs three indexes.
@@ -167,8 +167,13 @@
 			*  index 1 - NOT_PARTICLES 
 			*  index 1 - PARTICLES
 			*/
-			void indexedNDump(FILE* stream);
+			void indexedNDump(std::ostream& stream);
 			
+			/* Dump a description of lattice parameters to out Output stream. E.g. std::cout
+			*
+			*/
+			void dumpDescription(std::ostream& stream);
+
 			/* Calculate the Free energy per unit area in the cell located at (xPos,yPos) in the lattice on the HOST!
 			*/
 			double calculateEnergyOfCell(int xPos, int yPos);

@@ -22,7 +22,7 @@ using namespace std;
 int main()
 {
 	LatticeConfig configuration;
-	FILE* fout = fopen("perp-lattice.dump", "w");
+	ofstream fout("perp-lattice.dump");
 	ofstream dump("perp-annealing.dump");
 	if(!dump)
 	{
@@ -146,7 +146,8 @@ int main()
 
 	nSystem.indexedNDump(fout);
 
-	fclose(fout);
+	dump.close();
+	fout.close();
 
 	return 0;
 }

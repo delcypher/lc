@@ -333,20 +333,11 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 
 }
 
-void Lattice::nDump(enum Lattice::dumpMode mode, FILE* stream)
+void Lattice::nDump(enum Lattice::dumpMode mode, std::ostream& stream)
 {
+	stream.precision(DUMP_PRECISION);
 
-	//print lattice information
-	fprintf(stream,"#Lattice Width:%d \n",hostLatticeObject.param.width);
-	fprintf(stream,"#Lattice Height:%d \n", hostLatticeObject.param.height);
-	fprintf(stream,"#Lattice beta value:%f \n", hostLatticeObject.param.beta);
-	fprintf(stream,"#Lattice top Boundary: %d (enum) \n",hostLatticeObject.param.topBoundary);
-	fprintf(stream,"#Lattice bottom Boundary: %d (enum) \n",hostLatticeObject.param.bottomBoundary);
-	fprintf(stream,"#Lattice left Boundary: %d (enum) \n",hostLatticeObject.param.leftBoundary);
-	fprintf(stream,"#Lattice right Boundary: %d (enum) \n",hostLatticeObject.param.rightBoundary);
-	fprintf(stream,"#Lattice initial state: %d (enum) \n",hostLatticeObject.param.initialState);
-
-	fprintf(stream,"\n\n # (x) (y) (n_x) (n_y)\n");
+	stream << "# (x) (y) (n_x) (n_y)\n";
 
 	//print lattice state
 	int xPos, yPos, xInitial, yInitial, xFinal, yFinal;
@@ -376,41 +367,35 @@ void Lattice::nDump(enum Lattice::dumpMode mode, FILE* stream)
 			switch(mode)
 			{
 				case EVERYTHING:	
-					fprintf(stream,"%f %f %.*f %.*f \n",
-					( (double) xPos) - 0.5*(getN(xPos,yPos)->x), 
-					( (double) yPos) - 0.5*(getN(xPos,yPos)->y), 
-					DUMP_PRECISION,(getN(xPos,yPos)->x), 
-					DUMP_PRECISION,(getN(xPos,yPos)->y));
+					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
+						( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
+						(getN(xPos,yPos)->x) << " " <<
+						(getN(xPos,yPos)->y) << "\n";
 				break;
 
 				case PARTICLES:
-					fprintf(stream,"%f %f %.*f %.*f \n",
-					( (double) xPos) - 0.5*(getN(xPos,yPos)->x), 
-					( (double) yPos) - 0.5*(getN(xPos,yPos)->y), 
-					DUMP_PRECISION,( (getN(xPos,yPos)->isNanoparticle==1)?(getN(xPos,yPos)->x):0 ), 
-					DUMP_PRECISION,( (getN(xPos,yPos)->isNanoparticle==1)?(getN(xPos,yPos)->y):0 ) 
-					);
+					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
+						( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
+						( (getN(xPos,yPos)->isNanoparticle==1)?(getN(xPos,yPos)->x):0 ) << " " <<
+						( (getN(xPos,yPos)->isNanoparticle==1)?(getN(xPos,yPos)->y):0 ) << "\n";
 				break;
 
 				case NOT_PARTICLES:
 
-					fprintf(stream,"%f %f %.*f %.*f \n",
-					( (double) xPos) - 0.5*(getN(xPos,yPos)->x), 
-					( (double) yPos) - 0.5*(getN(xPos,yPos)->y), 
-					DUMP_PRECISION,( (getN(xPos,yPos)->isNanoparticle==0)?(getN(xPos,yPos)->x):0 ), 
-					DUMP_PRECISION,( (getN(xPos,yPos)->isNanoparticle==0)?(getN(xPos,yPos)->y):0 ) 
-					);
+					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
+						( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
+						( (getN(xPos,yPos)->isNanoparticle==0)?(getN(xPos,yPos)->x):0 ) << " " <<
+						( (getN(xPos,yPos)->isNanoparticle==0)?(getN(xPos,yPos)->y):0 ) << "\n";
 
 				break;
 				
 				case BOUNDARY:
 					if(xPos==xInitial || xPos==xFinal || yPos==yInitial || yPos==yFinal)
 					{
-						fprintf(stream,"%f %f %.*f %.*f \n",
-						( (double) xPos) - 0.5*(getN(xPos,yPos)->x), 
-						( (double) yPos) - 0.5*(getN(xPos,yPos)->y), 
-						DUMP_PRECISION,(getN(xPos,yPos)->x), 
-						DUMP_PRECISION,(getN(xPos,yPos)->y));
+						stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
+							( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
+							(getN(xPos,yPos)->x) << " " <<
+							(getN(xPos,yPos)->y) << "\n";
 
 					}
 				break;
@@ -421,19 +406,44 @@ void Lattice::nDump(enum Lattice::dumpMode mode, FILE* stream)
 		}
 	}
 
-	fprintf(stream,"\n#End of Lattice Dump");
+	stream << "#End of Lattice Dump\n\n\n";
+	stream.flush();
 
 }
 
-void Lattice::indexedNDump(FILE* stream)
+void Lattice::indexedNDump(std::ostream& stream)
 {
-	fprintf(stream,"\n#BOUNDARY DUMP\n");
+	dumpDescription(stream);
+
+	//Note that indexes must be seperated by two newlines for GNUplot
+
+	stream << "\n#BOUNDARY DUMP\n";
 	nDump(BOUNDARY,stream);
-	fprintf(stream,"\n#NOT_PARTICLES\n\n");
+	
+	stream << "#NOT_PARTICLES\n";
 	nDump(NOT_PARTICLES,stream);
-	fprintf(stream,"\n#PARTICLES\n\n");
+
+	stream << "#PARTICLES\n";
 	nDump(PARTICLES,stream);
-	fprintf(stream,"\n\n");
+
+	stream.flush();
+}
+
+void Lattice::dumpDescription(std::ostream& stream)
+{
+	stream.precision(DUMP_PRECISION);
+
+	stream << "#Lattice Width:" << hostLatticeObject.param.width << "\n" <<
+		"#Lattice Height:" << hostLatticeObject.param.height << "\n" <<
+		"#Beta:" << hostLatticeObject.param.beta << "\n" <<
+		"#1/TK :" << hostLatticeObject.param.iTk << "\n" <<
+		"#Top Boundary (enum):" << hostLatticeObject.param.topBoundary << "\n" <<
+		"#Bottom Boundary (enum):" << hostLatticeObject.param.bottomBoundary << "\n" <<
+		"#Left Boundary (enum):" << hostLatticeObject.param.leftBoundary << "\n" <<
+		"#Right Boundary (enum):" << hostLatticeObject.param.rightBoundary << "\n" <<
+		"#Initial State (enum):" << hostLatticeObject.param.initialState << endl;
+	
+	stream.flush();
 }
 
 double Lattice::calculateEnergyOfCell(int xPos, int yPos)

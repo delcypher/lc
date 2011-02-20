@@ -10,7 +10,6 @@
 */
 
 #include <iostream>
-#include <cstdio>
 #include <cstdlib>
 #include "randgen.h"
 #include "differentiate.h"
@@ -90,7 +89,7 @@ int main(int n, char* argv[])
 
 	//Dump the current state of the lattice to standard output.
 	//nSystem.nDump(Lattice::BOUNDARY,stdout);
-	nSystem.indexedNDump(stdout);
+	nSystem.indexedNDump(std::cout);
 
 
 	return TH_SUCCESS;
