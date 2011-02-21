@@ -51,7 +51,10 @@ Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(pr
 	{
 		hostLatticeObject.lattice[point].isNanoparticle=0;
 	}
-
+	
+	//set the number of nanoparticles associated with the lattice to 0
+	mNumNano=0;
+	mNanoparticles=NULL;
 
 	//initialise the lattice to a particular state
 	reInitialise(hostLatticeObject.param.initialState);
@@ -62,6 +65,7 @@ Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(pr
 //destructor
 Lattice::~Lattice()
 {
+	free(mNanoparticles);
 	free(hostLatticeObject.lattice);
 }
 
@@ -99,6 +103,52 @@ bool Lattice::add(Nanoparticle* np)
 				return false;
 			}
 		}
+	}
+	
+	//add pointer to nanoparticle to array so the lattice can keep track of the nanoparticles it has
+
+	//deal with the case that a nanoparticle has never been added.
+	if(mNumNano==0)
+	{
+		//This is the first time a nanoparticle has been added so need to allocate memory for array
+		mNanoparticles = (Nanoparticle**) calloc(1,sizeof(Nanoparticle*));
+		if(mNanoparticles==NULL)
+		{
+			cerr << "Error: Couldn't allocated memory for Nanoparticle array in Lattice." << endl;
+			return false;
+		}
+		mNumNano++;
+		mNanoparticles[0] = np;
+
+	}
+	else
+	{
+		//Need to allocate memory for new array
+		Nanoparticle** tempArray = (Nanoparticle**) calloc(mNumNano +1,sizeof(Nanoparticle*));
+		if(tempArray==NULL)
+		{
+			cerr << "Error: Couldn't allocate memory for Nanoparticle array in Lattice when resizing" << endl;
+			return false;
+
+		}
+
+		//copy pointers accross
+		for(int counter=0; counter < mNumNano; counter++)
+		{
+			tempArray[counter] = mNanoparticles[counter];
+		}
+
+		//add new nanoparticle
+		tempArray[mNumNano] = np;
+		mNumNano++;
+
+		//Delete old array on free store
+		free(mNanoparticles);
+
+		//Make temporary array the new Nanoparticle pointer array
+		mNanoparticles = tempArray;
+
+
 	}
 
 	return true;
@@ -441,7 +491,24 @@ void Lattice::dumpDescription(std::ostream& stream)
 		"#Bottom Boundary (enum):" << hostLatticeObject.param.bottomBoundary << "\n" <<
 		"#Left Boundary (enum):" << hostLatticeObject.param.leftBoundary << "\n" <<
 		"#Right Boundary (enum):" << hostLatticeObject.param.rightBoundary << "\n" <<
-		"#Initial State (enum):" << hostLatticeObject.param.initialState << endl;
+		"#Initial State (enum):" << hostLatticeObject.param.initialState << "\n" <<
+		"#Number of Nanoparticles:" << mNumNano << "\n";
+
+		if(mNanoparticles!=NULL)
+		{
+			for(int counter=0; counter < mNumNano; counter++)
+			{
+				stream << "#Particle[" << counter << "] :";
+				if( mNanoparticles[counter] !=NULL)
+				{
+					stream << mNanoparticles[counter]->getDescription() << "\n";
+				}
+				else
+				{
+					stream << "Error: Couldn't get description.";
+				}
+			}
+		}
 	
 	stream.flush();
 }
