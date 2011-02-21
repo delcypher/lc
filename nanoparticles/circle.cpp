@@ -109,7 +109,7 @@ std::string CircularNanoparticle::getDescription()
 		<< mRadius << 
 		", Boundary(enum):" <<
 		mBoundary <<
-		" @ (" << 
+		", Centre @ (" << 
 		mxPos << 
 		"," << 
 		myPos << 

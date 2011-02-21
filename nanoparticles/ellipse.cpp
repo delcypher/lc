@@ -126,7 +126,8 @@ std::string EllipticalNanoparticle::getDescription()
 	b <<
 	", Rotation angle w.r.t x-axis (Radians):" <<
 	theta <<
-	" @ (" <<
+	", Boundary(enum):" << mBoundary <<
+	", Centre @ (" <<
 	mxPos <<
 	"," <<
 	myPos <<
