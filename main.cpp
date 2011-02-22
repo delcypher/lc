@@ -19,17 +19,40 @@ using namespace std;
 */
 #include "nanoparticles/circle.h"
 
+/* Output filenames:
+*  ANNEALING_FILE - contains iTK and acceptance angle as the simulation progresses.
+*  ENERGY_FILE - Contains energy and monte carlo step as the simulation progresses.
+*  FINAL_LATTICE_STATE_FILE - Contains the final state of lattice from Lattice::indexedNDump() for when the simulation end.
+*  REQUEST_LATTICE_STATE_FILE - Contains the current state of the lattice from Lattice::indexedNDump() at any point
+*                               in the simulation. This is written to when SIGUSR1 is sent to this program.
+*  BACKUP_LATTICE_STATE - Contains the lattice state that can be reloaded by the program to resume simulation.
+*/
+
+char ANNEALING_FILE[] = "annealing.dump";
+char ENERGY_FILE[] = "energy.dump";
+char FINAL_LATTICE_STATE_FILE[] = "final-lattice-state.dump";
+char REQUEST_LATTICE_STATE_FILE[] = "current-lattice-state.dump";
+char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bak";
+
 int main()
 {
 	LatticeConfig configuration;
-	ofstream fout("perp-lattice.dump");
-	ofstream dump("perp-annealing.dump");
-	if(!dump)
+	
+	//open and check we have access to necessary files which we truncate
+	ofstream annealF(ANNEALING_FILE, ios::trunc);
+	if(!annealF.is_open())
 	{
-		cout << "I hate you so I'm not going to work properly for you." << endl;
-		return -180;
+		cerr << "Error: couldn't open open ofstream on file " << ANNEALING_FILE  << endl;
+		return 1;
 	}
 
+	ofstream finalLF (FINAL_LATTICE_STATE_FILE, ios::trunc);
+	if(!finalLF.is_open())
+	{
+		cerr << "Error: couldn't open open ofstream on file " << FINAL_LATTICE_STATE_FILE << endl;
+		return 1;
+	}
+	
 	cout << "# Setting lattice config parameters" << endl;	
 	//setup lattice parameters
 	configuration.width = 50;
@@ -61,8 +84,8 @@ int main()
 	//add nanoparticle to lattice
 //	nSystem.add(&particle1);
 
-	//Dump the current state of the lattice to standard output.
-	//nSystem.nDump(Lattice::BOUNDARY,stdout);
+	//Dump the initial state of the lattice to standard output
+	nSystem.dumpDescription(std::cout);
 
 	double energy = nSystem.calculateTotalEnergy();
 
@@ -72,12 +95,12 @@ int main()
 	int x, y, accept = 0, deny = 0;
 	unsigned long loopMax = 100000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
-	double aAngle = PI * 0.5; // acceptiance angle
+	double aAngle = PI * 0.5; // acceptance angle
 	double curAccept = 0, desAccept = 0.5;
 	double progress = 0, oldProgress = 0;
 
 	cout << "# Starting Monte Carlo process\n";
-	dump << "\n# Step    Acceptance angle    1/Tk" << endl;
+	annealF << "\n# Step    Acceptance angle    1/Tk" << endl;
 
 	for(unsigned long steps = 0; steps < loopMax; steps++)
 	{
@@ -139,15 +162,16 @@ int main()
 		if(!steps%150000 && steps!=0) configuration.iTk *= 1.01;
 
 		// output junk
-		if(!steps%10) dump << steps << "           " << aAngle << "             " << configuration.iTk << endl;
+		if(!steps%10) annealF << steps << "           " << aAngle << "             " << configuration.iTk << endl;
 	}
 	
 	cout << "\r100%  " << endl;	
 
-	nSystem.indexedNDump(fout);
+	//output final lattice state
+	nSystem.indexedNDump(finalLF);
+	finalLF.close();
 
-	dump.close();
-	fout.close();
+	annealF.close();
 
 	return 0;
 }
