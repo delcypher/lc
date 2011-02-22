@@ -10,6 +10,7 @@
 #include "randgen.h"
 #include "differentiate.h"
 #include "lattice.h"
+#include <signal.h>
 
 using namespace std;
 
@@ -28,14 +29,27 @@ using namespace std;
 *  BACKUP_LATTICE_STATE - Contains the lattice state that can be reloaded by the program to resume simulation.
 */
 
-char ANNEALING_FILE[] = "annealing.dump";
-char ENERGY_FILE[] = "energy.dump";
-char FINAL_LATTICE_STATE_FILE[] = "final-lattice-state.dump";
-char REQUEST_LATTICE_STATE_FILE[] = "current-lattice-state.dump";
-char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bak";
+const char ANNEALING_FILE[] = "annealing.dump";
+const char ENERGY_FILE[] = "energy.dump";
+const char FINAL_LATTICE_STATE_FILE[] = "final-lattice-state.dump";
+const char REQUEST_LATTICE_STATE_FILE[] = "current-lattice-state.dump";
+const char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bak";
+
+
+void exitHandler();
+void setExit(int sig);
+void requestStateHandler(int sig);
+
+bool requestExit=false;
+Lattice* nSystemp;
 
 int main()
 {
+	//add signal handlers
+	signal(SIGINT,&setExit);
+	signal(SIGTERM,&setExit);
+	signal(SIGUSR1,&requestStateHandler);
+
 	LatticeConfig configuration;
 	
 	//open and check we have access to necessary files which we truncate
@@ -73,6 +87,9 @@ int main()
 
 	//create lattice object, with (configuration, dump precision)
 	Lattice nSystem = Lattice(configuration,10);
+
+	//setup nSystem pointer so other functions can access it.
+	nSystemp = &nSystem;
 
 //	cout << "# Creating nanoparticle" << endl; 
 
@@ -163,6 +180,12 @@ int main()
 
 		// output junk
 		if(!steps%10) annealF << steps << "           " << aAngle << "             " << configuration.iTk << endl;
+		
+		//check if a request to exit has occured
+		if(requestExit)
+		{
+			exitHandler();
+		}
 	}
 	
 	cout << "\r100%  " << endl;	
@@ -176,3 +199,40 @@ int main()
 	return 0;
 }
 
+
+void setExit(int sig)
+{
+	cout << "Received signal:" << sig << "\n" <<
+		"Will exit when current m.c.s completes." << endl;
+	requestExit=true;
+}
+
+void requestStateHandler(int sig)
+{
+	cout << "Received signal:" << sig << "\n" <<
+		"Dumping state to " << REQUEST_LATTICE_STATE_FILE << "...";
+	cout.flush();
+
+	ofstream requestDumpF (REQUEST_LATTICE_STATE_FILE, ios::trunc);
+	if(!requestDumpF.is_open())
+	{
+		cerr << "Error: Couldn't open " << REQUEST_LATTICE_STATE_FILE << endl;
+		return;
+	}
+
+	nSystemp->indexedNDump(requestDumpF);
+	requestDumpF.close();
+
+	cout << "done" << endl;
+}
+
+void exitHandler()
+{
+	cout << "Last m.c.s complete, saving state to " << BACKUP_LATTICE_STATE_FILE << "...";
+	cout.flush();
+
+	//insert backup code here
+	
+	cout << "done. Now exiting!" << endl;
+	exit(0);
+}
