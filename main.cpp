@@ -25,7 +25,8 @@ using namespace std;
 *  ENERGY_FILE - Contains energy and monte carlo step as the simulation progresses.
 *  FINAL_LATTICE_STATE_FILE - Contains the final state of lattice from Lattice::indexedNDump() for when the simulation end.
 *  REQUEST_LATTICE_STATE_FILE - Contains the current state of the lattice from Lattice::indexedNDump() at any point
-*                               in the simulation. This is written to when SIGUSR1 is sent to this program.
+*                               in the simulation. This is written to when SIGUSR1 is sent to this program or when it is
+* 				terminated by SIGTERM or SIGINT.
 *  BACKUP_LATTICE_STATE - Contains the lattice state that can be reloaded by the program to resume simulation.
 */
 
@@ -119,7 +120,8 @@ int main()
 	setSeed();
 
 	DirectorElement *temp;
-	int x, y, accept = 0, deny = 0;
+	int x, y, 
+	int acceptCounter = 0, rejectCounter = 0;
 	unsigned long loopMax = 100000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 	double aAngle = PI * 0.5; // acceptance angle
@@ -133,11 +135,12 @@ int main()
 	
 	//output initial energy
 	energyF << "#Step\tEnergy" << endl;
-	energyF << 0 << "\t" << energy << endl;
+	energyF << -1 << "\t" << energy << endl;
 
-	for(unsigned long steps = 1; steps <= loopMax; steps++)
+	
+	for(unsigned long step = 0; step < loopMax; step++)
 	{
-		progress = (double) steps / loopMax * 100;
+		progress = (double) step / loopMax * 100;
 		if(progress - oldProgress > 1) 
 		{
 			cout  << "\r" << progress << "%  ";
@@ -147,10 +150,12 @@ int main()
 
 		for(int i=0; i < configuration.width*configuration.height; i++)
 		{
+			//pick "random" (x,y) co-ordinate in range ( [0,configuration.width -1] , [0,configuration.height -1] )
 			x = intRnd() % configuration.width;
 			y = intRnd() % configuration.height;
+
 			temp = nSystem.setN(x,y);
-			angle = (2*rnd()-1)*aAngle; // optimize later
+			angle = (2*rnd()-1)*aAngle; 
 			oldNx = temp->x;
 			oldNy = temp->y;
 
@@ -174,32 +179,48 @@ int main()
 			if(dE>0) // if the energy increases, determine if change is accepted of rejected
 			{
 				rollOfTheDice = rnd();
-				if(rollOfTheDice > exp(-dE*configuration.iTk)) // reject change
+				if(rollOfTheDice > exp(-dE*configuration.iTk)) 
 				{
+					// reject change
 					temp->x = oldNx;
 					temp->y = oldNy;
-					deny++;
+					rejectCounter++;
 				}
-				else accept++;
+				else acceptCounter++;
 			}
-			else accept++;
+			else acceptCounter++;
 		}
 		
-		// coning algorithm
-		curAccept = (double) accept / (accept+deny);
-		aAngle *= curAccept / desAccept; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
-		accept = 0;
-		deny = 0;
+		/* coning algorithm
+		*  NOTE: Hobdell & Windle do this every 500 steps and apply additional check (READ THE PAPER)
+		*  Previous project students calculate the acceptance angle every 10,000 steps.
+		*
+		*  This additional check isn't applied here.
+		*
+		*  BEWARE: if width*height*500 > MAXIMUM VALUE of data type acceptCounter 
+		*          then there is a risk that wrap around will occur and the algorithm will be broken!
+		*
+		*          This applies similarly to rejectCounter
+		*/
+		if((step%500)==0 && step !=0)
+		{
+			curAccept = (double) acceptCounter / (acceptCounter+rejectCounter);
+			aAngle *= curAccept / desAccept; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
+			acceptCounter = 0;
+			rejectCounter = 0;
+		}
 
-		// cooling algorithm
-		if(!steps%150000 && steps!=0) configuration.iTk *= 1.01;
+		/* cooling algorithm
+		*  After every 150,000 m.c.s we increase iTK i.e. we decrease the "temperature".
+		*/
+		if((step%150000)==0 && step!=0) configuration.iTk *= 1.01;
 
 		//output annealing information
-		annealF << steps << "           " << aAngle << "             " << configuration.iTk << endl;
+		annealF << step << "           " << aAngle << "             " << configuration.iTk << endl;
 	
 		//output energy information
 		energy = nSystem.calculateTotalEnergy();
-		energyF << steps << "\t" << energy << endl;
+		energyF << step << "\t" << energy << endl;
 
 		//check if a request to exit has occured
 		if(requestExit)
