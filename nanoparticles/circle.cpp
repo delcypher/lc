@@ -29,7 +29,7 @@ bool CircularNanoparticle::processCell(int x, int y, enum writeMethods method, D
 	double distance;
 	double vectorAngle;	
 	//Calculate distance from circle centre to point of interest (x,y)
-	distance= sqrt( pow((x - mxPos),2) + pow((y - myPos),2) );
+	distance= sqrt( (x - mxPos)*(x - mxPos) + (y - myPos)*(y - myPos) );
 	
 
 	if(distance <= (double) mRadius)
