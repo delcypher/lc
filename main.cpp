@@ -39,9 +39,11 @@ const char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bak";
 void exitHandler();
 void setExit(int sig);
 void requestStateHandler(int sig);
+void closeFiles();
 
 bool requestExit=false;
 Lattice* nSystemp;
+ofstream annealF, finalLF, energyF;
 
 int main()
 {
@@ -53,17 +55,24 @@ int main()
 	LatticeConfig configuration;
 	
 	//open and check we have access to necessary files which we truncate
-	ofstream annealF(ANNEALING_FILE, ios::trunc);
+	annealF.open(ANNEALING_FILE, ios::trunc);
 	if(!annealF.is_open())
 	{
 		cerr << "Error: couldn't open open ofstream on file " << ANNEALING_FILE  << endl;
 		return 1;
 	}
 
-	ofstream finalLF (FINAL_LATTICE_STATE_FILE, ios::trunc);
+	finalLF.open(FINAL_LATTICE_STATE_FILE, ios::trunc);
 	if(!finalLF.is_open())
 	{
 		cerr << "Error: couldn't open open ofstream on file " << FINAL_LATTICE_STATE_FILE << endl;
+		return 1;
+	}
+
+	energyF.open(ENERGY_FILE, ios::trunc);
+	if(!energyF.is_open())
+	{
+		cerr << "Error: couldn't open open ofstream on file " << ENERGY_FILE << endl;
 		return 1;
 	}
 	
@@ -106,7 +115,8 @@ int main()
 
 	double energy = nSystem.calculateTotalEnergy();
 
-	setSeed(); // for rng
+	//set seed for random number generator
+	setSeed();
 
 	DirectorElement *temp;
 	int x, y, accept = 0, deny = 0;
@@ -117,9 +127,15 @@ int main()
 	double progress = 0, oldProgress = 0;
 
 	cout << "# Starting Monte Carlo process\n";
-	annealF << "\n# Step    Acceptance angle    1/Tk" << endl;
+	
+	//output header for annealing file
+	annealF << "# Step    Acceptance angle    1/Tk" << endl;
+	
+	//output initial energy
+	energyF << "#Step\tEnergy" << endl;
+	energyF << 0 << "\t" << energy << endl;
 
-	for(unsigned long steps = 0; steps < loopMax; steps++)
+	for(unsigned long steps = 1; steps <= loopMax; steps++)
 	{
 		progress = (double) steps / loopMax * 100;
 		if(progress - oldProgress > 1) 
@@ -144,7 +160,7 @@ int main()
 			before += nSystem.calculateEnergyOfCell(x,y+1);
 			before += nSystem.calculateEnergyOfCell(x,y-1);
 			
-			// rotate director
+			// rotate director by random angle
 			rotateDirector(temp, angle);
 			
 			after = nSystem.calculateEnergyOfCell(x,y);
@@ -178,9 +194,13 @@ int main()
 		// cooling algorithm
 		if(!steps%150000 && steps!=0) configuration.iTk *= 1.01;
 
-		// output junk
-		if(!steps%10) annealF << steps << "           " << aAngle << "             " << configuration.iTk << endl;
-		
+		//output annealing information
+		annealF << steps << "           " << aAngle << "             " << configuration.iTk << endl;
+	
+		//output energy information
+		energy = nSystem.calculateTotalEnergy();
+		energyF << steps << "\t" << energy << endl;
+
 		//check if a request to exit has occured
 		if(requestExit)
 		{
@@ -192,9 +212,8 @@ int main()
 
 	//output final lattice state
 	nSystem.indexedNDump(finalLF);
-	finalLF.close();
 
-	annealF.close();
+	closeFiles();
 
 	return 0;
 }
@@ -232,7 +251,31 @@ void exitHandler()
 	cout.flush();
 
 	//insert backup code here
-	
-	cout << "done. Now exiting!" << endl;
+
+	cout << "done" << endl;
+
+	//save current lattice state in for use will ildump.gnu
+	cout << "Dumping viewable lattice State to " << REQUEST_LATTICE_STATE_FILE << "...";
+	ofstream requestDumpF (REQUEST_LATTICE_STATE_FILE, ios::trunc);
+	if(!requestDumpF.is_open())
+	{
+		cerr << "Error: Couldn't open " << REQUEST_LATTICE_STATE_FILE << endl;
+		return;
+	}
+
+	nSystemp->indexedNDump(requestDumpF);
+	requestDumpF.close();
+	cout << "done" << endl;
+
+	cout << "Exiting!" << endl;
+
+	closeFiles();
 	exit(0);
+}
+
+void closeFiles()
+{
+	finalLF.close();
+	energyF.close();
+	annealF.close();
 }
