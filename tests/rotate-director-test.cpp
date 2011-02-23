@@ -5,8 +5,7 @@
 *
 *  ./rotateDirector <width> <height> <angle>
 *
-*  It is not actually much of a test harness as the program "should" never return
-*  TH_FAIL
+* 
 */
 
 #include <iostream>
@@ -25,7 +24,6 @@ using namespace std;
 #include "nanoparticles/circle.h"
 #include "nanoparticles/ellipse.h"
 
-
 int main(int n, char* argv[])
 {
 
@@ -36,6 +34,8 @@ int main(int n, char* argv[])
 		exit(TH_BAD_ARGUMENT);
 	}
 	
+
+	bool badState=false;
 
 	LatticeConfig configuration;
 
@@ -65,15 +65,24 @@ int main(int n, char* argv[])
 	CircularNanoparticle particle1 = CircularNanoparticle(7,7,5,CircularNanoparticle::PARALLEL);
 	cout << "#Particle 1: " << particle1.getDescription() << endl;
 	
+	if(particle1.isBadState())
+		badState=true;
+
 	//create elliptical nanoparticle
 	//(xCentre,yCentre, a, b, theta, boundary)
 
 	EllipticalNanoparticle particle2 = EllipticalNanoparticle(20,20,10,5,PI/4,EllipticalNanoparticle::PARALLEL);
 	cout << "#Particle 2: " << particle2.getDescription() << endl;
 
+	if(particle2.isBadState())
+		badState=true;
+
 	//add nanoparticles to lattice
-	nSystem.add(&particle1);
-	nSystem.add(&particle2);
+	if(! nSystem.add(particle1) )
+		badState=true;
+
+	if(! nSystem.add(particle2) )
+		badState=true;
 
 	//loop over every DirectorElement in Lattice and rotate it
 	for(int yPos=0; yPos < configuration.height; yPos++)
@@ -93,7 +102,7 @@ int main(int n, char* argv[])
 	nSystem.indexedNDump(std::cout);
 
 
-	return TH_SUCCESS;
+	return badState?TH_FAIL:TH_SUCCESS;
 }
 
 

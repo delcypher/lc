@@ -70,10 +70,10 @@ Lattice::~Lattice()
 }
 
 
-bool Lattice::add(Nanoparticle* np)
+bool Lattice::add(Nanoparticle& np)
 {
 	//check nanoparticle location is inside the lattice.
-	if( np->getX() >= hostLatticeObject.param.width || np->getX() < 0 || np->getY() >= hostLatticeObject.param.height || np->getX() < 0)
+	if( np.getX() >= hostLatticeObject.param.width || np.getX() < 0 || np.getY() >= hostLatticeObject.param.height || np.getX() < 0)
 	{
 		cerr << "Error: Can't add nanoparticle that is not in the lattice.\n" << endl;
 		return false;
@@ -84,7 +84,7 @@ bool Lattice::add(Nanoparticle* np)
 	{
 		for(int x=0; x < hostLatticeObject.param.width; x++)
 		{
-			if(! np->processCell(x,y,Nanoparticle::DRY_ADD, setN(x,y)) )
+			if(! np.processCell(x,y,Nanoparticle::DRY_ADD, setN(x,y)) )
 			{
 				cerr << "Error: Adding nanoparticle on dry run failed." << endl;
 				return false;
@@ -97,7 +97,7 @@ bool Lattice::add(Nanoparticle* np)
 	{
 		for(int x=0; x < hostLatticeObject.param.width; x++)
 		{
-			if(! np->processCell(x,y,Nanoparticle::ADD, setN(x,y)) )
+			if(! np.processCell(x,y,Nanoparticle::ADD, setN(x,y)) )
 			{
 				cerr << "Error: Adding nanoparticle on actuall run failed." << endl;
 				return false;
@@ -118,7 +118,7 @@ bool Lattice::add(Nanoparticle* np)
 			return false;
 		}
 		mNumNano++;
-		mNanoparticles[0] = np;
+		mNanoparticles[0] = &np;
 
 	}
 	else
@@ -139,7 +139,7 @@ bool Lattice::add(Nanoparticle* np)
 		}
 
 		//add new nanoparticle
-		tempArray[mNumNano] = np;
+		tempArray[mNumNano] = &np;
 		mNumNano++;
 
 		//Delete old array on free store

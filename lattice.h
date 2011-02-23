@@ -123,7 +123,7 @@
 			/* Adds a nanoparticle (np) (of type that should be derived from class Nanoparticle) to the lattice.
 			*  The method will return true if successful or false if something goes wrong!
 			*/
-			bool add(Nanoparticle* np);
+			bool add(Nanoparticle& np);
 
 			/* This method returns a pointer to the "element" of the director field at (xPos, yPos) with the constraints of the 
 			 * boundary conditions of a LatticeObject (theLattice). Note that if you wish to change the director value at point (x,y)

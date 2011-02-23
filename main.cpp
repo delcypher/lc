@@ -122,16 +122,18 @@ int main()
 	//setup nSystem pointer so other functions can access it.
 	nSystemp = &nSystem;
 
-//	cout << "# Creating nanoparticle" << endl; 
 
 	//create circular nanoparticle (x,y,radius, boundary)
 //	CircularNanoparticle particle1 = CircularNanoparticle(10,10,5,CircularNanoparticle::PARALLEL);
 	
-//	cout << "# Adding nanoparticle" << endl;
 
 	//add nanoparticle to lattice
-//	nSystem.add(&particle1);
-
+/*	if(! nSystem.add(particle1) )
+	{
+		cerr << "Adding Nanoparticle failed!" << endl;
+		exit(1);
+	}
+*/
 	//Dump the initial state of the lattice to standard output
 	nSystem.dumpDescription(std::cout);
 

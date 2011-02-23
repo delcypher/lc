@@ -73,8 +73,12 @@ int main(int n, char* argv[])
 		badState=true;
 
 	//add nanoparticles to lattice
-	nSystem.add(&particle1);
-	nSystem.add(&particle2);
+	if(! nSystem.add(particle1) )
+		badState=true;
+
+	if(! nSystem.add(particle2) )
+		badState=true;
+		
 	
 	//Dump the current state of the lattice to standard output.
 	//nSystem.nDump(Lattice::BOUNDARY,stdout);
