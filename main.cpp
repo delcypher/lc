@@ -120,12 +120,13 @@ int main()
 	setSeed();
 
 	DirectorElement *temp;
-	int x, y, 
+	int x, y; 
 	int acceptCounter = 0, rejectCounter = 0;
 	unsigned long loopMax = 100000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 	double aAngle = PI * 0.5; // acceptance angle
-	double curAccept = 0, desAccept = 0.5;
+	double oldaAngle;
+	double CurAcceptRatio = 0, desAcceptRatio = 0.5;
 	double progress = 0, oldProgress = 0;
 
 	cout << "# Starting Monte Carlo process\n";
@@ -195,17 +196,27 @@ int main()
 		*  NOTE: Hobdell & Windle do this every 500 steps and apply additional check (READ THE PAPER)
 		*  Previous project students calculate the acceptance angle every 10,000 steps.
 		*
-		*  This additional check isn't applied here.
+		*  This additional check is implemented here and is the one described by Hobdell & Windle
 		*
-		*  BEWARE: if width*height*500 > MAXIMUM VALUE of data type acceptCounter 
+		*  BEWARE: if width*height*500 > MAXIMUM VALUE of data type of acceptCounter 
 		*          then there is a risk that wrap around will occur and the algorithm will be broken!
 		*
 		*          This applies similarly to rejectCounter
 		*/
 		if((step%500)==0 && step !=0)
 		{
-			curAccept = (double) acceptCounter / (acceptCounter+rejectCounter);
-			aAngle *= curAccept / desAccept; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
+			CurAcceptRatio = (double) acceptCounter / (acceptCounter+rejectCounter);
+			oldaAngle = aAngle;
+			aAngle *= CurAcceptRatio / desAcceptRatio; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
+			
+			//reject new acceptance angle if it has changed by more than a factor of 10
+			if( (aAngle/oldaAngle) > 10 || (aAngle/oldaAngle) < 0.1 )
+			{
+				cerr << "# Rejected new acceptance angle:" << aAngle << " from old acceptance angle " << oldaAngle << "on step " << step << endl;
+				aAngle = oldaAngle;
+				
+			}
+
 			acceptCounter = 0;
 			rejectCounter = 0;
 		}
