@@ -132,7 +132,7 @@ std::string EllipticalNanoparticle::getDescription()
 	mxPos <<
 	"," <<
 	myPos <<
-	")";
+	")" << ", State is " << (badState?"Bad":"Good") ;
 	
 	return description.str();
 
