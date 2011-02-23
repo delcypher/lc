@@ -90,6 +90,9 @@ calc-cosine-between-test: calc-cosine-between-test.o directorelement.o
 make-circle: make-circle.o circle.o
 	${CXX} $^ ${CPPFLAGS} -o $@
 
+make-ellipse: make-ellipse.o ellipse.o
+	${CXX} $^ ${CPPFLAGS} -o $@
+
 #TEST HARNESSES END
 
 #Phont target used to remove generated objects and dependency files

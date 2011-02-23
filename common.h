@@ -16,6 +16,7 @@
                 return (a%b + b)%b;
         }
 	
+	const int STATE_SAVE_PRECISION=50; //Precision (d.p) used for saving state
 
 	#define COMMON_2D 1
 

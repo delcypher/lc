@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include "common.h"
 
 using namespace std;
 
@@ -168,6 +169,7 @@ std::string CircularNanoparticle::getDescription()
 std::string CircularNanoparticle::saveState()
 {
 	std::stringstream state(std::stringstream::out);
+	state.precision(STATE_SAVE_PRECISION);
 
 	state << mxPos << " " << myPos << " " << mRadius << " " << mBoundary << " " << badState; 
 
