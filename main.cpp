@@ -11,6 +11,7 @@
 #include "differentiate.h"
 #include "lattice.h"
 #include <signal.h>
+#include <ctime>
 
 using namespace std;
 
@@ -40,11 +41,15 @@ const char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bak";
 void exitHandler();
 void setExit(int sig);
 void requestStateHandler(int sig);
+void dumpViewableLatticeState();
 void closeFiles();
 
 bool requestExit=false;
 Lattice* nSystemp;
 ofstream annealF, finalLF, energyF;
+time_t rawTime;
+
+
 
 int main()
 {
@@ -55,14 +60,17 @@ int main()
 
 	LatticeConfig configuration;
 	
-	//open and check we have access to necessary files which we truncate
-	annealF.open(ANNEALING_FILE, ios::trunc);
+	//open and check we have access to necessary files
+
+	//append file output as when we resume we'd like to keep the results of previous attempt.
+	annealF.open(ANNEALING_FILE, ios::app);
 	if(!annealF.is_open())
 	{
 		cerr << "Error: couldn't open open ofstream on file " << ANNEALING_FILE  << endl;
 		return 1;
 	}
 
+	//truncate file (erase old contents) as we don't want old file contents
 	finalLF.open(FINAL_LATTICE_STATE_FILE, ios::trunc);
 	if(!finalLF.is_open())
 	{
@@ -70,12 +78,14 @@ int main()
 		return 1;
 	}
 
-	energyF.open(ENERGY_FILE, ios::trunc);
+	//append file output as when we resume we'd like to keep the results of previous attempt.
+	energyF.open(ENERGY_FILE, ios::app);
 	if(!energyF.is_open())
 	{
 		cerr << "Error: couldn't open open ofstream on file " << ENERGY_FILE << endl;
 		return 1;
 	}
+
 	
 	cout << "# Setting lattice config parameters" << endl;	
 	//setup lattice parameters
@@ -129,12 +139,17 @@ int main()
 	double CurAcceptRatio = 0, desAcceptRatio = 0.5;
 	double progress = 0, oldProgress = 0;
 
-	cout << "# Starting Monte Carlo process\n";
+	//Get the current time to show in files.
+	time(&rawTime);
+
+	cout << "#Starting Monte Carlo process:" << ctime(&rawTime) << endl;
 	
 	//output header for annealing file
+	annealF << "#Starting at:" << ctime(&rawTime);
 	annealF << "# Step    Acceptance angle    1/Tk" << endl;
 	
 	//output initial energy
+	energyF << "#Starting at:" << ctime(&rawTime);
 	energyF << "#Step\tEnergy" << endl;
 	energyF << -1 << "\t" << energy << endl;
 
@@ -260,21 +275,8 @@ void setExit(int sig)
 
 void requestStateHandler(int sig)
 {
-	cout << "Received signal:" << sig << "\n" <<
-		"Dumping state to " << REQUEST_LATTICE_STATE_FILE << "...";
-	cout.flush();
-
-	ofstream requestDumpF (REQUEST_LATTICE_STATE_FILE, ios::trunc);
-	if(!requestDumpF.is_open())
-	{
-		cerr << "Error: Couldn't open " << REQUEST_LATTICE_STATE_FILE << endl;
-		return;
-	}
-
-	nSystemp->indexedNDump(requestDumpF);
-	requestDumpF.close();
-
-	cout << "done" << endl;
+	cout << "Received signal:" << sig << endl;
+	dumpViewableLatticeState();
 }
 
 void exitHandler()
@@ -285,22 +287,10 @@ void exitHandler()
 	//insert backup code here
 
 	cout << "done" << endl;
-
-	//save current lattice state in for use will ildump.gnu
-	cout << "Dumping viewable lattice State to " << REQUEST_LATTICE_STATE_FILE << "...";
-	ofstream requestDumpF (REQUEST_LATTICE_STATE_FILE, ios::trunc);
-	if(!requestDumpF.is_open())
-	{
-		cerr << "Error: Couldn't open " << REQUEST_LATTICE_STATE_FILE << endl;
-		return;
-	}
-
-	nSystemp->indexedNDump(requestDumpF);
-	requestDumpF.close();
-	cout << "done" << endl;
-
-	cout << "Exiting!" << endl;
-
+	
+	//dump the lattice state
+	dumpViewableLatticeState();
+	
 	closeFiles();
 	exit(0);
 }
@@ -310,4 +300,25 @@ void closeFiles()
 	finalLF.close();
 	energyF.close();
 	annealF.close();
+}
+
+void dumpViewableLatticeState()
+{
+	//dump current lattice state for use will ildump.gnu
+	cout << "Dumping viewable lattice State to " << REQUEST_LATTICE_STATE_FILE << "...";
+	ofstream requestDumpF (REQUEST_LATTICE_STATE_FILE, ios::trunc);
+	if(!requestDumpF.is_open())
+	{
+		cerr << "Error: Couldn't open " << REQUEST_LATTICE_STATE_FILE << endl;
+		return;
+	}
+
+	requestDumpF << "#Viewable dump requested for run starting at:" << ctime(&rawTime) << endl;
+	time(&rawTime);
+	requestDumpF << "#Dump requested at:" << ctime(&rawTime) << endl;
+
+	nSystemp->indexedNDump(requestDumpF);
+	requestDumpF.close();
+	cout << "done" << endl;
+
 }
