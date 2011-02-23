@@ -36,8 +36,6 @@
 		*/
 		double beta;
 
-		//Temperature of lattice for Monte Carlo algorithm
-		double iTk;
 
 		/* These define the different type of boundary conditions on the edges of the lattice
 		 * The BOUNDARY_PARALLEL & BOUNDARY_PERPENDICULAR conditions are relative to the x-axis
@@ -71,6 +69,15 @@
 			K1_DOMINANT,
 			K3_DOMINANT
 		} initialState;
+
+		/* Monte Carlo and coning algorithm parameters */
+
+		double iTk;//Inverse "Temperature" of lattice for Monte Carlo algorithm
+		long mStep; //The current Monte Carlo step number
+		int acceptCounter, rejectCounter; //Counters used for coning algorithm
+		double aAngle; //The current acceptance angle
+		double desAcceptRatio; //The Desired acceptance ratio
+ 
 
 	} LatticeConfig;
 

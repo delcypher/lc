@@ -111,10 +111,17 @@ int main()
 	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
 	configuration.leftBoundary = LatticeConfig::BOUNDARY_PERIODIC;
 	configuration.rightBoundary = LatticeConfig::BOUNDARY_PERIODIC;
-	configuration.iTk = 1;
 
 	//set lattice beta value
 	configuration.beta = 3.5;
+
+	//set initial monte carlo and coning algorithm parameters
+	configuration.iTk = 1; // Inverse "temperature"
+	configuration.mStep=0; //Monte Carlo step 
+	configuration.acceptCounter=0; //Acceptance counter
+	configuration.rejectCounter=0; //Rejection counter
+	configuration.aAngle=PI*0.5; //Acceptance angle
+	configuration.desAcceptRatio=0.5; //Desired Acceptance ratio
 
 	//create lattice object
 	Lattice nSystem = Lattice(configuration);
@@ -144,12 +151,10 @@ int main()
 
 	DirectorElement *temp;
 	int x, y; 
-	int acceptCounter = 0, rejectCounter = 0;
 	unsigned long loopMax = 100000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
-	double aAngle = PI * 0.5; // acceptance angle
 	double oldaAngle;
-	double CurAcceptRatio = 0, desAcceptRatio = 0.5;
+	double CurAcceptRatio = 0;
 	double progress = 0, oldProgress = 0;
 
 	//Get the current time to show in files.
@@ -167,9 +172,9 @@ int main()
 	energyF << -1 << "\t" << energy << endl;
 
 	
-	for(unsigned long step = 0; step < loopMax; step++)
+	for(nSystem.hostLatticeObject.param.mStep = 0; nSystem.hostLatticeObject.param.mStep < loopMax; nSystem.hostLatticeObject.param.mStep++)
 	{
-		progress = (double) step / loopMax * 100;
+		progress = (double) nSystem.hostLatticeObject.param.mStep / loopMax * 100;
 		if(progress - oldProgress > 1) 
 		{
 			cout  << "\r" << progress << "%  ";
@@ -184,7 +189,7 @@ int main()
 			y = intRnd() % configuration.height;
 
 			temp = nSystem.setN(x,y);
-			angle = (2*rnd()-1)*aAngle; 
+			angle = (2*rnd()-1)*nSystem.hostLatticeObject.param.aAngle; 
 			oldNx = temp->x;
 			oldNy = temp->y;
 
@@ -208,16 +213,16 @@ int main()
 			if(dE>0) // if the energy increases, determine if change is accepted of rejected
 			{
 				rollOfTheDice = rnd();
-				if(rollOfTheDice > exp(-dE*configuration.iTk)) 
+				if(rollOfTheDice > exp(-dE*nSystem.hostLatticeObject.param.iTk)) 
 				{
 					// reject change
 					temp->x = oldNx;
 					temp->y = oldNy;
-					rejectCounter++;
+					nSystem.hostLatticeObject.param.rejectCounter++;
 				}
-				else acceptCounter++;
+				else nSystem.hostLatticeObject.param.acceptCounter++;
 			}
-			else acceptCounter++;
+			else nSystem.hostLatticeObject.param.acceptCounter++;
 		}
 		
 		/* coning algorithm
@@ -231,35 +236,35 @@ int main()
 		*
 		*          This applies similarly to rejectCounter
 		*/
-		if((step%500)==0 && step !=0)
+		if((nSystem.hostLatticeObject.param.mStep%500)==0 && nSystem.hostLatticeObject.param.mStep !=0)
 		{
-			CurAcceptRatio = (double) acceptCounter / (acceptCounter+rejectCounter);
-			oldaAngle = aAngle;
-			aAngle *= CurAcceptRatio / desAcceptRatio; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
+			CurAcceptRatio = (double) nSystem.hostLatticeObject.param.acceptCounter / (nSystem.hostLatticeObject.param.acceptCounter + nSystem.hostLatticeObject.param.rejectCounter);
+			oldaAngle = nSystem.hostLatticeObject.param.aAngle;
+			nSystem.hostLatticeObject.param.aAngle *= CurAcceptRatio / nSystem.hostLatticeObject.param.desAcceptRatio; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
 			
 			//reject new acceptance angle if it has changed by more than a factor of 10
-			if( (aAngle/oldaAngle) > 10 || (aAngle/oldaAngle) < 0.1 )
+			if( (nSystem.hostLatticeObject.param.aAngle/oldaAngle) > 10 || (nSystem.hostLatticeObject.param.aAngle/oldaAngle) < 0.1 )
 			{
-				cerr << "# Rejected new acceptance angle:" << aAngle << " from old acceptance angle " << oldaAngle << "on step " << step << endl;
-				aAngle = oldaAngle;
+				cerr << "# Rejected new acceptance angle:" << nSystem.hostLatticeObject.param.aAngle << " from old acceptance angle " << oldaAngle << "on step " << nSystem.hostLatticeObject.param.mStep << endl;
+				nSystem.hostLatticeObject.param.aAngle = oldaAngle;
 				
 			}
 
-			acceptCounter = 0;
-			rejectCounter = 0;
+			nSystem.hostLatticeObject.param.acceptCounter = 0;
+			nSystem.hostLatticeObject.param.rejectCounter = 0;
 		}
 
 		/* cooling algorithm
-		*  After every 150,000 m.c.s we increase iTK i.e. we decrease the "temperature".
+		*  After every 150,000 m.c.s we increase iTk i.e. we decrease the "temperature".
 		*/
-		if((step%150000)==0 && step!=0) configuration.iTk *= 1.01;
+		if((nSystem.hostLatticeObject.param.mStep%150000)==0 && nSystem.hostLatticeObject.param.mStep!=0) nSystem.hostLatticeObject.param.iTk *= 1.01;
 
 		//output annealing information
-		annealF << step << "           " << aAngle << "             " << configuration.iTk << endl;
+		annealF << nSystem.hostLatticeObject.param.mStep << "           " << nSystem.hostLatticeObject.param.aAngle << "             " << nSystem.hostLatticeObject.param.iTk << endl;
 	
 		//output energy information
 		energy = nSystem.calculateTotalEnergy();
-		energyF << step << "\t" << energy << endl;
+		energyF << nSystem.hostLatticeObject.param.mStep << "\t" << energy << endl;
 
 		//check if a request to exit has occured
 		if(requestExit)
