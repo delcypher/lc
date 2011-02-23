@@ -19,7 +19,12 @@
 			} mBoundary;
 
 			CircularNanoparticle(int xCentre, int yCentre, int radius, enum boundary boundaryType);
+			CircularNanoparticle(const std::string & state);
+
 			bool processCell(int x, int y, enum writeMethods method, DirectorElement* element);
+
+			std::string saveState();
+
 			std::string getDescription();
 	};
 

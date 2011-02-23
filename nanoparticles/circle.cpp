@@ -6,6 +6,7 @@
 #include <cmath>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -20,7 +21,54 @@ Nanoparticle(xCentre,yCentre)
 	else
 	{
 		cerr << "Error: Cannot have negative radius!" << endl;
+		badState=true;
 	}
+
+}
+
+CircularNanoparticle::CircularNanoparticle(const std::string & state) : Nanoparticle(state)
+{
+	//Assume parameters are space seperated in the format
+	// <xPos> <yPos> <radius> <boundary> <bad state>
+	string buffer;
+	stringstream stream(state);
+
+	//we've already passed xPos & yPos to parent class, so skip those
+	stream >> buffer;
+	stream >> buffer;
+	
+	//set radius
+	if(stream.eof())
+	{
+		cerr << "Error: Couldn't construct Circular nanoparticle. Can't get radius." << endl;
+		badState=true;
+	}
+
+	stream >> buffer;
+	mRadius = atoi(buffer.c_str());
+	if(mRadius <=0)
+	{
+		cerr << "Error: Cannot have negative radius!" << endl;
+		badState=true;
+	}
+
+	//set boundary
+
+	if(stream.eof())
+	{
+		cerr << "Error: Couldn't construct Circular nanoparticle. Can't get boundary." << endl;
+		badState=true;
+	}
+	stream >> buffer;
+	mBoundary = (boundary) atoi(buffer.c_str());
+
+	if(stream.eof())
+	{
+		cerr << "Error: Couldn't construct Circular nanoparticle. Can't get state... so setting bad state!" << endl;
+		badState=true;
+	}
+	stream >> buffer;
+	badState = (bool) atoi(buffer.c_str());
 
 }
 
@@ -113,6 +161,16 @@ std::string CircularNanoparticle::getDescription()
 		mxPos << 
 		"," << 
 		myPos << 
-		")";
+		")" << ", State is " << (badState?"Bad":"Good") ;
 	return description.str();
+}
+
+std::string CircularNanoparticle::saveState()
+{
+	std::stringstream state(std::stringstream::out);
+
+	state << mxPos << " " << myPos << " " << mRadius << " " << mBoundary << " " << badState; 
+
+	return state.str();
+
 }

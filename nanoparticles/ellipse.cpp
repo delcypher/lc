@@ -17,6 +17,7 @@ EllipticalNanoparticle::EllipticalNanoparticle(int xCentre, int yCentre, double 
 	else
 	{
 		cerr << "Error: a and b must be greater than 0!" << endl;
+		badState=true;
 	}
 
 }
