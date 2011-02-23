@@ -195,6 +195,9 @@ bool EllipticalNanoparticle::processCell(int x, int y, enum writeMethods method,
 std::string EllipticalNanoparticle::getDescription()
 {
 	std::stringstream description(std::stringstream::out);
+	
+	description.precision(STD_PRECISION);
+
 	description << "Elliptical Nanoparticle: " <<
 	"a:" <<
 	a <<

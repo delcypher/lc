@@ -33,6 +33,8 @@ int main(int n, char* argv[])
 		exit(TH_BAD_ARGUMENT);
 	}
 
+	bool badState=false;
+
 	LatticeConfig configuration;
 
 	configuration.width = atoi(argv[1]);
@@ -57,12 +59,18 @@ int main(int n, char* argv[])
 	//create circular nanoparticle (x,y,radius, boundary)
 	CircularNanoparticle particle1 = CircularNanoparticle(7,7,5,CircularNanoparticle::PARALLEL);
 	cout << "#Particle 1: " << particle1.getDescription() << endl;
-	
+
+	if(particle1.isBadState())
+		badState=true;
+
 	//create elliptical nanoparticle
 	//(xCentre,yCentre, a, b, theta, boundary)
 
 	EllipticalNanoparticle particle2 = EllipticalNanoparticle(20,20,10,5,PI/4,EllipticalNanoparticle::PARALLEL);
 	cout << "#Particle 2: " << particle2.getDescription() << endl;
+
+	if(particle2.isBadState())
+		badState=true;
 
 	//add nanoparticles to lattice
 	nSystem.add(&particle1);
@@ -74,7 +82,7 @@ int main(int n, char* argv[])
 	nSystem.indexedNDump(std::cout);
 
 
-	return TH_SUCCESS;
+	return badState?TH_FAIL:TH_SUCCESS;
 }
 
 

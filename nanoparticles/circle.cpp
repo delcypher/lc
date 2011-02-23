@@ -154,6 +154,9 @@ bool CircularNanoparticle::processCell(int x, int y, enum writeMethods method, D
 std::string CircularNanoparticle::getDescription()
 {
 	std::stringstream description (std::stringstream::out);
+
+	description.precision(STD_PRECISION);
+
 	description << "Circular Nanoparticle: Radius:" 
 		<< mRadius << 
 		", Boundary(enum):" <<
