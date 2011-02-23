@@ -9,6 +9,7 @@ VPATH=nanoparticles tests
 #Set defaults that can be overriden by command line passing
 debug=1
 profile=0
+runth=1
 
 #decide whether to build for debugging or optimize the code
 ifeq (${debug},1)
@@ -47,6 +48,9 @@ EXEC_NAME=2dlc
 ${EXEC_NAME} : ${OBJECTS}
 	${CXX} ${CPPFLAGS} ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
 	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
+ifeq (${runth},1)
+	 scripts/tests.sh
+endif
 
 #include prerequesite files in make file
 -include $(OBJECTS:.o=.dep) 

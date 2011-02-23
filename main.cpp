@@ -60,7 +60,7 @@ int main()
 
 	LatticeConfig configuration;
 	
-	//open and check we have access to necessary files
+	//open and check we have access to necessary files. Then set precision on them.
 
 	//append file output as when we resume we'd like to keep the results of previous attempt.
 	annealF.open(ANNEALING_FILE, ios::app);
@@ -70,6 +70,8 @@ int main()
 		return 1;
 	}
 
+	annealF.precision(STD_PRECISION);
+
 	//truncate file (erase old contents) as we don't want old file contents
 	finalLF.open(FINAL_LATTICE_STATE_FILE, ios::trunc);
 	if(!finalLF.is_open())
@@ -77,6 +79,8 @@ int main()
 		cerr << "Error: couldn't open open ofstream on file " << FINAL_LATTICE_STATE_FILE << endl;
 		return 1;
 	}
+
+	finalLF.precision(STATE_SAVE_PRECISION);
 
 	//append file output as when we resume we'd like to keep the results of previous attempt.
 	energyF.open(ENERGY_FILE, ios::app);
@@ -86,7 +90,14 @@ int main()
 		return 1;
 	}
 
+	energyF.precision(STATE_SAVE_PRECISION);
+
+
+	//set precision for std::cout and std::cerr
+	cout.precision(STD_PRECISION);
+	cerr.precision(STD_PRECISION);
 	
+
 	cout << "# Setting lattice config parameters" << endl;	
 	//setup lattice parameters
 	configuration.width = 50;
@@ -105,8 +116,8 @@ int main()
 	//set lattice beta value
 	configuration.beta = 3.5;
 
-	//create lattice object, with (configuration, dump precision)
-	Lattice nSystem = Lattice(configuration,10);
+	//create lattice object
+	Lattice nSystem = Lattice(configuration);
 
 	//setup nSystem pointer so other functions can access it.
 	nSystemp = &nSystem;
@@ -307,6 +318,10 @@ void dumpViewableLatticeState()
 	//dump current lattice state for use will ildump.gnu
 	cout << "Dumping viewable lattice State to " << REQUEST_LATTICE_STATE_FILE << "...";
 	ofstream requestDumpF (REQUEST_LATTICE_STATE_FILE, ios::trunc);
+	
+	//set precision
+	requestDumpF.precision(STATE_SAVE_PRECISION);
+
 	if(!requestDumpF.is_open())
 	{
 		cerr << "Error: Couldn't open " << REQUEST_LATTICE_STATE_FILE << endl;

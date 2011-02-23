@@ -107,7 +107,6 @@
 	class Lattice
 	{
 		private:
-			const int DUMP_PRECISION; //the precision for output used by indexedNDump(), dumpDescription() and nDump()
 			int mNumNano; //The number of nanoparticles associated with this lattice
 			Nanoparticle** mNanoparticles; //An array of pointers to the nanoparticles associated with this lattice
 
@@ -115,7 +114,7 @@
 			/* This initialises memory on the host. No memory is allocated
 			* on the CUDA device until initialiseCuda() is called.
 			*/
-			Lattice(LatticeConfig configuration, int precision);
+			Lattice(LatticeConfig configuration);
 			
 			~Lattice(); //destructor
 
@@ -184,7 +183,6 @@
 			*/
 			double calculateTotalEnergy();
 
-			int getDumpPrecision() { return DUMP_PRECISION;}
 			
 
 	};

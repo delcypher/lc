@@ -14,7 +14,7 @@
 using namespace std;
 
 //initialisation constructor
-Lattice::Lattice(LatticeConfig configuration, int precision) : DUMP_PRECISION(precision)
+Lattice::Lattice(LatticeConfig configuration)
 {
 	//check that the width & height have been specified
 	if(configuration.width <= 0 || configuration.height <= 0)
@@ -385,8 +385,6 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 
 void Lattice::nDump(enum Lattice::dumpMode mode, std::ostream& stream)
 {
-	stream.precision(DUMP_PRECISION);
-
 	stream << "# (x) (y) (n_x) (n_y)\n";
 
 	//print lattice state
@@ -481,8 +479,6 @@ void Lattice::indexedNDump(std::ostream& stream)
 
 void Lattice::dumpDescription(std::ostream& stream)
 {
-	stream.precision(DUMP_PRECISION);
-
 	stream << "#Lattice Width:" << hostLatticeObject.param.width << "\n" <<
 		"#Lattice Height:" << hostLatticeObject.param.height << "\n" <<
 		"#Beta:" << hostLatticeObject.param.beta << "\n" <<

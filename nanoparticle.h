@@ -8,6 +8,7 @@
 	#include <cstring>
 	#include <sstream>
 	#include <iostream>
+	#include <cstdlib>
 
 	class Nanoparticle
 	{

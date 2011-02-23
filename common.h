@@ -16,8 +16,8 @@
                 return (a%b + b)%b;
         }
 	
-	const int STATE_SAVE_PRECISION=50; //Precision (d.p) used for saving state
-
+	const int STATE_SAVE_PRECISION=50; //Precision (d.p) used for saving state to files.
+	const int STD_PRECISION=10; //Precision (d.p) used for outputing to std::cout and std::cerr
 	#define COMMON_2D 1
 
 #endif

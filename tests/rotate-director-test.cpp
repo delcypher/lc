@@ -58,8 +58,8 @@ int main(int n, char* argv[])
 	//set lattice beta value
 	configuration.beta = 3.5;
 
-	//create lattice object, with (configuration, dump precision)
-	Lattice nSystem = Lattice(configuration,10);
+	//create lattice object
+	Lattice nSystem = Lattice(configuration);
 
 	//create circular nanoparticle (x,y,radius, boundary)
 	CircularNanoparticle particle1 = CircularNanoparticle(7,7,5,CircularNanoparticle::PARALLEL);
@@ -89,6 +89,7 @@ int main(int n, char* argv[])
 
 	//Dump the current state of the lattice to standard output.
 	//nSystem.nDump(Lattice::BOUNDARY,stdout);
+	cout.precision(STATE_SAVE_PRECISION);
 	nSystem.indexedNDump(std::cout);
 
 

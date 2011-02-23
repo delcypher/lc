@@ -84,8 +84,8 @@ int main(int n, char* argv[])
 	//set lattice beta value (assume k_3 >> k_1) - the code doesn't support k_1==0 so just set k_3 very large for now!
 	configuration.beta = 1e22;
 
-	//create lattice object, with (configuration, dump precision)
-	Lattice nSystem = Lattice(configuration,10);
+	//create lattice object
+	Lattice nSystem = Lattice(configuration);
 
 	//create array to hold calculated cell enery values
 	cellEnergy = (double*) calloc((configuration.width*configuration.height),sizeof(double));
