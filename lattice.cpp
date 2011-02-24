@@ -10,6 +10,7 @@
 #include "lattice.h"
 #include "differentiate.h"
 #include <cstring>
+#include <fstream>
 
 using namespace std;
 
@@ -619,5 +620,74 @@ double Lattice::calculateTotalEnergy()
 
 }
 
+bool Lattice::saveState(const char* filename)
+{
+	/* Assume following ordering of binary blocks
+	*  <configuration><mNumNano><particle1><particle1-config>...<particleN><particleN-config><lattice>
+	*
+	*/
 
+	if(badState)
+	{
+		cerr << "Error: Lattice is in a bad state. Refusing to save state!" << endl;
+		return false;
+	}
 
+	std::ofstream output(filename, ios::binary | ios::out | ios::trunc);
+
+	if(!output.is_open())
+	{
+		cerr << "Error: Couldn't save state to " << filename << " . Couldn't open file" <<endl;
+		output.close();
+		return false;
+	}
+	
+	//Write parameters
+	output.write( (char*) &hostLatticeObject.param, sizeof(LatticeConfig));
+
+	if(!output.good())
+	{
+		cerr << "Error: Couldn't save state to " << filename << " . Write failed during parameter write." <<endl;
+		output.close();
+		return false;
+	}
+
+	//Write number of nanoparticles
+	output.write( (char*) &mNumNano,sizeof(int));
+
+	if(!output.good())
+	{
+		cerr << "Error: Couldn't save state to " << filename << " . Write failed during number of nanoparticles write." <<endl;
+		output.close();
+		return false;
+	}
+
+	//loop through nanoparticles and write identifier
+	for(int counter=0; counter < mNumNano; counter++)
+	{
+		output.write( (char*) &( (mNanoparticles[counter])->TYPE),sizeof(enum Nanoparticle::types)); 
+
+		if(!output.good())
+		{
+			cerr << "Error: Couldn't save state to " << filename << " . Write failed writing identifer for nanoparticle " << counter << endl;
+			output.close();
+			return false;
+		}
+
+		//NEED TO WRITE PARTICLE CONFIGURATION! - NOT YET IMPLEMENTED
+	}
+
+	//Write Lattice
+	output.write( (char*) hostLatticeObject.lattice, sizeof(DirectorElement)*hostLatticeObject.param.width*hostLatticeObject.param.height);
+
+	if(!output.good())
+	{
+		cerr << "Error: Couldn't save state to " << filename << " . Write failed during lattice array write." <<endl;
+		output.close();
+		return false;
+	}
+
+	output.close();
+
+	return true;
+}

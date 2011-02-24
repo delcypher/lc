@@ -12,7 +12,7 @@
 using namespace std;
 
 CircularNanoparticle::CircularNanoparticle(int xCentre, int yCentre, int radius, enum boundary boundaryType) : 
-Nanoparticle(xCentre,yCentre)
+Nanoparticle(xCentre,yCentre, Nanoparticle::CIRCULAR)
 {
 	mBoundary=boundaryType;
 	if (radius > 0)
@@ -27,51 +27,6 @@ Nanoparticle(xCentre,yCentre)
 
 }
 
-CircularNanoparticle::CircularNanoparticle(const std::string & state) : Nanoparticle(state)
-{
-	//Assume parameters are space seperated in the format
-	// <xPos> <yPos> <radius> <boundary> <bad state>
-	string buffer;
-	stringstream stream(state);
-
-	//we've already passed xPos & yPos to parent class, so skip those
-	stream >> buffer;
-	stream >> buffer;
-	
-	//set radius
-	if(stream.eof())
-	{
-		cerr << "Error: Couldn't construct Circular nanoparticle. Can't get radius." << endl;
-		badState=true;
-	}
-
-	stream >> buffer;
-	mRadius = atoi(buffer.c_str());
-	if(mRadius <=0)
-	{
-		cerr << "Error: Cannot have negative radius!" << endl;
-		badState=true;
-	}
-
-	//set boundary
-
-	if(stream.eof())
-	{
-		cerr << "Error: Couldn't construct Circular nanoparticle. Can't get boundary." << endl;
-		badState=true;
-	}
-	stream >> buffer;
-	mBoundary = (boundary) atoi(buffer.c_str());
-
-	if(stream.eof())
-	{
-		cerr << "Error: Couldn't construct Circular nanoparticle. Can't get state... so setting bad state!" << endl;
-		badState=true;
-	}
-	stream >> buffer;
-	badState = (bool) atoi(buffer.c_str());
-
-}
 
 bool CircularNanoparticle::processCell(int x, int y, enum writeMethods method, DirectorElement* element)
 {

@@ -5,7 +5,8 @@
 
 using namespace std;
 
-EllipticalNanoparticle::EllipticalNanoparticle(int xCentre, int yCentre, double aValue, double bValue, double thetaValue, enum boundary boundaryType) : Nanoparticle(xCentre, yCentre)
+EllipticalNanoparticle::EllipticalNanoparticle(int xCentre, int yCentre, double aValue, double bValue, double thetaValue, enum boundary boundaryType) : 
+Nanoparticle(xCentre, yCentre, Nanoparticle::ELLIPTICAL)
 {
 	mBoundary=boundaryType;
 	if (aValue > 0 && bValue > 0)
@@ -19,80 +20,6 @@ EllipticalNanoparticle::EllipticalNanoparticle(int xCentre, int yCentre, double 
 		cerr << "Error: a and b must be greater than 0!" << endl;
 		badState=true;
 	}
-
-}
-
-EllipticalNanoparticle::EllipticalNanoparticle(const std::string & state) : Nanoparticle(state)
-{
-	//Assume parameters in std::string are in the following format
-	//<xPos> <yPos> <a> <b> <theta> <boundary> <badState>
-	string buffer;
-	stringstream stream(state);
-
-	//Assume mxPos and myPos handled by parent class
-	stream >> buffer;
-	stream >> buffer;
-
-	//get a
-	if(stream.eof())
-	{
-		cerr << "Error: Can't construct EllipticalNanoparticle. a isn't specified" << endl;
-		badState=true;
-	}
-	
-	stream >> buffer;
-	a = atof(buffer.c_str());
-	if(a <=0)
-	{
-		cerr << "Error: Can't construct EllipticalNanoparticle. a must be > 0" << endl;
-		badState=true;
-	}
-
-	//get b
-	if(stream.eof())
-	{
-		cerr << "Error: Can't construct EllipticalNanoparticle. b isn't specified" << endl;
-		badState=true;
-	}
-	
-	stream >> buffer;
-	b = atof(buffer.c_str());
-	if(b <=0)
-	{
-		cerr << "Error: Can't construct EllipticalNanoparticle. b must be > 0" << endl;
-		badState=true;
-	}
-
-	//get theta
-	if(stream.eof())
-	{
-		cerr << "Error: Can't construct EllipticalNanoparticle. theta isn't specified" << endl;
-		badState=true;
-	}
-	
-	stream >> buffer;
-	theta = atof(buffer.c_str());
-	
-	//get boundary
-	if(stream.eof())
-	{
-		cerr << "Error: Can't construct EllipticalNanoparticle. boundary isn't specified" << endl;
-		badState=true;
-	}
-	
-	stream >> buffer;
-	mBoundary = (boundary) atoi(buffer.c_str());
-
-	//get state
-	if(stream.eof())
-	{
-		cerr << "Error: Can't construct EllipticalNanoparticle. state isn't specified" << endl;
-		badState=true;
-	}
-	
-	stream >> buffer;
-	badState = (bool) atoi(buffer.c_str());
-
 
 }
 

@@ -35,7 +35,7 @@ const char ANNEALING_FILE[] = "annealing.dump";
 const char ENERGY_FILE[] = "energy.dump";
 const char FINAL_LATTICE_STATE_FILE[] = "final-lattice-state.dump";
 const char REQUEST_LATTICE_STATE_FILE[] = "current-lattice-state.dump";
-const char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bak";
+const char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bin";
 
 
 void exitHandler();
@@ -310,7 +310,7 @@ void exitHandler()
 	cout << "Last m.c.s complete, saving state to " << BACKUP_LATTICE_STATE_FILE << "...";
 	cout.flush();
 
-	//insert backup code here
+	//nSystemp->saveState(BACKUP_LATTICE_STATE_FILE);
 
 	cout << "done" << endl;
 	

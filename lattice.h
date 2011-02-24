@@ -192,6 +192,9 @@
 
 			//returns true if Lattice is in a bad state (usually from initialisation or add() )
 			bool inBadState() const { return badState;}
+			/* Saves state to file filename
+			*/
+			bool saveState(const char* filename);
 
 			
 

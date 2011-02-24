@@ -10,6 +10,7 @@
 	#include <iostream>
 	#include <cstdlib>
 
+	
 	class Nanoparticle
 	{
 		protected:
@@ -37,47 +38,17 @@
 				ADD
 			};
 
+			enum types
+			{
+				CIRCULAR,
+				ELLIPTICAL
+			};
+			const enum types TYPE; //identifier for saving and loading state
+
 			//Constructor for initially setting mxPos,myPos
-			Nanoparticle(int xPos, int yPos) : mxPos(xPos), myPos(yPos) 
+			Nanoparticle(int xPos, int yPos, enum types theType) : mxPos(xPos), myPos(yPos), TYPE(theType)
 			{
 				badState=false;
-			}
-
-			/* This constructor is designed to be used by the Lattice class
-			*  so that nanoparticles can be recreated.
-			* 
-			*  It expects a string with space seperate values where the contents are
-			*  <xPos> <yPos> <other stuff>
-			*
-			* <other stuff> is ignored and should be parameters needed by derivitive classes.
-			*/
-			Nanoparticle(const std::string & state)
-			{
-				/*doing it this way only works because >> operator stops at a space, any other
-				* delimeter will NOT work.
-				*/
-
-				std::string buffer;
-				std::stringstream stream(state);
-				
-				//get xPos value 
-				if(stream.eof())
-				{
-					std::cerr << "Error: Can't construct Nanoparticle. Can't get xPos" << std::endl;
-					badState=true;
-				}
-				stream >> buffer;
-				mxPos = atoi(buffer.c_str());
-				
-				//get yPos
-				if(stream.eof())
-				{
-					std::cerr << "Error: Can't construct Nanoparticle. Can't get yPos" << std::endl;
-					badState=true;
-				}
-
-				stream >> buffer;
-				myPos = atoi(buffer.c_str());
 			}
 
 			/* Method designed to be used by the Lattice Class.
@@ -108,6 +79,9 @@
 
 			bool inBadState() {return badState;}
 	};
+
+
+
 
 	#define NANOPARTICLE
 
