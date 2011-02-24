@@ -623,7 +623,7 @@ double Lattice::calculateTotalEnergy()
 bool Lattice::saveState(const char* filename)
 {
 	/* Assume following ordering of binary blocks
-	*  <configuration><mNumNano><particle1><particle1-config>...<particleN><particleN-config><lattice>
+	*  <configuration><mNumNano><particle1-size><particle1-data>...<particleN-size><particleN-data><lattice>
 	*
 	*/
 
@@ -662,19 +662,29 @@ bool Lattice::saveState(const char* filename)
 		return false;
 	}
 
-	//loop through nanoparticles and write identifier
+	//loop through nanoparticles and write <size><data>
 	for(int counter=0; counter < mNumNano; counter++)
 	{
-		output.write( (char*) &( (mNanoparticles[counter])->TYPE),sizeof(enum Nanoparticle::types)); 
+		size_t nanoparticleDataSize = (mNanoparticles[counter])->getSize();
+		
+		output.write( (char*) &nanoparticleDataSize,sizeof(size_t)); 
 
 		if(!output.good())
 		{
-			cerr << "Error: Couldn't save state to " << filename << " . Write failed writing identifer for nanoparticle " << counter << endl;
+			cerr << "Error: Couldn't save state to " << filename << " . Write failed writing size for nanoparticle " << counter << endl;
 			output.close();
 			return false;
 		}
 
-		//NEED TO WRITE PARTICLE CONFIGURATION! - NOT YET IMPLEMENTED
+		//write data
+		output.write( (char*) &( *(mNanoparticles[counter]) ), nanoparticleDataSize);
+
+		if(!output.good())
+		{
+			cerr << "Error: Couldn't save state to " << filename << " . Write failed writing data for nanoparticle " << counter << endl;
+			output.close();
+			return false;
+		}
 	}
 
 	//Write Lattice

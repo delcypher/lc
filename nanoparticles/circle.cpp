@@ -12,7 +12,7 @@
 using namespace std;
 
 CircularNanoparticle::CircularNanoparticle(int xCentre, int yCentre, int radius, enum boundary boundaryType) : 
-Nanoparticle(xCentre,yCentre, Nanoparticle::CIRCULAR)
+Nanoparticle(xCentre,yCentre)
 {
 	mBoundary=boundaryType;
 	if (radius > 0)

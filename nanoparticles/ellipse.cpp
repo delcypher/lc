@@ -6,7 +6,7 @@
 using namespace std;
 
 EllipticalNanoparticle::EllipticalNanoparticle(int xCentre, int yCentre, double aValue, double bValue, double thetaValue, enum boundary boundaryType) : 
-Nanoparticle(xCentre, yCentre, Nanoparticle::ELLIPTICAL)
+Nanoparticle(xCentre, yCentre)
 {
 	mBoundary=boundaryType;
 	if (aValue > 0 && bValue > 0)

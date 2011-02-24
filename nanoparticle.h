@@ -37,16 +37,9 @@
 				*/
 				ADD
 			};
-
-			enum types
-			{
-				CIRCULAR,
-				ELLIPTICAL
-			};
-			const enum types TYPE; //identifier for saving and loading state
-
+			
 			//Constructor for initially setting mxPos,myPos
-			Nanoparticle(int xPos, int yPos, enum types theType) : mxPos(xPos), myPos(yPos), TYPE(theType)
+			Nanoparticle(int xPos, int yPos) : mxPos(xPos), myPos(yPos)
 			{
 				badState=false;
 			}
@@ -78,6 +71,9 @@
 			virtual std::string getDescription() =0;
 
 			bool inBadState() {return badState;}
+
+			//return the size of the Nanoparticle in bytes.
+			virtual size_t getSize() =0;
 	};
 
 

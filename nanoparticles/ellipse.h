@@ -18,6 +18,8 @@
 			bool processCell(int x, int y, enum writeMethods method, DirectorElement* element);
 			std::string getDescription();
 			std::string saveState();
+			
+			size_t getSize() { return sizeof(EllipticalNanoparticle); }
 
 	};
 
