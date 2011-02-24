@@ -106,7 +106,7 @@
 			//Returns a string object giving a human readable description of the Nanoparticle 
 			virtual std::string getDescription() =0;
 
-			bool isBadState() {return badState;}
+			bool inBadState() {return badState;}
 	};
 
 	#define NANOPARTICLE

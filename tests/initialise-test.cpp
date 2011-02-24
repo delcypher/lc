@@ -60,7 +60,7 @@ int main(int n, char* argv[])
 	CircularNanoparticle particle1 = CircularNanoparticle(7,7,5,CircularNanoparticle::PARALLEL);
 	cout << "#Particle 1: " << particle1.getDescription() << endl;
 
-	if(particle1.isBadState())
+	if(particle1.inBadState())
 		badState=true;
 
 	//create elliptical nanoparticle
@@ -69,7 +69,7 @@ int main(int n, char* argv[])
 	EllipticalNanoparticle particle2 = EllipticalNanoparticle(20,20,10,5,PI/4,EllipticalNanoparticle::PARALLEL);
 	cout << "#Particle 2: " << particle2.getDescription() << endl;
 
-	if(particle2.isBadState())
+	if(particle2.inBadState())
 		badState=true;
 
 	//add nanoparticles to lattice
@@ -78,7 +78,12 @@ int main(int n, char* argv[])
 
 	if(! nSystem.add(particle2) )
 		badState=true;
-		
+
+	if(nSystem.inBadState())
+	{
+		cerr << "Lattice in bad state!" << endl;
+		badState=true;
+	}
 	
 	//Dump the current state of the lattice to standard output.
 	//nSystem.nDump(Lattice::BOUNDARY,stdout);
