@@ -116,7 +116,7 @@
 		private:
 			int mNumNano; //The number of nanoparticles associated with this lattice
 			Nanoparticle** mNanoparticles; //An array of pointers to the nanoparticles associated with this lattice
-
+			bool badState;
 		public:
 			/* This initialises memory on the host. No memory is allocated
 			* on the CUDA device until initialiseCuda() is called.
@@ -136,7 +136,7 @@
 			 * boundary conditions of a LatticeObject (theLattice). Note that if you wish to change the director value at point (x,y)
 			 * you should use getN().
 			*/
-			const DirectorElement* getN(int xPos, int yPos);
+			const DirectorElement* getN(int xPos, int yPos) const;
 		
 			/* This is like getN() accept it allows you to change the director value at point (x,y).
 			*  Use with CAUTION!
@@ -167,7 +167,7 @@
 			* unit vectors that are translated so that the centre of the vector rather than the end of the vector
 			* is plotted at point (xPos,yPos).
 			*/
-			void nDump(enum Lattice::dumpMode mode, std::ostream& stream);
+			void nDump(enum Lattice::dumpMode mode, std::ostream& stream) const;
 			
 			/* This method outputs the current state of the lattice to a filestream stream in a format compatible
 			*  with the GNUplot script "ildump.gnu". It outputs three indexes.
@@ -175,12 +175,12 @@
 			*  index 1 - NOT_PARTICLES 
 			*  index 1 - PARTICLES
 			*/
-			void indexedNDump(std::ostream& stream);
+			void indexedNDump(std::ostream& stream) const;
 			
 			/* Dump a description of lattice parameters to out Output stream. E.g. std::cout
 			*
 			*/
-			void dumpDescription(std::ostream& stream);
+			void dumpDescription(std::ostream& stream) const;
 
 			/* Calculate the Free energy per unit area in the cell located at (xPos,yPos) in the lattice on the HOST!
 			*/
@@ -189,6 +189,9 @@
 			/* Calculate the Free energy of the lattice on the HOST!
 			*/
 			double calculateTotalEnergy();
+
+			//returns true if Lattice is in a bad state (usually from initialisation or add() )
+			bool inBadState() const { return badState;}
 
 			
 

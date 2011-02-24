@@ -16,10 +16,14 @@ using namespace std;
 //initialisation constructor
 Lattice::Lattice(LatticeConfig configuration)
 {
+	//set initial badState
+	badState=false;
+
 	//check that the width & height have been specified
 	if(configuration.width <= 0 || configuration.height <= 0)
 	{
 		cerr << "Error: The width and/or height have not been set to valid values ( > 0). Can't initialise lattice." << endl;
+		badState=true;
 	}
 	
 
@@ -43,6 +47,7 @@ Lattice::Lattice(LatticeConfig configuration)
 	if(hostLatticeObject.lattice == NULL)
 	{
 		cerr << "Error: Couldn't allocate memory for lattice array in LatticeObject.\n" << endl;
+		badState=true;
 		exit(1);
 	}
 
@@ -76,6 +81,9 @@ bool Lattice::add(Nanoparticle& np)
 	if( np.getX() >= hostLatticeObject.param.width || np.getX() < 0 || np.getY() >= hostLatticeObject.param.height || np.getX() < 0)
 	{
 		cerr << "Error: Can't add nanoparticle that is not in the lattice.\n" << endl;
+		
+		//don't need to set badState as nothing has been changed yet
+		
 		return false;
 	}
 
@@ -87,6 +95,7 @@ bool Lattice::add(Nanoparticle& np)
 			if(! np.processCell(x,y,Nanoparticle::DRY_ADD, setN(x,y)) )
 			{
 				cerr << "Error: Adding nanoparticle on dry run failed." << endl;
+				badState=true;
 				return false;
 			}
 		}
@@ -100,6 +109,7 @@ bool Lattice::add(Nanoparticle& np)
 			if(! np.processCell(x,y,Nanoparticle::ADD, setN(x,y)) )
 			{
 				cerr << "Error: Adding nanoparticle on actuall run failed." << endl;
+				badState=true;
 				return false;
 			}
 		}
@@ -115,6 +125,7 @@ bool Lattice::add(Nanoparticle& np)
 		if(mNanoparticles==NULL)
 		{
 			cerr << "Error: Couldn't allocated memory for Nanoparticle array in Lattice." << endl;
+			badState=true;
 			return false;
 		}
 		mNumNano++;
@@ -128,6 +139,7 @@ bool Lattice::add(Nanoparticle& np)
 		if(tempArray==NULL)
 		{
 			cerr << "Error: Couldn't allocate memory for Nanoparticle array in Lattice when resizing" << endl;
+			badState=true;
 			return false;
 
 		}
@@ -155,7 +167,7 @@ bool Lattice::add(Nanoparticle& np)
 
 }
 
-const DirectorElement* Lattice::getN(int xPos, int yPos)
+const DirectorElement* Lattice::getN(int xPos, int yPos) const
 {
 	/* set xPos & yPos in the lattice taking into account periodic boundary conditions
 	*  of the 2D lattice
@@ -305,7 +317,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 	int xPos,yPos;
 	int index=0;
 	double angle;
-	bool badState=false;
+	bool badEnum=false;
 
 	for (yPos = 0; yPos < hostLatticeObject.param.height; yPos++)
 	{
@@ -368,13 +380,14 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 						hostLatticeObject.lattice[index].x=0;
 						hostLatticeObject.lattice[index].y=0;
 						badState=true;
+						badEnum=true;
 
 				}
 			}
 		}
 	}
 
-	if(badState)
+	if(badEnum)
 	{
 		cerr << "Error: Lattice has been put in bad state as supplied initial state " << 
 		hostLatticeObject.param.initialState <<
@@ -383,7 +396,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 
 }
 
-void Lattice::nDump(enum Lattice::dumpMode mode, std::ostream& stream)
+void Lattice::nDump(enum Lattice::dumpMode mode, std::ostream& stream) const
 {
 	stream << "# (x) (y) (n_x) (n_y)\n";
 
@@ -459,7 +472,7 @@ void Lattice::nDump(enum Lattice::dumpMode mode, std::ostream& stream)
 
 }
 
-void Lattice::indexedNDump(std::ostream& stream)
+void Lattice::indexedNDump(std::ostream& stream) const
 {
 	dumpDescription(stream);
 
@@ -477,7 +490,7 @@ void Lattice::indexedNDump(std::ostream& stream)
 	stream.flush();
 }
 
-void Lattice::dumpDescription(std::ostream& stream)
+void Lattice::dumpDescription(std::ostream& stream) const
 {
 	stream << "#Lattice Width:" << hostLatticeObject.param.width << "\n" <<
 		"#Lattice Height:" << hostLatticeObject.param.height << "\n" <<
@@ -488,7 +501,8 @@ void Lattice::dumpDescription(std::ostream& stream)
 		"#Left Boundary (enum):" << hostLatticeObject.param.leftBoundary << "\n" <<
 		"#Right Boundary (enum):" << hostLatticeObject.param.rightBoundary << "\n" <<
 		"#Initial State (enum):" << hostLatticeObject.param.initialState << "\n" <<
-		"#Number of Nanoparticles:" << mNumNano << "\n";
+		"#Number of Nanoparticles:" << mNumNano << "\n" <<
+		"#State:" << (badState?"Bad":"Good") << "\n";
 
 		if(mNanoparticles!=NULL)
 		{

@@ -143,6 +143,14 @@ int main()
 */
 	//Dump the initial state of the lattice to standard output
 	nSystem.dumpDescription(std::cout);
+	
+	//check if lattice is in bad state
+	if(nSystem.inBadState())
+	{
+		cerr << "Lattice in bad state!" << endl;
+		closeFiles();
+		exit(2);
+	}
 
 	double energy = nSystem.calculateTotalEnergy();
 
