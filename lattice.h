@@ -73,7 +73,7 @@
 		/* Monte Carlo and coning algorithm parameters */
 
 		double iTk;//Inverse "Temperature" of lattice for Monte Carlo algorithm
-		long mStep; //The current Monte Carlo step number
+		unsigned long mStep; //The current Monte Carlo step number
 		int acceptCounter, rejectCounter; //Counters used for coning algorithm
 		double aAngle; //The current acceptance angle
 		double desAcceptRatio; //The Desired acceptance ratio
