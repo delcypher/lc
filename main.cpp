@@ -310,7 +310,7 @@ void exitHandler()
 	cout << "Last m.c.s complete, saving state to " << BACKUP_LATTICE_STATE_FILE << "...";
 	cout.flush();
 
-	//nSystemp->saveState(BACKUP_LATTICE_STATE_FILE);
+	nSystemp->saveState(BACKUP_LATTICE_STATE_FILE);
 
 	cout << "done" << endl;
 	

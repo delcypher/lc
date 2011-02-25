@@ -91,6 +91,14 @@ rotate-director-test: rotate-director-test.o lattice.o directorelement.o differe
 calc-cosine-between-test: calc-cosine-between-test.o directorelement.o
 	${CXX} $^ ${CPPFLAGS} -o $@
 
+save-load-test: save-load-test.o lattice.o directorelement.o differentiate.o randgen.o circle.o ellipse.o
+	${CXX} $^ ${CPPFLAGS} -o $@
+#ARGS 30 30 0
+#ARGS 30 30 1
+#ARGS 30 30 2
+#ARGS 30 30 3
+
+
 #TEST HARNESSES END
 
 #Phont target used to remove generated objects and dependency files

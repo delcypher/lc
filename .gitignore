@@ -13,7 +13,11 @@ k1_equal_k3_ea
 k3_dominant_ea
 k1_dominant_ea
 uniform-rnd
+calc-cosine-between-test
+rotate-director-test
+save-load-test
 #ignore dump files
 *.dump
 #ignore saved state files
 *.bin
+

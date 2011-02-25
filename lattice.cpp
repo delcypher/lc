@@ -15,7 +15,7 @@
 using namespace std;
 
 //initialisation constructor
-Lattice::Lattice(LatticeConfig configuration)
+Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false)
 {
 	//set initial badState
 	badState=false;
@@ -68,9 +68,164 @@ Lattice::Lattice(LatticeConfig configuration)
 
 }
 
+
+//constructor for savedStates
+Lattice::Lattice(const char* filepath) : constructedFromFile(true)
+{
+	badState=false;
+	mNumNano=0;
+	mNanoparticles=NULL;
+	
+	hostLatticeObject.param.width=0;
+	hostLatticeObject.param.height=0;
+
+ 	//Really BAD way to intialise PARALLEL_DIRECTOR
+        const DirectorElement tempParallel = {1,0,0};
+        memcpy( (DirectorElement*) &(hostLatticeObject.PARALLEL_DIRECTOR),&tempParallel,sizeof(DirectorElement));
+
+        //Really BAD way to intialise PERPENDICULAR_DIRECTOR
+        const DirectorElement tempPerpendicular = {0,1,0};
+        memcpy( (DirectorElement*) &(hostLatticeObject.PERPENDICULAR_DIRECTOR),&tempPerpendicular,sizeof(DirectorElement));
+
+        //Really BAD way to initialise DUMMY_DIRECTOR
+        memset( (DirectorElement*) (&hostLatticeObject.DUMMY_DIRECTOR),0,sizeof(DirectorElement));
+
+	//allocate memory for lattice (hostLatticeObject[index]) part of array
+        hostLatticeObject.lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (hostLatticeObject.param.width)*(hostLatticeObject.param.height));
+        
+        if(hostLatticeObject.lattice == NULL)
+        {
+                cerr << "Error: Couldn't allocate memory for lattice array in LatticeObject.\n" << endl;
+                badState=true;
+                exit(1);
+        }
+
+
+	ifstream state(filepath, ios::binary | ios::in);
+	
+	if(!state.is_open())
+	{
+		cerr << "Error: Couldn't open file " << filepath << "to load state from" << endl;
+		state.close();
+		badState=true;
+		exit(1);
+	}	
+	
+	//read in parameters
+	state.read( (char*) &(hostLatticeObject.param), sizeof(LatticeConfig));
+
+	if(!state.good())
+	{
+		cerr << "Error: Couldn't read lattice parameters from file " << filepath << endl;
+		state.close();
+		badState=true;
+		exit(1);
+	}	
+	
+	//read number of Nanoparticles
+	state.read( (char*) &mNumNano, sizeof(int));
+	
+	if(!state.good())
+	{
+		cerr << "Error: Couldn't read the number of nanoparticles from file " << filepath << endl;
+		state.close();
+		badState=true;
+		exit(1);
+	}
+
+	//allocate memory for array of pointers to nanoparticles
+	if(mNumNano>0)
+	{
+		mNanoparticles = (Nanoparticle**) calloc(mNumNano,sizeof(Nanoparticle*));
+
+		if(mNanoparticles==NULL)
+		{
+			cerr << "Error: Couldn't allocate memory for array of pointers to Nanoparticles" << endl;
+			badState=true;
+			exit(1);
+		}
+	
+		//loop through nanoparticles assuming data format <size><data>
+		for(int counter=0; counter < mNumNano; counter++)
+		{
+			size_t nanoparticleDataSize=0;
+			
+			//get the datasize of the nanoparticle
+			state.read( (char*) &(nanoparticleDataSize), sizeof(size_t));
+			
+			if(nanoparticleDataSize==0)
+			{
+				cerr << "Error: Nanoparticle size read from " << filepath << " is 0." << endl;
+				badState=true;
+				exit(1);
+			}
+
+			if(!state.good())
+			{
+				cerr << "Error: Couldn't read nanoparticle data size from " << filepath << endl;
+				badState=true;
+				exit(1);
+			}
+
+			//allocate enough memory this particular nanoparticle
+			mNanoparticles[counter] = (Nanoparticle*) malloc(nanoparticleDataSize);
+
+			if(mNanoparticles[counter]==NULL)
+			{
+				cerr << "Error: Couldn't allocate memory for nanoparticle " << counter << endl;
+				badState=true;
+				exit(1);
+			}
+
+			//copy the nanoparticle data from the saved state
+			state.read( (char*) mNanoparticles[counter],nanoparticleDataSize);
+
+
+			if(!state.good())
+			{
+				cerr << "Error: Couldn't read nanoparticle data from nanoparticle " << counter << endl;
+				badState=true;
+				exit(1);
+			}
+		}	
+
+	}
+	
+	//allocate memory for the lattice
+	hostLatticeObject.lattice = (DirectorElement*) calloc( (hostLatticeObject.param.width)*(hostLatticeObject.param.height),sizeof(DirectorElement));
+	
+	if(hostLatticeObject.lattice ==NULL)
+	{
+		cerr << "Error: Couldn't allocate memory for lattice array" << endl;
+		badState=true;
+		exit(1);
+	}
+
+	//read the saved state lattice into the allocated memory for lattice
+	state.read( (char*) hostLatticeObject.lattice, sizeof(DirectorElement)*(hostLatticeObject.param.width)*(hostLatticeObject.param.height) );
+
+	if(!state.good())
+	{
+		cerr << "Error: Couldn't read lattice array from file " << filepath << endl;
+		badState=true;
+		exit(1);
+	}
+
+	state.close();
+}
+
 //destructor
 Lattice::~Lattice()
 {
+	//if this lattice was constructed from a file then memory was allocated for each nanoparticle, we should free it!
+	if(constructedFromFile && mNumNano > 0)
+	{
+		for(int counter=0; counter < mNumNano; counter++)
+		{
+			free(mNanoparticles[counter]);
+		}
+	}
+
 	free(mNanoparticles);
 	free(hostLatticeObject.lattice);
 }
