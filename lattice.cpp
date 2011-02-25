@@ -648,17 +648,24 @@ void Lattice::indexedNDump(std::ostream& stream) const
 
 void Lattice::dumpDescription(std::ostream& stream) const
 {
-	stream << "#Lattice Width:" << hostLatticeObject.param.width << "\n" <<
+	stream << "#Lattice Parameters:\n" << 
+		"#Lattice Width:" << hostLatticeObject.param.width << "\n" <<
 		"#Lattice Height:" << hostLatticeObject.param.height << "\n" <<
 		"#Beta:" << hostLatticeObject.param.beta << "\n" <<
-		"#1/TK :" << hostLatticeObject.param.iTk << "\n" <<
 		"#Top Boundary (enum):" << hostLatticeObject.param.topBoundary << "\n" <<
 		"#Bottom Boundary (enum):" << hostLatticeObject.param.bottomBoundary << "\n" <<
 		"#Left Boundary (enum):" << hostLatticeObject.param.leftBoundary << "\n" <<
 		"#Right Boundary (enum):" << hostLatticeObject.param.rightBoundary << "\n" <<
 		"#Initial State (enum):" << hostLatticeObject.param.initialState << "\n" <<
 		"#Number of Nanoparticles:" << mNumNano << "\n" <<
-		"#State:" << (badState?"Bad":"Good") << "\n";
+		"#State:" << (badState?"Bad":"Good") << "\n" <<
+		"#Monte Carlo parameters:" << "\n\n" <<
+		"#1/TK :" << hostLatticeObject.param.iTk << "\n" <<
+		"#Current Monte Carlo step:" << hostLatticeObject.param.mStep << "\n" <<
+		"#Accept Counter:" << hostLatticeObject.param.acceptCounter << "\n" <<
+		"#Reject Counter:" << hostLatticeObject.param.rejectCounter << "\n" <<
+		"#Current Acceptance angle:" << hostLatticeObject.param.aAngle << "\n" <<
+		"#Desired Acceptance ratio:" << hostLatticeObject.param.desAcceptRatio << "\n";
 
 		if(mNanoparticles!=NULL)
 		{

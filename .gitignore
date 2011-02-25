@@ -6,7 +6,8 @@
 #ignore vim swap files
 *.swp
 #ignore executables
-2dlc
+sim
+create-state
 initialise-test
 energy-analytical
 k1_equal_k3_ea

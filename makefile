@@ -31,13 +31,13 @@ endif
 CPPFLAGS = ${DEBUG_OR_OPT} ${PROFILE_OPT} -Wall -I$(shell pwd)
 
 #Project object files
-OBJECTS =  main.o directorelement.o lattice.o randgen.o differentiate.o circle.o ellipse.o 
+OBJECTS =  directorelement.o lattice.o randgen.o differentiate.o circle.o ellipse.o 
 
 #Project libraries to use (space seperated)
 LIBRARIES = m 
 
-#Executable filename
-EXEC_NAME=2dlc
+#Main Executable filename
+EXEC_NAME=sim
 
 #overwrite implicit rules so we can generate dependency (.dep) files
 %.o : %.cpp
@@ -45,8 +45,8 @@ EXEC_NAME=2dlc
 	${CXX} -M ${CPPFLAGS} $< > $*.dep
 
 #default target (link)
-${EXEC_NAME} : ${OBJECTS}
-	${CXX} ${CPPFLAGS} ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
+${EXEC_NAME} : main.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} main.o ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
 	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
 ifeq (${runth},1)
 	 scripts/tests.sh
@@ -54,6 +54,10 @@ endif
 
 #include prerequesite files in make file
 -include $(OBJECTS:.o=.dep) 
+
+#Helper tools
+create-state: create-state.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} $^ -o $@
 
 #Test Harnesses must be defined between the "#TEST HARNESSES START" and "#TEST HARNESSES END" lines
 #After the rule definition you must supply the arguments to call the test harnesses with on the next line(s).
