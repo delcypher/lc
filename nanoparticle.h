@@ -51,18 +51,6 @@
 			*/
 			virtual bool processCell(int x, int y, enum writeMethods method, DirectorElement* element) =0;
 			
-			/* Method designed to be used by Lattice class.
-			*  This method should save a (non-human readable) description of the Nanoparticle to a C++ string
-			*  which can be later be used by the class's constructor.
-			*
-			*  Derivitive classes MUST implement this method!
-			*  The first part of the C++ string must be
-			*  <xPos> <yPos>
-			*  
-			*  so it is compatible with parent class. Note saveState() should not contain any '\n'
-			*/
-			virtual std::string saveState() =0;
-
 			//simple accessor methods
 			int getX() { return mxPos;}
 			int getY() { return myPos;}

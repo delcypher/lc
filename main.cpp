@@ -24,6 +24,8 @@ using namespace std;
 /* Output filenames:
 *  ANNEALING_FILE - contains iTK and acceptance angle as the simulation progresses.
 *  ENERGY_FILE - Contains energy and monte carlo step as the simulation progresses.
+*  FINAL_LATTICE_BINARY_STATE_FILE - Contains the final state of the lattice that can be loaded using the Lattice::Lattice(const char* filepath)
+					constructor.
 *  FINAL_LATTICE_STATE_FILE - Contains the final state of lattice from Lattice::indexedNDump() for when the simulation end.
 *  REQUEST_LATTICE_STATE_FILE - Contains the current state of the lattice from Lattice::indexedNDump() at any point
 *                               in the simulation. This is written to when SIGUSR1 is sent to this program or when it is
@@ -34,6 +36,7 @@ using namespace std;
 const char ANNEALING_FILE[] = "annealing.dump";
 const char ENERGY_FILE[] = "energy.dump";
 const char FINAL_LATTICE_STATE_FILE[] = "final-lattice-state.dump";
+const char FINAL_LATTICE_BINARY_STATE_FILE[] = "final-latice-state.bin";
 const char REQUEST_LATTICE_STATE_FILE[] = "current-lattice-state.dump";
 const char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bin";
 
@@ -169,6 +172,7 @@ int main()
 	time(&rawTime);
 
 	cout << "#Starting Monte Carlo process:" << ctime(&rawTime) << endl;
+	cout << "#At monte carlo step " << nSystem.hostLatticeObject.param.mStep << " of " << loopMax << endl;
 	
 	//output header for annealing file
 	annealF << "#Starting at:" << ctime(&rawTime);
@@ -282,9 +286,15 @@ int main()
 	}
 	
 	cout << "\r100%  " << endl;	
-
-	//output final lattice state
+	cout << "#Finished simulation doing " << loopMax << " monte carlo steps." << endl;
+	//output final viewable lattice state
 	nSystem.indexedNDump(finalLF);
+
+	//output state to binary file which can be used to resume simulation (if loopMax is modified)
+	cout << "#Saving binary state to file " << FINAL_LATTICE_BINARY_STATE_FILE << "...";
+	cout.flush();
+	nSystemp->saveState(FINAL_LATTICE_BINARY_STATE_FILE);
+	cout << "done" << endl;
 
 	closeFiles();
 
@@ -295,7 +305,7 @@ int main()
 void setExit(int sig)
 {
 	cout << "Received signal:" << sig << "\n" <<
-		"Will exit when current m.c.s completes." << endl;
+		"Will exit when monte carlo step " << nSystemp->hostLatticeObject.param.mStep << " completes." << endl;
 	requestExit=true;
 }
 
@@ -307,12 +317,16 @@ void requestStateHandler(int sig)
 
 void exitHandler()
 {
-	cout << "Last m.c.s complete, saving state to " << BACKUP_LATTICE_STATE_FILE << "...";
+	cout << "Monte carlo step " << nSystemp->hostLatticeObject.param.mStep << " complete, saving binary state file to " << BACKUP_LATTICE_STATE_FILE << "...";
 	cout.flush();
+	bool saveOk=true;
 
-	nSystemp->saveState(BACKUP_LATTICE_STATE_FILE);
+	saveOk = nSystemp->saveState(BACKUP_LATTICE_STATE_FILE);
 
-	cout << "done" << endl;
+	if(saveOk)
+		cout << "done" << endl;
+	else
+		cout << "failed" << endl;
 	
 	//dump the lattice state
 	dumpViewableLatticeState();

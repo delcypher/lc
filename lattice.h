@@ -198,10 +198,16 @@
 
 			//returns true if Lattice is in a bad state (usually from initialisation or add() )
 			bool inBadState() const { return badState;}
-			/* Saves state to file filename
+
+			/* Saves binary state file to filename
 			*/
 			bool saveState(const char* filename);
 
+			//overloaded comparison operator
+			bool operator==(const Lattice & rhs) const;
+			
+			//overloaded != operator
+			bool operator!=(const Lattice & rhs) const;
 			
 
 	};

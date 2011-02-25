@@ -101,6 +101,15 @@ int main(int n, char* argv[])
 	//build new lattice from saved state
 	Lattice revived(savefile);
 
+	if(nSystem != revived)
+	{
+		cerr << "Error: Lattice states do not match!" << endl;
+		badState=true;
+	}
+	else
+	{
+		cout << "Success: Lattice states do match!" << endl;
+	}
 
 	return badState?TH_FAIL:TH_SUCCESS;
 }

@@ -856,3 +856,90 @@ bool Lattice::saveState(const char* filename)
 
 	return true;
 }
+
+//compare this lattice with rhs and return true if they are identical
+bool Lattice::operator==(const Lattice & rhs) const
+{
+	//Check lattice configuration parameters
+	if(this->mNumNano != rhs.mNumNano)
+		return false;
+	
+	if(this->hostLatticeObject.param.width != rhs.hostLatticeObject.param.width)
+		return false;
+
+	if(this->hostLatticeObject.param.height != rhs.hostLatticeObject.param.height)
+		return false;
+
+	
+	if(this->hostLatticeObject.param.beta != rhs.hostLatticeObject.param.beta)
+		return false;
+
+	
+	if(this->hostLatticeObject.param.topBoundary != rhs.hostLatticeObject.param.topBoundary)
+		return false;
+	
+
+	if(this->hostLatticeObject.param.bottomBoundary != rhs.hostLatticeObject.param.bottomBoundary)
+		return false;
+
+	if(this->hostLatticeObject.param.leftBoundary != rhs.hostLatticeObject.param.leftBoundary)
+		return false;
+
+	if(this->hostLatticeObject.param.rightBoundary != rhs.hostLatticeObject.param.rightBoundary)
+		return false;
+
+	if(this->hostLatticeObject.param.initialState != rhs.hostLatticeObject.param.initialState)
+		return false;
+
+	//check Monte carlo and conning algorithm parameters
+
+	if(this->hostLatticeObject.param.iTk != rhs.hostLatticeObject.param.iTk)
+		return false;
+
+	if(this->hostLatticeObject.param.mStep != rhs.hostLatticeObject.param.mStep)
+		return false;
+	
+
+	if(this->hostLatticeObject.param.acceptCounter != rhs.hostLatticeObject.param.acceptCounter)
+		return false;
+
+	
+	if(this->hostLatticeObject.param.rejectCounter != rhs.hostLatticeObject.param.rejectCounter)
+		return false;
+
+	if(this->hostLatticeObject.param.aAngle != rhs.hostLatticeObject.param.aAngle)
+		return false;
+
+	if(this->hostLatticeObject.param.desAcceptRatio != rhs.hostLatticeObject.param.desAcceptRatio)
+		return false;
+
+	//compare lattice array elements
+	for(int index=0; index < (hostLatticeObject.param.width)*(hostLatticeObject.param.height) ; index++)
+	{
+		if( (this->hostLatticeObject.lattice[index]).x != (rhs.hostLatticeObject.lattice[index]).x )
+			return false;
+
+		if( (this->hostLatticeObject.lattice[index]).y != (rhs.hostLatticeObject.lattice[index]).y )
+			return false;
+
+		if( (this->hostLatticeObject.lattice[index]).isNanoparticle != (rhs.hostLatticeObject.lattice[index]).isNanoparticle )
+			return false;
+	}
+
+
+	//compare nanoparticles using their getDescription() method.
+	for(int counter=0; counter < mNumNano; counter ++)
+	{
+		if ( (*(this->mNanoparticles[counter])).getDescription() != (*(rhs.mNanoparticles[counter])).getDescription() )
+			return false;
+	}
+
+	//looks like everything's the same :)
+	return true;
+
+}
+
+bool Lattice::operator!=(const Lattice & rhs) const
+{
+	return !(*this == rhs);
+}

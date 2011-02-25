@@ -21,6 +21,26 @@ HOW TO COMPILE AND RUN:
 2. An executable probably named 2dlc will be created (check the makefile to see what it will be called). To execute it run
   $ ./2dlc
 
+SIGNAL HANDLING:
+The 2dlc program is designed to handle UNIX kill signals whilst running to do some useful things. You send a signal to the application
+by finding out the PID of the running program by running
+$ pgrep 2dlc
+
+You can then send the signal by running
+ $ kill -<signal> <pid>
+
+For example to send the signal SIGUSR1 to PID 4556 run
+$ kill -SIGUSR1 4556
+
+Here are the supported kill signals and what they cause the main program to do:
+
+* SIGINT (pressing CTRL + C) or SIGTERM - Cause the application to complete the currently running Monte Carlo step then a binary
+                                          state is saved to the file BACKUP_LATTICE_STATE_FILE (defined in main.cpp) and a viewable
+					  state is saved to the file REQUEST_LATTICE_STATE_FILE. Then the program will exit.
+
+* SIGUSR1 - Causes the application to a pause execution, output a viewable state to the file REQUEST_LATTICE_STATE_FILE and then
+            resume execution. This is useful for seeing how the lattice looks during a simulation.
+
 DEBUGGING AND CODE OPTIMISATION:
 By default the makefile is set to build code for debugging with gdb and does no optimisation. To explicitly set this run
   $ make [target] debug=1
@@ -38,10 +58,15 @@ To build code for profiling run
 HOW TO ADD YOUR OWN NANOPARTICLES:
 1. Declare your own class deriving from the Nanoparticle class (nanoparticle.h) in it's own header (e.g. mynewnanoparticle.h) in
    the "nanoparticles" folder. See nanoparticles/circle.h as an example.
-2. Implement your own class in it's own implementation file (e.g. mynewnanoparticle.cpp) . You must implement the processCell() 
-   function. See nanoparticles/circle.h as an example.
-3. Include your new nanoparticle header in main.cu. (i.e. #include "nanoparticles/mynewnanoparticle.h" )
-4. Add your particle to the lattice using latticeAdd() in main.cu
+2. Implement your own class in it's own implementation file (e.g. mynewnanoparticle.cpp) . You must implement the following methods:
+
+getDescription()
+processCell()
+getSize()
+
+   See nanoparticles/circle.h as an example.
+3. Include your new nanoparticle header in main.cpp. (i.e. #include "nanoparticles/mynewnanoparticle.h" )
+4. Add your particle to the lattice using the Lattice::add() method in main.cpp
 5. Add your nanoparticle to the variable OBJECTS with a ".o" extension in the makefile. (e.g. mynewnanoparticle.o )
 6. Recompile by running ``make''
 
