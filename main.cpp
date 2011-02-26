@@ -19,7 +19,9 @@ using namespace std;
 *  Make sure the nanoparticle is listed in the OBJECTS variable
 *  in the make file too!
 */
+
 #include "nanoparticles/circle.h"
+#include "nanoparticles/ellipse.h"
 
 /* Output filenames:
 *  ANNEALING_FILE - contains iTK and acceptance angle as the simulation progresses.
@@ -54,14 +56,22 @@ time_t rawTime;
 
 
 
-int main()
+int main(int n, char* argv[])
 {
+	if(n!=2)
+	{
+		cerr << "Usage: " << argv[0] << " <filename>" << endl <<
+		"<filename> - Binary state file to load for simulation" << endl;
+		exit(1);
+	}
+	
+	char* stateFile = argv[1];
+
 	//add signal handlers
 	signal(SIGINT,&setExit);
 	signal(SIGTERM,&setExit);
 	signal(SIGUSR1,&requestStateHandler);
 
-	LatticeConfig configuration;
 	
 	//open and check we have access to necessary files. Then set precision on them.
 
@@ -101,52 +111,12 @@ int main()
 	cerr.precision(STD_PRECISION);
 	
 
-	cout << "# Setting lattice config parameters" << endl;	
-	//setup lattice parameters
-	configuration.width = 50;
-	configuration.height= 50;
-
-	//set initial director alignment
-	configuration.initialState = LatticeConfig::RANDOM;
-
-	//set boundary conditions
-	configuration.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
-	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
-	configuration.leftBoundary = LatticeConfig::BOUNDARY_PERIODIC;
-	configuration.rightBoundary = LatticeConfig::BOUNDARY_PERIODIC;
-
-	//set lattice beta value
-	configuration.beta = 3.5;
-
-	//set initial monte carlo and coning algorithm parameters
-	configuration.iTk = 1; // Inverse "temperature"
-	configuration.mStep=0; //Monte Carlo step 
-	configuration.acceptCounter=0; //Acceptance counter
-	configuration.rejectCounter=0; //Rejection counter
-	configuration.aAngle=PI*0.5; //Acceptance angle
-	configuration.desAcceptRatio=0.5; //Desired Acceptance ratio
-
 	//create lattice object
-	Lattice nSystem = Lattice(configuration);
+	Lattice nSystem = Lattice(stateFile);
 
 	//setup nSystem pointer so other functions can access it.
 	nSystemp = &nSystem;
 
-
-	//create circular nanoparticle (x,y,radius, boundary)
-//	CircularNanoparticle particle1 = CircularNanoparticle(10,10,5,CircularNanoparticle::PARALLEL);
-	
-
-	//add nanoparticle to lattice
-/*	if(! nSystem.add(particle1) )
-	{
-		cerr << "Adding Nanoparticle failed!" << endl;
-		exit(1);
-	}
-*/
-	//Dump the initial state of the lattice to standard output
-	nSystem.dumpDescription(std::cout);
-	
 	//check if lattice is in bad state
 	if(nSystem.inBadState())
 	{
@@ -154,6 +124,10 @@ int main()
 		closeFiles();
 		exit(2);
 	}
+	//Dump the initial state of the lattice to standard output
+	nSystem.dumpDescription(std::cout);
+	
+	//START MONTE CARLO ALGORITHM
 
 	double energy = nSystem.calculateTotalEnergy();
 
@@ -194,13 +168,22 @@ int main()
 			cout.flush();
 		}
 
-		for(int i=0; i < configuration.width*configuration.height; i++)
+		for(int i=0; i < (nSystem.hostLatticeObject.param.width)*(nSystem.hostLatticeObject.param.height); i++)
 		{
-			//pick "random" (x,y) co-ordinate in range ( [0,configuration.width -1] , [0,configuration.height -1] )
-			x = intRnd() % configuration.width;
-			y = intRnd() % configuration.height;
+			//pick "random" (x,y) co-ordinate in range ( [0, lattice width -1] , [0, lattice height -1] )
+			x = intRnd() % (nSystem.hostLatticeObject.param.width);
+			y = intRnd() % (nSystem.hostLatticeObject.param.height);
 
 			temp = nSystem.setN(x,y);
+			
+			//if it's a Nanoparticle cell we skip it.
+			if(temp->isNanoparticle == 1)
+			{
+				//not sure if adding to this counter is correct... think about it!
+				nSystem.hostLatticeObject.param.rejectCounter++;
+				break;
+			}
+			
 			angle = (2*rnd()-1)*nSystem.hostLatticeObject.param.aAngle; 
 			oldNx = temp->x;
 			oldNy = temp->y;

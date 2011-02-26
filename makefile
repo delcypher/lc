@@ -36,27 +36,35 @@ OBJECTS =  directorelement.o lattice.o randgen.o differentiate.o circle.o ellips
 #Project libraries to use (space seperated)
 LIBRARIES = m 
 
-#Main Executable filename
-EXEC_NAME=sim
 
 #overwrite implicit rules so we can generate dependency (.dep) files
 %.o : %.cpp
 	${CXX} -c ${CPPFLAGS} $< -o $@
 	${CXX} -M ${CPPFLAGS} $< > $*.dep
 
-#default target (link)
-${EXEC_NAME} : main.o ${OBJECTS}
-	${CXX} ${CPPFLAGS} main.o ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
-	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
+#Default target that makes various useful tools
+tools : sim-state create-state probe-state dump-state
 ifeq (${runth},1)
 	 scripts/tests.sh
 endif
+
+
+#The Monte Carlo annealing simulator
+sim-state : main.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} main.o ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
+	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
 
 #include prerequesite files in make file
 -include $(OBJECTS:.o=.dep) 
 
 #Helper tools
 create-state: create-state.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} $^ -o $@
+
+probe-state: probe-state.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} $^ -o $@
+
+dump-state: dump-state.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} $^ -o $@
 
 #Test Harnesses must be defined between the "#TEST HARNESSES START" and "#TEST HARNESSES END" lines

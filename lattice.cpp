@@ -105,7 +105,7 @@ Lattice::Lattice(const char* filepath) : constructedFromFile(true)
 	
 	if(!state.is_open())
 	{
-		cerr << "Error: Couldn't open file " << filepath << "to load state from" << endl;
+		cerr << "Error: Couldn't open file " << filepath << " to load state from." << endl;
 		state.close();
 		badState=true;
 		exit(1);
@@ -649,6 +649,7 @@ void Lattice::indexedNDump(std::ostream& stream) const
 void Lattice::dumpDescription(std::ostream& stream) const
 {
 	stream << "#Lattice Parameters:\n" << 
+		"#State is " << (badState?"Bad":"Good") << "\n" <<
 		"#Lattice Width:" << hostLatticeObject.param.width << "\n" <<
 		"#Lattice Height:" << hostLatticeObject.param.height << "\n" <<
 		"#Beta:" << hostLatticeObject.param.beta << "\n" <<
