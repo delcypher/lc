@@ -250,11 +250,14 @@ int main(int n, char* argv[])
 		/* cooling algorithm
 		*  After every 150,000 m.c.s we increase iTk i.e. we decrease the "temperature".
 		*/
-		if((nSystem.param.mStep%150000)==0 && nSystem.param.mStep!=0) nSystem.param.iTk *= 1.01;
+		if(( nSystem.param.mStep%150000)==0 && nSystem.param.mStep!=0) 
+		{
+			nSystem.param.iTk *= 1.01;
 
-		//output annealing information
-		annealF << nSystem.param.mStep << "           " << nSystem.param.aAngle << "             " << nSystem.param.iTk << endl;
-	
+			//output annealing information
+			annealF << nSystem.param.mStep << "           " << nSystem.param.aAngle << "             " << nSystem.param.iTk << endl;
+		}
+
 		//output energy information
 		energy = nSystem.calculateTotalEnergy();
 		energyF << nSystem.param.mStep << "\t" << energy << endl;
@@ -269,7 +272,9 @@ int main(int n, char* argv[])
 	cout << "\r100%  " << endl;	
 	cout << "#Finished simulation doing " << loopMax << " monte carlo steps." << endl;
 	//output final viewable lattice state
+	cout << "#Dumping final viewable lattice to " << FINAL_LATTICE_STATE_FILE << "..."; cout.flush();
 	nSystem.indexedNDump(finalLF);
+	cout << "done" << endl;
 
 	//output state to binary file which can be used to resume simulation (if loopMax is modified)
 	cout << "#Saving binary state to file " << FINAL_LATTICE_BINARY_STATE_FILE << "...";
