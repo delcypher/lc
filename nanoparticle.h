@@ -60,8 +60,6 @@
 
 			bool inBadState() {return badState;}
 
-			//return the size of the Nanoparticle in bytes.
-			virtual size_t getSize() =0;
 	};
 
 

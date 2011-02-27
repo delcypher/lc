@@ -26,7 +26,6 @@
 
 			std::string getDescription();
 
-			size_t getSize() { return sizeof(CircularNanoparticle); }
 	};
 
 		#define CIRCULAR_NANOPARTICLE

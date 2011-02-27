@@ -19,7 +19,6 @@
 			std::string getDescription();
 			std::string saveState();
 			
-			size_t getSize() { return sizeof(EllipticalNanoparticle); }
 
 	};
 
