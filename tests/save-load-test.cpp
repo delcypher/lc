@@ -67,7 +67,6 @@ int main(int n, char* argv[])
 	//create circular nanoparticle (x,y,radius, boundary)
 	CircularNanoparticle particle1 = CircularNanoparticle(7,7,5,CircularNanoparticle::PARALLEL);
 	cout << "#Particle 1: " << particle1.getDescription() << endl;
-	cout << "#Particle 1 data size:" << particle1.getSize() << endl;
 	if(particle1.inBadState())
 		badState=true;
 
@@ -77,7 +76,6 @@ int main(int n, char* argv[])
 	EllipticalNanoparticle particle2 = EllipticalNanoparticle(20,20,10,5,PI/4,EllipticalNanoparticle::PARALLEL);
 	cout << "#Particle 2: " << particle2.getDescription() << endl;
 
-	cout << "#Particle 2 data size:" << particle2.getSize() << endl;
 	if(particle2.inBadState())
 		badState=true;
 

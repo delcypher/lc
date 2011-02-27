@@ -6,7 +6,7 @@
 using namespace std;
 
 EllipticalNanoparticle::EllipticalNanoparticle(int xCentre, int yCentre, double aValue, double bValue, double thetaValue, enum boundary boundaryType) : 
-Nanoparticle(xCentre, yCentre)
+Nanoparticle(xCentre, yCentre, Nanoparticle::ELLIPSE)
 {
 	mBoundary=boundaryType;
 	if (aValue > 0 && bValue > 0)
@@ -23,6 +23,29 @@ Nanoparticle(xCentre, yCentre)
 
 }
 
+EllipticalNanoparticle::EllipticalNanoparticle(std::ifstream & stream) : Nanoparticle(stream,Nanoparticle::ELLIPSE)
+{
+	/* Format:
+        *  <parents_data><a><b><theta><mBoundary>
+        *
+        */
+	
+	//don't set badState to true here as parent may of set it to false.
+
+	if(!stream.good())
+	{
+		cerr << "Error: Couldn't construct Elliptical Nanoparticle. Stream not good" << endl;
+		badState=true;		
+	}
+
+	stream.read( (char*) &a, sizeof(double));
+	stream.read( (char*) &b, sizeof(double));
+	stream.read( (char*) &theta, sizeof(double));
+	stream.read( (char*) &mBoundary, sizeof(enum Nanoparticle::types));
+
+	
+
+}
 
 bool EllipticalNanoparticle::processCell(int x, int y, enum writeMethods method, DirectorElement* element)
 {
@@ -143,10 +166,30 @@ std::string EllipticalNanoparticle::getDescription()
 
 }
 
-std::string EllipticalNanoparticle::saveState()
+bool EllipticalNanoparticle::saveState(std::ofstream & stream)
 {
-	stringstream state;
-	state.precision(STATE_SAVE_PRECISION);
-	state << mxPos << " " << myPos << " " << a << " " << b << " " << theta << " " << mBoundary << " " << badState;
-	return state.str();
+	/* Format:
+	*  <parents_data><a><b><theta><mBoundary>
+	*
+	*/
+
+	//call parent to save its data
+	if(!Nanoparticle::saveState(stream))
+	{
+		cerr << "Error: Failed to save EllipticalNanoparticle State. Parent call failed" << endl;
+		return false;
+	}
+	
+	stream.write( (char*) &a, sizeof(double));
+	stream.write( (char*) &b, sizeof(double));
+	stream.write( (char*) &theta, sizeof(double));
+	stream.write( (char*) &mBoundary, sizeof(enum Nanoparticle::types));
+
+	if(!stream.good())
+	{
+		cerr << "Error: Couldn't save EllipticalNanoparticle State. stream isn't good" << endl;
+		return false;
+	}
+
+	return true;
 }

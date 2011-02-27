@@ -62,13 +62,20 @@ HOW TO ADD YOUR OWN NANOPARTICLES:
 
 getDescription()
 processCell()
-getSize()
+saveState()
 
-   See nanoparticles/circle.h as an example.
-3. Include your new nanoparticle header in main.cpp. (i.e. #include "nanoparticles/mynewnanoparticle.h" )
-4. Add your particle to the lattice using the Lattice::add() method in main.cpp
-5. Add your nanoparticle to the variable OBJECTS with a ".o" extension in the makefile. (e.g. mynewnanoparticle.o )
-6. Recompile by running ``make''
+A constructor that takes regular arguments. e.g. mynanoparticle::mynanoparticle(int width, int height ...);
+A constructor that takes an ifstream as input. e.g. mynanoparticle::mynanoparticle(std::ifstream & input);
+
+   See nanoparticles/circle.h and nanoparticles/circle.cpp as an example.
+3. Include your new nanoparticle header in the relevant files (e.g. sim-state). (i.e. #include "nanoparticles/mynewnanoparticle.h" )
+4. Add an ID for your nanoparticle to the "types" enum in the Nanoparticle class definition.
+5. Add the ifstream argument constructor to your nanoparticle to the switch statement in Lattice::saveState() so that your nanoparticle
+   can be reconstructed from binary data saved to a file.
+
+5. Add your particle to the lattice using the Lattice::add() method in the relevant programs (e.g. create-state)
+6. Add your nanoparticle to the variable OBJECTS with a ".o" extension in the makefile. (e.g. mynewnanoparticle.o )
+7. Recompile by running ``make''
 
 HOW TO CLEAN UP THE BUILD:
 Compiling the program will generate lots of .o files (object files) & .dep (dependency files for make). Run the following command to clean this up.

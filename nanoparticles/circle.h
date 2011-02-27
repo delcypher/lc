@@ -19,12 +19,16 @@
 			} mBoundary;
 
 			CircularNanoparticle(int xCentre, int yCentre, int radius, enum boundary boundaryType);
+				
+			//Constructor for recreating the object from binary data
+			CircularNanoparticle(std::ifstream & stream);
 
 			bool processCell(int x, int y, enum writeMethods method, DirectorElement* element);
 
-			std::string saveState();
-
 			std::string getDescription();
+
+			//override parent class's method
+			virtual bool saveState(std::ofstream & stream);
 
 	};
 

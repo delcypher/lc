@@ -12,7 +12,7 @@
 using namespace std;
 
 CircularNanoparticle::CircularNanoparticle(int xCentre, int yCentre, int radius, enum boundary boundaryType) : 
-Nanoparticle(xCentre,yCentre)
+Nanoparticle(xCentre,yCentre,Nanoparticle::CIRCLE)
 {
 	mBoundary=boundaryType;
 	if (radius > 0)
@@ -22,6 +22,33 @@ Nanoparticle(xCentre,yCentre)
 	else
 	{
 		cerr << "Error: Cannot have negative radius!" << endl;
+		badState=true;
+	}
+
+}
+
+CircularNanoparticle::CircularNanoparticle(std::ifstream & stream) : Nanoparticle(stream, Nanoparticle::CIRCLE)
+{
+	/* FORMAT
+	*  <parent_data><mRadius><mBoundary>
+	*
+	*/
+
+	//we not set badState here as parent constructor may of set it to bad
+
+	stream.read( (char*) &mRadius,sizeof(int));
+
+	if(!stream.good())
+	{
+		cerr << "Error: Couldn't create CircularNanoparticle. Failed to read mRadius" << endl;
+		badState=true;
+	}
+
+	stream.read( (char*) &mBoundary,sizeof(enum boundary));
+
+	if(!stream.good())
+	{
+		cerr << "Error: Couldn't create CircularNanoparticle. Failed to read mBoundary" << endl;
 		badState=true;
 	}
 
@@ -124,13 +151,41 @@ std::string CircularNanoparticle::getDescription()
 	return description.str();
 }
 
-std::string CircularNanoparticle::saveState()
+bool CircularNanoparticle::saveState(std::ofstream & stream)
 {
-	std::stringstream state(std::stringstream::out);
-	state.precision(STATE_SAVE_PRECISION);
+	/* Format:
+	*  
+	*  <parent_data><mRadius><boundary>
+	*/
 
-	state << mxPos << " " << myPos << " " << mRadius << " " << mBoundary << " " << badState; 
+	//call parent so it can sort out saving its part
+	if(! Nanoparticle::saveState(stream) )
+	{
+		return false;
+	}
 
-	return state.str();
+	
+	if(!stream.good())
+	{
+		cerr << "Error: Cannot save CircularNanoparticle. Stream not good" << endl;
+		return false;
+	}
 
+	stream.write( (char*) &mRadius, sizeof(int));
+
+	if(!stream.good())
+	{
+		cerr << "Error: Cannot save CircularNanoparticle. Failed writing mRadius" << endl;
+		return false;
+	}
+
+	stream.write( (char*) &mBoundary, sizeof(enum boundary));
+
+	if(!stream.good())
+	{
+		cerr << "Error: Cannot save CircularNanoparticle. Failed writing mBoundary" << endl;
+		return false;
+	}
+
+	return true;
 }

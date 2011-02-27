@@ -11,6 +11,8 @@
 #include "differentiate.h"
 #include <cstring>
 #include <fstream>
+#include "nanoparticles/circle.h"
+#include "nanoparticles/ellipse.h"
 
 using namespace std;
 
@@ -72,6 +74,11 @@ Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false)
 //constructor for savedStates
 Lattice::Lattice(const char* filepath) : constructedFromFile(true)
 {
+	/* Assume following ordering of binary blocks
+	*  <configuration><mNumNano><lattice><Nanoparticle_1_ID><Nanoparticle_1_data><Nanoparticle_2_ID><Nanoparticle_2_data>...
+	*
+	*/
+
 	badState=false;
 	mNumNano=0;
 	mNanoparticles=NULL;
@@ -133,64 +140,6 @@ Lattice::Lattice(const char* filepath) : constructedFromFile(true)
 		exit(1);
 	}
 
-	//allocate memory for array of pointers to nanoparticles
-	if(mNumNano>0)
-	{
-		mNanoparticles = (Nanoparticle**) calloc(mNumNano,sizeof(Nanoparticle*));
-
-		if(mNanoparticles==NULL)
-		{
-			cerr << "Error: Couldn't allocate memory for array of pointers to Nanoparticles" << endl;
-			badState=true;
-			exit(1);
-		}
-	
-		//loop through nanoparticles assuming data format <size><data>
-		for(int counter=0; counter < mNumNano; counter++)
-		{
-			size_t nanoparticleDataSize=0;
-			
-			//get the datasize of the nanoparticle
-			state.read( (char*) &(nanoparticleDataSize), sizeof(size_t));
-			
-			if(nanoparticleDataSize==0)
-			{
-				cerr << "Error: Nanoparticle size read from " << filepath << " is 0." << endl;
-				badState=true;
-				exit(1);
-			}
-
-			if(!state.good())
-			{
-				cerr << "Error: Couldn't read nanoparticle data size from " << filepath << endl;
-				badState=true;
-				exit(1);
-			}
-
-			//allocate enough memory this particular nanoparticle
-			mNanoparticles[counter] = (Nanoparticle*) malloc(nanoparticleDataSize);
-
-			if(mNanoparticles[counter]==NULL)
-			{
-				cerr << "Error: Couldn't allocate memory for nanoparticle " << counter << endl;
-				badState=true;
-				exit(1);
-			}
-
-			//copy the nanoparticle data from the saved state
-			state.read( (char*) mNanoparticles[counter],nanoparticleDataSize);
-
-
-			if(!state.good())
-			{
-				cerr << "Error: Couldn't read nanoparticle data from nanoparticle " << counter << endl;
-				badState=true;
-				exit(1);
-			}
-		}	
-
-	}
-	
 	//allocate memory for the lattice
 	hostLatticeObject.lattice = (DirectorElement*) calloc( (hostLatticeObject.param.width)*(hostLatticeObject.param.height),sizeof(DirectorElement));
 	
@@ -211,6 +160,54 @@ Lattice::Lattice(const char* filepath) : constructedFromFile(true)
 		exit(1);
 	}
 
+	//allocate memory for array of pointers to nanoparticles
+	if(mNumNano>0)
+	{
+		mNanoparticles = (Nanoparticle**) calloc(mNumNano,sizeof(Nanoparticle*));
+
+		if(mNanoparticles==NULL)
+		{
+			cerr << "Error: Couldn't allocate memory for array of pointers to Nanoparticles" << endl;
+			badState=true;
+			exit(1);
+		}
+	
+		//loop through nanoparticles assuming data format <size><data>
+		for(int counter=0; counter < mNumNano; counter++)
+		{
+			enum Nanoparticle::types id= (Nanoparticle::types) -1;
+			
+			//get the type of nanoparticle
+			state.read( (char*) &(id), sizeof(enum Nanoparticle::types));
+			
+			//Pick the correct constructor to use based on the id and allocate memory for it.
+			switch(id)
+			{
+				case Nanoparticle::CIRCLE :
+					mNanoparticles[counter] = new CircularNanoparticle(state);
+					break;
+
+				case Nanoparticle::ELLIPSE :
+					mNanoparticles[counter] = new EllipticalNanoparticle(state);
+					break;
+
+				default:
+					cerr << "Error: Lattice constructor does not support nanoparticle of type " << id << " (enum) " << endl;
+					badState=true;
+			}	
+			
+			if(!state.good())
+			{
+				cerr << "Error: Failed to create Nanoparticle  " << counter << endl;
+				badState=true;
+				exit(1);
+			}
+		}	
+
+	}
+	
+	
+
 	state.close();
 }
 
@@ -222,7 +219,7 @@ Lattice::~Lattice()
 	{
 		for(int counter=0; counter < mNumNano; counter++)
 		{
-			free(mNanoparticles[counter]);
+			delete (mNanoparticles[counter]);
 		}
 	}
 
@@ -786,7 +783,7 @@ double Lattice::calculateTotalEnergy()
 bool Lattice::saveState(const char* filename)
 {
 	/* Assume following ordering of binary blocks
-	*  <configuration><mNumNano><particle1-size><particle1-data>...<particleN-size><particleN-data><lattice>
+	*  <configuration><mNumNano><lattice><Nanoparticle_1_ID><Nanoparticle_1_data><Nanoparticle_2_ID><Nanoparticle_2_data>...
 	*
 	*/
 
@@ -825,31 +822,6 @@ bool Lattice::saveState(const char* filename)
 		return false;
 	}
 
-	//loop through nanoparticles and write <size><data>
-	for(int counter=0; counter < mNumNano; counter++)
-	{
-		size_t nanoparticleDataSize = (mNanoparticles[counter])->getSize();
-		
-		output.write( (char*) &nanoparticleDataSize,sizeof(size_t)); 
-
-		if(!output.good())
-		{
-			cerr << "Error: Couldn't save state to " << filename << " . Write failed writing size for nanoparticle " << counter << endl;
-			output.close();
-			return false;
-		}
-
-		//write data
-		output.write( (char*) &( *(mNanoparticles[counter]) ), nanoparticleDataSize);
-
-		if(!output.good())
-		{
-			cerr << "Error: Couldn't save state to " << filename << " . Write failed writing data for nanoparticle " << counter << endl;
-			output.close();
-			return false;
-		}
-	}
-
 	//Write Lattice
 	output.write( (char*) hostLatticeObject.lattice, sizeof(DirectorElement)*hostLatticeObject.param.width*hostLatticeObject.param.height);
 
@@ -859,6 +831,33 @@ bool Lattice::saveState(const char* filename)
 		output.close();
 		return false;
 	}
+
+	//loop through nanoparticles and write <Nanoparticle_ID><Nanoparticle_data>
+	for(int counter=0; counter < mNumNano; counter++)
+	{
+		//write the ID of the nanoparticle.
+		enum Nanoparticle::types theType = mNanoparticles[counter]->ID;
+		output.write( (char*) &theType,sizeof(enum Nanoparticle::types)); 
+
+		if(!output.good())
+		{
+			cerr << "Error: Couldn't save state to " << filename << " . Write failed writing ID for nanoparticle " << counter << endl;
+			output.close();
+			return false;
+		}
+
+		//write data
+		mNanoparticles[counter]->saveState(output);
+
+		if(!output.good())
+		{
+			cerr << "Error: Couldn't save state to " << filename << " . Write failed writing data for nanoparticle " << counter << endl;
+			output.close();
+			return false;
+		}
+	}
+
+	
 
 	output.close();
 

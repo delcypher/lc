@@ -9,7 +9,7 @@
 	#include <sstream>
 	#include <iostream>
 	#include <cstdlib>
-
+	#include <fstream>
 	
 	class Nanoparticle
 	{
@@ -38,10 +38,34 @@
 				ADD
 			};
 			
+			enum types
+			{
+				CIRCLE,
+				ELLIPSE
+			};
+
+			const enum types ID;
+
 			//Constructor for initially setting mxPos,myPos
-			Nanoparticle(int xPos, int yPos) : mxPos(xPos), myPos(yPos)
+			Nanoparticle(int xPos, int yPos, enum Nanoparticle::types theType) : mxPos(xPos), myPos(yPos), ID(theType)
 			{
 				badState=false;
+			}
+
+			//Constructor for reconstructing Nanoparticle from binary data
+			Nanoparticle(std::ifstream & stream, enum Nanoparticle::types theType) : ID(theType)
+			{
+				if(stream.good())
+				{
+					stream.read( (char*) &mxPos, sizeof(int));
+					stream.read( (char*) &myPos, sizeof(int));
+					badState = !(stream.good());
+				}
+				else
+				{
+					badState=true;
+				}
+
 			}
 
 			/* Method designed to be used by the Lattice Class.
@@ -57,6 +81,23 @@
 			
 			//Returns a string object giving a human readable description of the Nanoparticle 
 			virtual std::string getDescription() =0;
+
+			//Save the state of the object to a binary file. Derivitive classes should call this first in their saveState()
+			virtual bool saveState(std::ofstream & stream)
+			{
+				if(stream.good())
+				{
+					stream.write( (char*) &mxPos, sizeof(int));
+					stream.write( (char*) &myPos, sizeof(int));
+				 	return stream.good();
+				}
+				else
+				{
+					std::cerr << "Error: Nanoparticle::saveState() failed. Stream not good!\n";
+					return false;
+				}	
+
+			}
 
 			bool inBadState() {return badState;}
 

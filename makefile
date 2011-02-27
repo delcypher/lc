@@ -50,8 +50,8 @@ endif
 
 
 #The Monte Carlo annealing simulator
-sim-state : main.o ${OBJECTS}
-	${CXX} ${CPPFLAGS} main.o ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
+sim-state : sim.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} sim.o ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
 	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
 
 #include prerequesite files in make file
@@ -75,19 +75,19 @@ dump-state: dump-state.o ${OBJECTS}
 
 #TEST HARNESSES START
 
-k1_equal_k3_ea: k1_equal_k3_ea.o lattice.o directorelement.o differentiate.o randgen.o
+k1_equal_k3_ea: k1_equal_k3_ea.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} $^ -o $@
 #ARGS 50 50 1e-14 1e-4
 
-k1_dominant_ea: k1_dominant_ea.o lattice.o directorelement.o differentiate.o randgen.o
+k1_dominant_ea: k1_dominant_ea.o lattice.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} $^ -o $@
 #ARGS 50 50 1e-13 1e-13
 
-k3_dominant_ea: k3_dominant_ea.o lattice.o directorelement.o differentiate.o randgen.o
+k3_dominant_ea: k3_dominant_ea.o lattice.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} $^ -o $@
 #ARGS 50 50 1e-13 1e-13
 
-initialise-test: initialise-test.o lattice.o directorelement.o differentiate.o randgen.o circle.o ellipse.o
+initialise-test: initialise-test.o ${OBJECTS}
 	${CXX} $^ ${CPPFLAGS} -o $@
 #ARGS 30 30 0
 #ARGS 30 30 1
@@ -97,13 +97,13 @@ initialise-test: initialise-test.o lattice.o directorelement.o differentiate.o r
 uniform-rnd: uniform-rnd.o randgen.o
 	${CXX} $^ ${CPPFLAGS} -o $@
 
-rotate-director-test: rotate-director-test.o lattice.o directorelement.o differentiate.o randgen.o circle.o ellipse.o
+rotate-director-test: rotate-director-test.o ${OBJECTS}
 	${CXX} $^ ${CPPFLAGS} -o $@
 
 calc-cosine-between-test: calc-cosine-between-test.o directorelement.o
 	${CXX} $^ ${CPPFLAGS} -o $@
 
-save-load-test: save-load-test.o lattice.o directorelement.o differentiate.o randgen.o circle.o ellipse.o
+save-load-test: save-load-test.o ${OBJECTS}
 	${CXX} $^ ${CPPFLAGS} -o $@
 #ARGS 30 30 0
 #ARGS 30 30 1

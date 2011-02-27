@@ -140,8 +140,7 @@ int main(int n, char* argv[])
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 	double oldaAngle;
 	double CurAcceptRatio = 0;
-	double progress = 0, oldProgress = 0;
-
+	int percentStep = loopMax /100;
 	//Get the current time to show in files.
 	time(&rawTime);
 
@@ -158,13 +157,12 @@ int main(int n, char* argv[])
 	energyF << -1 << "\t" << energy << endl;
 
 	
-	for(nSystem.hostLatticeObject.param.mStep = 0; nSystem.hostLatticeObject.param.mStep < loopMax; nSystem.hostLatticeObject.param.mStep++)
+	for(; nSystem.hostLatticeObject.param.mStep < loopMax; nSystem.hostLatticeObject.param.mStep++)
 	{
-		progress = (double) nSystem.hostLatticeObject.param.mStep / loopMax * 100;
-		if(progress - oldProgress > 1) 
+		//output progress as a percentage
+		if(nSystem.hostLatticeObject.param.mStep % percentStep ==0) 
 		{
-			cout  << "\r" << progress << "%  ";
-			oldProgress = progress;
+			cout  << "\r" << ( (float) (nSystem.hostLatticeObject.param.mStep)/percentStep) << "%  ";
 			cout.flush();
 		}
 
