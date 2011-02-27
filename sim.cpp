@@ -136,7 +136,7 @@ int main(int n, char* argv[])
 
 	DirectorElement *temp;
 	int x, y; 
-	unsigned long loopMax = 100000;
+	unsigned long loopMax = 250000000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 	double oldaAngle;
 	double CurAcceptRatio = 0;
@@ -259,8 +259,11 @@ int main(int n, char* argv[])
 		}
 
 		//output energy information
-		energy = nSystem.calculateTotalEnergy();
-		energyF << nSystem.param.mStep << "\t" << energy << endl;
+		if( (nSystem.param.mStep%100)==0 )
+		{
+			energy = nSystem.calculateTotalEnergy();
+			energyF << nSystem.param.mStep << "\t" << energy << endl;
+		}
 
 		//check if a request to exit has occured
 		if(requestExit)
