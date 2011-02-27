@@ -11,7 +11,7 @@
 
 
 	/* LatticeConfig is used to hold initial configuration parameters
-	* for a lattice and should be passed to latticeInitialise();
+	* for a lattice and should be passed to Lattice::Lattice();
 	*
 	*/
 	typedef struct
@@ -81,36 +81,7 @@
 
 	} LatticeConfig;
 
-		
-	/* This struct is the container for everything to do with the lattice
-	 *
-	*/
-	typedef struct
-	{
-				
-		//Lattice Parameters
-		LatticeConfig param;
 
-	
-		//Define the 2D lattice array (we use a linear memory block however)
-		DirectorElement* lattice;
-		
-		const DirectorElement PERPENDICULAR_DIRECTOR;
-		const DirectorElement PARALLEL_DIRECTOR;
-		
-		/* This DUMMY_DIRECTOR exists so that a pointer to something that isn't
-		*  NULL is returned by getN() and setN() if an invalid point in the lattice
-		*  is requested. It should be initialised to {0,0,0} but access via setN()
-		*  can allow its value to be changed which the user "should" be warned about.
-		*/
-		const DirectorElement DUMMY_DIRECTOR; 
-
-	} LatticeObject;	
-
-
-	/* The Lattice class is used as a "wrapper" class for LatticeObject that handles
-	*  the device pointers and has associated methods
-	*/
 	class Lattice
 	{
 		private:
@@ -118,9 +89,26 @@
 			Nanoparticle** mNanoparticles; //An array of pointers to the nanoparticles associated with this lattice
 			bool badState;
 			const bool constructedFromFile;// Used to indicate which constructor was called
+
+			//Define the 2D lattice array (we use a linear memory block however)
+			DirectorElement* lattice;
+			
+			const DirectorElement PERPENDICULAR_DIRECTOR;
+			const DirectorElement PARALLEL_DIRECTOR;
+			
+			/* This DUMMY_DIRECTOR exists so that a pointer to something that isn't
+			*  NULL is returned by getN() and setN() if an invalid point in the lattice
+			*  is requested. It should be initialised to {0,0,0} but access via setN()
+			*  can allow its value to be changed which the user "should" be warned about.
+			*/
+			const DirectorElement DUMMY_DIRECTOR; 
+
 		public:
-			/* This initialises memory on the host. No memory is allocated
-			* on the CUDA device until initialiseCuda() is called.
+			//Lattice Parameters
+			LatticeConfig param;
+
+			/* This initialises the lattice from a LatticeConfig struct
+			* 
 			*/
 			Lattice(LatticeConfig configuration);
 		
@@ -131,7 +119,6 @@
 
 			~Lattice(); //destructor
 
-			LatticeObject hostLatticeObject; //The host's LatticeObject.
 
 			/* Adds a nanoparticle (np) (of type that should be derived from class Nanoparticle) to the lattice.
 			*  The method will return true if successful or false if something goes wrong!

@@ -17,7 +17,7 @@
 using namespace std;
 
 //initialisation constructor
-Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false)
+Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false) , PARALLEL_DIRECTOR({1,0,0}) , PERPENDICULAR_DIRECTOR({0,1,0}), DUMMY_DIRECTOR({0,0,0})
 {
 	//set initial badState
 	badState=false;
@@ -31,23 +31,12 @@ Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false)
 	
 
 	//set lattice parameters
-	hostLatticeObject.param = configuration;
+	param = configuration;
 	
-	//Really BAD way to intialise PARALLEL_DIRECTOR
-	const DirectorElement tempParallel = {1,0,0};
-	memcpy( (DirectorElement*) &(hostLatticeObject.PARALLEL_DIRECTOR),&tempParallel,sizeof(DirectorElement));
-
-	//Really BAD way to intialise PERPENDICULAR_DIRECTOR
-	const DirectorElement tempPerpendicular = {0,1,0};
-	memcpy( (DirectorElement*) &(hostLatticeObject.PERPENDICULAR_DIRECTOR),&tempPerpendicular,sizeof(DirectorElement));
-
-	//Really BAD way to initialise DUMMY_DIRECTOR
-	memset( (DirectorElement*) (&hostLatticeObject.DUMMY_DIRECTOR),0,sizeof(DirectorElement));
-
-	//allocate memory for lattice (hostLatticeObject[index]) part of array
-	hostLatticeObject.lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (hostLatticeObject.param.width)*(hostLatticeObject.param.height));
+	//allocate memory for lattice (index]) part of array
+	lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (param.width)*(param.height));
 	
-	if(hostLatticeObject.lattice == NULL)
+	if(lattice == NULL)
 	{
 		cerr << "Error: Couldn't allocate memory for lattice array in LatticeObject.\n" << endl;
 		badState=true;
@@ -55,9 +44,9 @@ Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false)
 	}
 
 	//set every lattice point to not be a nanoparticle
-	for(int point=0; point < (hostLatticeObject.param.width)*(hostLatticeObject.param.height) ; point++)
+	for(int point=0; point < (param.width)*(param.height) ; point++)
 	{
-		hostLatticeObject.lattice[point].isNanoparticle=0;
+		lattice[point].isNanoparticle=0;
 	}
 	
 	//set the number of nanoparticles associated with the lattice to 0
@@ -65,14 +54,14 @@ Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false)
 	mNanoparticles=NULL;
 
 	//initialise the lattice to a particular state
-	reInitialise(hostLatticeObject.param.initialState);
+	reInitialise(param.initialState);
 
 
 }
 
 
 //constructor for savedStates
-Lattice::Lattice(const char* filepath) : constructedFromFile(true)
+Lattice::Lattice(const char* filepath) : constructedFromFile(true) , PARALLEL_DIRECTOR({1,0,0}) , PERPENDICULAR_DIRECTOR({0,1,0}), DUMMY_DIRECTOR({0,0,0})
 {
 	/* Assume following ordering of binary blocks
 	*  <configuration><mNumNano><lattice><Nanoparticle_1_ID><Nanoparticle_1_data><Nanoparticle_2_ID><Nanoparticle_2_data>...
@@ -83,24 +72,13 @@ Lattice::Lattice(const char* filepath) : constructedFromFile(true)
 	mNumNano=0;
 	mNanoparticles=NULL;
 	
-	hostLatticeObject.param.width=0;
-	hostLatticeObject.param.height=0;
+	param.width=0;
+	param.height=0;
 
- 	//Really BAD way to intialise PARALLEL_DIRECTOR
-        const DirectorElement tempParallel = {1,0,0};
-        memcpy( (DirectorElement*) &(hostLatticeObject.PARALLEL_DIRECTOR),&tempParallel,sizeof(DirectorElement));
-
-        //Really BAD way to intialise PERPENDICULAR_DIRECTOR
-        const DirectorElement tempPerpendicular = {0,1,0};
-        memcpy( (DirectorElement*) &(hostLatticeObject.PERPENDICULAR_DIRECTOR),&tempPerpendicular,sizeof(DirectorElement));
-
-        //Really BAD way to initialise DUMMY_DIRECTOR
-        memset( (DirectorElement*) (&hostLatticeObject.DUMMY_DIRECTOR),0,sizeof(DirectorElement));
-
-	//allocate memory for lattice (hostLatticeObject[index]) part of array
-        hostLatticeObject.lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (hostLatticeObject.param.width)*(hostLatticeObject.param.height));
+	//allocate memory for lattice (index]) part of array
+        lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (param.width)*(param.height));
         
-        if(hostLatticeObject.lattice == NULL)
+        if(lattice == NULL)
         {
                 cerr << "Error: Couldn't allocate memory for lattice array in LatticeObject.\n" << endl;
                 badState=true;
@@ -119,7 +97,7 @@ Lattice::Lattice(const char* filepath) : constructedFromFile(true)
 	}	
 	
 	//read in parameters
-	state.read( (char*) &(hostLatticeObject.param), sizeof(LatticeConfig));
+	state.read( (char*) &(param), sizeof(LatticeConfig));
 
 	if(!state.good())
 	{
@@ -141,9 +119,9 @@ Lattice::Lattice(const char* filepath) : constructedFromFile(true)
 	}
 
 	//allocate memory for the lattice
-	hostLatticeObject.lattice = (DirectorElement*) calloc( (hostLatticeObject.param.width)*(hostLatticeObject.param.height),sizeof(DirectorElement));
+	lattice = (DirectorElement*) calloc( (param.width)*(param.height),sizeof(DirectorElement));
 	
-	if(hostLatticeObject.lattice ==NULL)
+	if(lattice ==NULL)
 	{
 		cerr << "Error: Couldn't allocate memory for lattice array" << endl;
 		badState=true;
@@ -151,7 +129,7 @@ Lattice::Lattice(const char* filepath) : constructedFromFile(true)
 	}
 
 	//read the saved state lattice into the allocated memory for lattice
-	state.read( (char*) hostLatticeObject.lattice, sizeof(DirectorElement)*(hostLatticeObject.param.width)*(hostLatticeObject.param.height) );
+	state.read( (char*) lattice, sizeof(DirectorElement)*(param.width)*(param.height) );
 
 	if(!state.good())
 	{
@@ -224,14 +202,14 @@ Lattice::~Lattice()
 	}
 
 	free(mNanoparticles);
-	free(hostLatticeObject.lattice);
+	free(lattice);
 }
 
 
 bool Lattice::add(Nanoparticle& np)
 {
 	//check nanoparticle location is inside the lattice.
-	if( np.getX() >= hostLatticeObject.param.width || np.getX() < 0 || np.getY() >= hostLatticeObject.param.height || np.getX() < 0)
+	if( np.getX() >= param.width || np.getX() < 0 || np.getY() >= param.height || np.getX() < 0)
 	{
 		cerr << "Error: Can't add nanoparticle that is not in the lattice.\n" << endl;
 		
@@ -241,9 +219,9 @@ bool Lattice::add(Nanoparticle& np)
 	}
 
 	//Do a dry run adding the nanoparticle. If it fails we know that there is an overlap with an existing nanoparticle
-	for(int y=0; y < hostLatticeObject.param.height; y++)
+	for(int y=0; y < param.height; y++)
 	{
-		for(int x=0; x < hostLatticeObject.param.width; x++)
+		for(int x=0; x < param.width; x++)
 		{
 			if(! np.processCell(x,y,Nanoparticle::DRY_ADD, setN(x,y)) )
 			{
@@ -255,9 +233,9 @@ bool Lattice::add(Nanoparticle& np)
 	}
 
 	//Do actuall run adding the nanoparticle. If it fails we know that there is an overlap with itself
-	for(int y=0; y < hostLatticeObject.param.height; y++)
+	for(int y=0; y < param.height; y++)
 	{
-		for(int x=0; x < hostLatticeObject.param.width; x++)
+		for(int x=0; x < param.width; x++)
 		{
 			if(! np.processCell(x,y,Nanoparticle::ADD, setN(x,y)) )
 			{
@@ -327,27 +305,27 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	*/
 
 	//Handle xPos going off the lattice in the x direction to the right
-	if(xPos >= hostLatticeObject.param.width && hostLatticeObject.param.rightBoundary == LatticeConfig::BOUNDARY_PERIODIC)
+	if(xPos >= param.width && param.rightBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
-		xPos = mod(xPos, hostLatticeObject.param.width);
+		xPos = mod(xPos, param.width);
 	}
 
 	//Handle xPos going off the lattice in x direction to the left
-	if(xPos < 0 && hostLatticeObject.param.leftBoundary == LatticeConfig::BOUNDARY_PERIODIC)
+	if(xPos < 0 && param.leftBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
-		xPos = mod(xPos, hostLatticeObject.param.width);
+		xPos = mod(xPos, param.width);
 	}
 
 	//Handle yPos going off the lattice in the y directory to the top
-	if(yPos >= hostLatticeObject.param.height && hostLatticeObject.param.topBoundary == LatticeConfig::BOUNDARY_PERIODIC)
+	if(yPos >= param.height && param.topBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
-		yPos = mod(yPos, hostLatticeObject.param.height);
+		yPos = mod(yPos, param.height);
 	}
 
 	//Handle yPos going off the lattice in the y directory to the bottom
-	if(yPos < 0  && hostLatticeObject.param.bottomBoundary == LatticeConfig::BOUNDARY_PERIODIC)
+	if(yPos < 0  && param.bottomBoundary == LatticeConfig::BOUNDARY_PERIODIC)
 	{
-		yPos = mod(yPos, hostLatticeObject.param.height);
+		yPos = mod(yPos, param.height);
 	}
 	
 	/* All periodic boundary conditions have now been handled
@@ -356,9 +334,9 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	/*
 	* If the requested "DirectorElement" is in the lattice array just return it.
 	*/
-	if(xPos >= 0 && xPos < hostLatticeObject.param.width && yPos >= 0 && yPos < hostLatticeObject.param.height)
+	if(xPos >= 0 && xPos < param.width && yPos >= 0 && yPos < param.height)
 	{
-		return &(hostLatticeObject.lattice[ xPos + (hostLatticeObject.param.width)*yPos ]);
+		return &(lattice[ xPos + (param.width)*yPos ]);
 	}
 
 	/*we now know (xPos,yPos) isn't in lattice so either (xPos,yPos) is on the PARALLEL or PERPENDICULAR
@@ -366,84 +344,84 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	*/
 
 	//in top boundary and within lattice along x
-	if(yPos >= hostLatticeObject.param.height && xPos >= 0 && xPos < hostLatticeObject.param.width)
+	if(yPos >= param.height && xPos >= 0 && xPos < param.width)
 	{
-		if(hostLatticeObject.param.topBoundary == LatticeConfig::BOUNDARY_PARALLEL)
+		if(param.topBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &(hostLatticeObject.PARALLEL_DIRECTOR);
+			return &(PARALLEL_DIRECTOR);
 		} 
-		else if(hostLatticeObject.param.topBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
+		else if(param.topBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &(hostLatticeObject.PERPENDICULAR_DIRECTOR);
+			return &(PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
 			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
-			return &(hostLatticeObject.DUMMY_DIRECTOR);
+			return &(DUMMY_DIRECTOR);
 		}
 	}
 
 	//in bottom boundary and within lattice along x
-	if(yPos <= -1 && xPos >= 0 && xPos < hostLatticeObject.param.width)
+	if(yPos <= -1 && xPos >= 0 && xPos < param.width)
 	{
-		if(hostLatticeObject.param.bottomBoundary == LatticeConfig::BOUNDARY_PARALLEL)
+		if(param.bottomBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &(hostLatticeObject.PARALLEL_DIRECTOR);
+			return &(PARALLEL_DIRECTOR);
 		}
-		else if(hostLatticeObject.param.bottomBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
+		else if(param.bottomBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &(hostLatticeObject.PERPENDICULAR_DIRECTOR);
+			return &(PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
 			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
-			return &(hostLatticeObject.DUMMY_DIRECTOR);
+			return &(DUMMY_DIRECTOR);
 		}
 	}
 
 	//in left boundary and within lattice along y
-	if(xPos <= -1 && yPos >= 0 && yPos < hostLatticeObject.param.height)
+	if(xPos <= -1 && yPos >= 0 && yPos < param.height)
 	{
-		if(hostLatticeObject.param.leftBoundary == LatticeConfig::BOUNDARY_PARALLEL)
+		if(param.leftBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &(hostLatticeObject.PARALLEL_DIRECTOR);
+			return &(PARALLEL_DIRECTOR);
 		}
-		else if(hostLatticeObject.param.leftBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
+		else if(param.leftBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &(hostLatticeObject.PERPENDICULAR_DIRECTOR);
+			return &(PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
 			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
-			return &(hostLatticeObject.DUMMY_DIRECTOR);
+			return &(DUMMY_DIRECTOR);
 		}
 	}
 
 	//in right boundary and within lattice along y
-	if(xPos >= hostLatticeObject.param.width && yPos >= 0 && yPos < hostLatticeObject.param.height)
+	if(xPos >= param.width && yPos >= 0 && yPos < param.height)
 	{
-		if(hostLatticeObject.param.rightBoundary == LatticeConfig::BOUNDARY_PARALLEL)
+		if(param.rightBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &(hostLatticeObject.PARALLEL_DIRECTOR);
+			return &(PARALLEL_DIRECTOR);
 		}
-		else if(hostLatticeObject.param.rightBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
+		else if(param.rightBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &(hostLatticeObject.PERPENDICULAR_DIRECTOR);
+			return &(PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
 			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
-			return &(hostLatticeObject.DUMMY_DIRECTOR);
+			return &(DUMMY_DIRECTOR);
 		}
 	}
 
 	//Every case should already of been handled. An invalid point (xPos,yPos) must of been asked for
 	cerr << "Error: Attempt to access boundary a point (" << xPos << ","  << yPos << ") which couldn't be handled!" << endl;
-	return &(hostLatticeObject.DUMMY_DIRECTOR);
+	return &(DUMMY_DIRECTOR);
 
 }
 
@@ -459,12 +437,12 @@ DirectorElement* Lattice::setN(int xPos, int yPos)
 
 void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 {
-	hostLatticeObject.param.initialState = initialState;
+	param.initialState = initialState;
 
 	//we should reset the random seed so we don't generate the set of pseudo random numbers every time	
 	setSeed();
 	
-	/* Loop through lattice array (hostLatticeObject.lattice[index]) and initialise
+	/* Loop through lattice array (lattice[index]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
 	*/
 	int xPos,yPos;
@@ -472,41 +450,41 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 	double angle;
 	bool badEnum=false;
 
-	for (yPos = 0; yPos < hostLatticeObject.param.height; yPos++)
+	for (yPos = 0; yPos < param.height; yPos++)
 	{
-		for (xPos = 0; xPos < hostLatticeObject.param.width; xPos++)
+		for (xPos = 0; xPos < param.width; xPos++)
 		{
-			index = xPos + (hostLatticeObject.param.width)*yPos;
+			index = xPos + (param.width)*yPos;
 
 			//only set if the lattice cell isn't a nanoparticle.
-			if(hostLatticeObject.lattice[index].isNanoparticle==0)
+			if(lattice[index].isNanoparticle==0)
 			{
-				switch(hostLatticeObject.param.initialState)
+				switch(param.initialState)
 				{
 
 					case LatticeConfig::RANDOM:
 					{
 						//generate a random angle between 0 & 2*PI radians
 						angle = 2*PI*rnd();
-						setDirectorAngle(&(hostLatticeObject.lattice[index]), angle);
+						setDirectorAngle(&(lattice[index]), angle);
 					}
 
 					break;
 					
 					case LatticeConfig::PARALLEL_X:
-						hostLatticeObject.lattice[index].x=1;
-						hostLatticeObject.lattice[index].y=0;
+						lattice[index].x=1;
+						lattice[index].y=0;
 					break;
 
 					case LatticeConfig::PARALLEL_Y:
-						hostLatticeObject.lattice[index].x=0;
-						hostLatticeObject.lattice[index].y=1;
+						lattice[index].x=0;
+						lattice[index].y=1;
 					break;
 
 					case LatticeConfig::K1_EQUAL_K3:
 					{
-						angle = PI*( (double) (yPos + 1)/(2*(hostLatticeObject.param.height +1)) );
-						setDirectorAngle(&(hostLatticeObject.lattice[index]), angle);
+						angle = PI*( (double) (yPos + 1)/(2*(param.height +1)) );
+						setDirectorAngle(&(lattice[index]), angle);
 					}
 
 					break;
@@ -514,8 +492,8 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K1_DOMINANT:
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
-						angle = PI/2 - acos( (double) (yPos + 1)/(hostLatticeObject.param.height + 1));
-						setDirectorAngle(&(hostLatticeObject.lattice[index]), angle);
+						angle = PI/2 - acos( (double) (yPos + 1)/(param.height + 1));
+						setDirectorAngle(&(lattice[index]), angle);
 					}
 
 					break;
@@ -523,15 +501,15 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K3_DOMINANT:
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
-						angle = PI/2 -asin(1 - (double) (yPos +1)/(hostLatticeObject.param.height +1)   );
-						setDirectorAngle(&(hostLatticeObject.lattice[index]), angle);
+						angle = PI/2 -asin(1 - (double) (yPos +1)/(param.height +1)   );
+						setDirectorAngle(&(lattice[index]), angle);
 					}
 					break;
 
 					default:
 						//if we aren't told what to do we will set all zero vectors!
-						hostLatticeObject.lattice[index].x=0;
-						hostLatticeObject.lattice[index].y=0;
+						lattice[index].x=0;
+						lattice[index].y=0;
 						badState=true;
 						badEnum=true;
 
@@ -543,7 +521,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 	if(badEnum)
 	{
 		cerr << "Error: Lattice has been put in bad state as supplied initial state " << 
-		hostLatticeObject.param.initialState <<
+		param.initialState <<
 		" is not supported." << endl;
 	}
 
@@ -561,16 +539,16 @@ void Lattice::nDump(enum Lattice::dumpMode mode, std::ostream& stream) const
 		//in BOUNDARY mode we go +/- 1 outside of lattice.
 		xInitial=-1;
 		yInitial=-1;
-		xFinal= hostLatticeObject.param.width;
-		yFinal= hostLatticeObject.param.height;
+		xFinal= param.width;
+		yFinal= param.height;
 	}
 	else
 	{
 		//not in boundary mode so we will dump just in lattice
 		xInitial=0;
 		yInitial=0;
-		xFinal = hostLatticeObject.param.width -1;
-		yFinal = hostLatticeObject.param.height -1;
+		xFinal = param.width -1;
+		yFinal = param.height -1;
 	}
 
 	for(yPos=yInitial; yPos <= yFinal ; yPos++)
@@ -647,23 +625,23 @@ void Lattice::dumpDescription(std::ostream& stream) const
 {
 	stream << "#Lattice Parameters:\n" << 
 		"#State is " << (badState?"Bad":"Good") << "\n" <<
-		"#Lattice Width:" << hostLatticeObject.param.width << "\n" <<
-		"#Lattice Height:" << hostLatticeObject.param.height << "\n" <<
-		"#Beta:" << hostLatticeObject.param.beta << "\n" <<
-		"#Top Boundary (enum):" << hostLatticeObject.param.topBoundary << "\n" <<
-		"#Bottom Boundary (enum):" << hostLatticeObject.param.bottomBoundary << "\n" <<
-		"#Left Boundary (enum):" << hostLatticeObject.param.leftBoundary << "\n" <<
-		"#Right Boundary (enum):" << hostLatticeObject.param.rightBoundary << "\n" <<
-		"#Initial State (enum):" << hostLatticeObject.param.initialState << "\n" <<
+		"#Lattice Width:" << param.width << "\n" <<
+		"#Lattice Height:" << param.height << "\n" <<
+		"#Beta:" << param.beta << "\n" <<
+		"#Top Boundary (enum):" << param.topBoundary << "\n" <<
+		"#Bottom Boundary (enum):" << param.bottomBoundary << "\n" <<
+		"#Left Boundary (enum):" << param.leftBoundary << "\n" <<
+		"#Right Boundary (enum):" << param.rightBoundary << "\n" <<
+		"#Initial State (enum):" << param.initialState << "\n" <<
 		"#Number of Nanoparticles:" << mNumNano << "\n" <<
 		"#State:" << (badState?"Bad":"Good") << "\n" <<
 		"#Monte Carlo parameters:" << "\n\n" <<
-		"#1/TK :" << hostLatticeObject.param.iTk << "\n" <<
-		"#Current Monte Carlo step:" << hostLatticeObject.param.mStep << "\n" <<
-		"#Accept Counter:" << hostLatticeObject.param.acceptCounter << "\n" <<
-		"#Reject Counter:" << hostLatticeObject.param.rejectCounter << "\n" <<
-		"#Current Acceptance angle:" << hostLatticeObject.param.aAngle << "\n" <<
-		"#Desired Acceptance ratio:" << hostLatticeObject.param.desAcceptRatio << "\n";
+		"#1/TK :" << param.iTk << "\n" <<
+		"#Current Monte Carlo step:" << param.mStep << "\n" <<
+		"#Accept Counter:" << param.acceptCounter << "\n" <<
+		"#Reject Counter:" << param.rejectCounter << "\n" <<
+		"#Current Acceptance angle:" << param.aAngle << "\n" <<
+		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n";
 
 		if(mNanoparticles!=NULL)
 		{
@@ -754,7 +732,7 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 	temp2 = getN(xPos,yPos)->y;
 	temp2 *=temp2;
 	
-	return 0.5*(firstTerm + (hostLatticeObject.param.beta)*(temp + temp2)*secondTerm );
+	return 0.5*(firstTerm + (param.beta)*(temp + temp2)*secondTerm );
 
 }
 
@@ -768,9 +746,9 @@ double Lattice::calculateTotalEnergy()
 	int xPos,yPos;
 	double energy=0;
 
-	for(yPos=0; yPos < (hostLatticeObject.param.height); yPos++)
+	for(yPos=0; yPos < (param.height); yPos++)
 	{
-		for(xPos=0; xPos < (hostLatticeObject.param.width); xPos++)
+		for(xPos=0; xPos < (param.width); xPos++)
 		{
 			energy += calculateEnergyOfCell(xPos,yPos);	
 		}
@@ -803,7 +781,7 @@ bool Lattice::saveState(const char* filename)
 	}
 	
 	//Write parameters
-	output.write( (char*) &hostLatticeObject.param, sizeof(LatticeConfig));
+	output.write( (char*) &param, sizeof(LatticeConfig));
 
 	if(!output.good())
 	{
@@ -823,7 +801,7 @@ bool Lattice::saveState(const char* filename)
 	}
 
 	//Write Lattice
-	output.write( (char*) hostLatticeObject.lattice, sizeof(DirectorElement)*hostLatticeObject.param.width*hostLatticeObject.param.height);
+	output.write( (char*) lattice, sizeof(DirectorElement)*param.width*param.height);
 
 	if(!output.good())
 	{
@@ -871,65 +849,65 @@ bool Lattice::operator==(const Lattice & rhs) const
 	if(this->mNumNano != rhs.mNumNano)
 		return false;
 	
-	if(this->hostLatticeObject.param.width != rhs.hostLatticeObject.param.width)
+	if(this->param.width != rhs.param.width)
 		return false;
 
-	if(this->hostLatticeObject.param.height != rhs.hostLatticeObject.param.height)
-		return false;
-
-	
-	if(this->hostLatticeObject.param.beta != rhs.hostLatticeObject.param.beta)
+	if(this->param.height != rhs.param.height)
 		return false;
 
 	
-	if(this->hostLatticeObject.param.topBoundary != rhs.hostLatticeObject.param.topBoundary)
+	if(this->param.beta != rhs.param.beta)
+		return false;
+
+	
+	if(this->param.topBoundary != rhs.param.topBoundary)
 		return false;
 	
 
-	if(this->hostLatticeObject.param.bottomBoundary != rhs.hostLatticeObject.param.bottomBoundary)
+	if(this->param.bottomBoundary != rhs.param.bottomBoundary)
 		return false;
 
-	if(this->hostLatticeObject.param.leftBoundary != rhs.hostLatticeObject.param.leftBoundary)
+	if(this->param.leftBoundary != rhs.param.leftBoundary)
 		return false;
 
-	if(this->hostLatticeObject.param.rightBoundary != rhs.hostLatticeObject.param.rightBoundary)
+	if(this->param.rightBoundary != rhs.param.rightBoundary)
 		return false;
 
-	if(this->hostLatticeObject.param.initialState != rhs.hostLatticeObject.param.initialState)
+	if(this->param.initialState != rhs.param.initialState)
 		return false;
 
 	//check Monte carlo and conning algorithm parameters
 
-	if(this->hostLatticeObject.param.iTk != rhs.hostLatticeObject.param.iTk)
+	if(this->param.iTk != rhs.param.iTk)
 		return false;
 
-	if(this->hostLatticeObject.param.mStep != rhs.hostLatticeObject.param.mStep)
+	if(this->param.mStep != rhs.param.mStep)
 		return false;
 	
 
-	if(this->hostLatticeObject.param.acceptCounter != rhs.hostLatticeObject.param.acceptCounter)
+	if(this->param.acceptCounter != rhs.param.acceptCounter)
 		return false;
 
 	
-	if(this->hostLatticeObject.param.rejectCounter != rhs.hostLatticeObject.param.rejectCounter)
+	if(this->param.rejectCounter != rhs.param.rejectCounter)
 		return false;
 
-	if(this->hostLatticeObject.param.aAngle != rhs.hostLatticeObject.param.aAngle)
+	if(this->param.aAngle != rhs.param.aAngle)
 		return false;
 
-	if(this->hostLatticeObject.param.desAcceptRatio != rhs.hostLatticeObject.param.desAcceptRatio)
+	if(this->param.desAcceptRatio != rhs.param.desAcceptRatio)
 		return false;
 
 	//compare lattice array elements
-	for(int index=0; index < (hostLatticeObject.param.width)*(hostLatticeObject.param.height) ; index++)
+	for(int index=0; index < (param.width)*(param.height) ; index++)
 	{
-		if( (this->hostLatticeObject.lattice[index]).x != (rhs.hostLatticeObject.lattice[index]).x )
+		if( (this->lattice[index]).x != (rhs.lattice[index]).x )
 			return false;
 
-		if( (this->hostLatticeObject.lattice[index]).y != (rhs.hostLatticeObject.lattice[index]).y )
+		if( (this->lattice[index]).y != (rhs.lattice[index]).y )
 			return false;
 
-		if( (this->hostLatticeObject.lattice[index]).isNanoparticle != (rhs.hostLatticeObject.lattice[index]).isNanoparticle )
+		if( (this->lattice[index]).isNanoparticle != (rhs.lattice[index]).isNanoparticle )
 			return false;
 	}
 

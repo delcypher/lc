@@ -145,7 +145,7 @@ int main(int n, char* argv[])
 	time(&rawTime);
 
 	cout << "#Starting Monte Carlo process:" << ctime(&rawTime) << endl;
-	cout << "#At monte carlo step " << nSystem.hostLatticeObject.param.mStep << " of " << loopMax << endl;
+	cout << "#At monte carlo step " << nSystem.param.mStep << " of " << loopMax << endl;
 	
 	//output header for annealing file
 	annealF << "#Starting at:" << ctime(&rawTime);
@@ -157,20 +157,20 @@ int main(int n, char* argv[])
 	energyF << -1 << "\t" << energy << endl;
 
 	
-	for(; nSystem.hostLatticeObject.param.mStep < loopMax; nSystem.hostLatticeObject.param.mStep++)
+	for(; nSystem.param.mStep < loopMax; nSystem.param.mStep++)
 	{
 		//output progress as a percentage
-		if(nSystem.hostLatticeObject.param.mStep % percentStep ==0) 
+		if(nSystem.param.mStep % percentStep ==0) 
 		{
-			cout  << "\r" << ( (float) (nSystem.hostLatticeObject.param.mStep)/percentStep) << "%  ";
+			cout  << "\r" << ( (float) (nSystem.param.mStep)/percentStep) << "%  ";
 			cout.flush();
 		}
 
-		for(int i=0; i < (nSystem.hostLatticeObject.param.width)*(nSystem.hostLatticeObject.param.height); i++)
+		for(int i=0; i < (nSystem.param.width)*(nSystem.param.height); i++)
 		{
 			//pick "random" (x,y) co-ordinate in range ( [0, lattice width -1] , [0, lattice height -1] )
-			x = intRnd() % (nSystem.hostLatticeObject.param.width);
-			y = intRnd() % (nSystem.hostLatticeObject.param.height);
+			x = intRnd() % (nSystem.param.width);
+			y = intRnd() % (nSystem.param.height);
 
 			temp = nSystem.setN(x,y);
 			
@@ -178,11 +178,11 @@ int main(int n, char* argv[])
 			if(temp->isNanoparticle == 1)
 			{
 				//not sure if adding to this counter is correct... think about it!
-				nSystem.hostLatticeObject.param.rejectCounter++;
+				nSystem.param.rejectCounter++;
 				break;
 			}
 			
-			angle = (2*rnd()-1)*nSystem.hostLatticeObject.param.aAngle; 
+			angle = (2*rnd()-1)*nSystem.param.aAngle; 
 			oldNx = temp->x;
 			oldNy = temp->y;
 
@@ -206,16 +206,16 @@ int main(int n, char* argv[])
 			if(dE>0) // if the energy increases, determine if change is accepted of rejected
 			{
 				rollOfTheDice = rnd();
-				if(rollOfTheDice > exp(-dE*nSystem.hostLatticeObject.param.iTk)) 
+				if(rollOfTheDice > exp(-dE*nSystem.param.iTk)) 
 				{
 					// reject change
 					temp->x = oldNx;
 					temp->y = oldNy;
-					nSystem.hostLatticeObject.param.rejectCounter++;
+					nSystem.param.rejectCounter++;
 				}
-				else nSystem.hostLatticeObject.param.acceptCounter++;
+				else nSystem.param.acceptCounter++;
 			}
-			else nSystem.hostLatticeObject.param.acceptCounter++;
+			else nSystem.param.acceptCounter++;
 		}
 		
 		/* coning algorithm
@@ -229,35 +229,35 @@ int main(int n, char* argv[])
 		*
 		*          This applies similarly to rejectCounter
 		*/
-		if((nSystem.hostLatticeObject.param.mStep%500)==0 && nSystem.hostLatticeObject.param.mStep !=0)
+		if((nSystem.param.mStep%500)==0 && nSystem.param.mStep !=0)
 		{
-			CurAcceptRatio = (double) nSystem.hostLatticeObject.param.acceptCounter / (nSystem.hostLatticeObject.param.acceptCounter + nSystem.hostLatticeObject.param.rejectCounter);
-			oldaAngle = nSystem.hostLatticeObject.param.aAngle;
-			nSystem.hostLatticeObject.param.aAngle *= CurAcceptRatio / nSystem.hostLatticeObject.param.desAcceptRatio; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
+			CurAcceptRatio = (double) nSystem.param.acceptCounter / (nSystem.param.acceptCounter + nSystem.param.rejectCounter);
+			oldaAngle = nSystem.param.aAngle;
+			nSystem.param.aAngle *= CurAcceptRatio / nSystem.param.desAcceptRatio; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
 			
 			//reject new acceptance angle if it has changed by more than a factor of 10
-			if( (nSystem.hostLatticeObject.param.aAngle/oldaAngle) > 10 || (nSystem.hostLatticeObject.param.aAngle/oldaAngle) < 0.1 )
+			if( (nSystem.param.aAngle/oldaAngle) > 10 || (nSystem.param.aAngle/oldaAngle) < 0.1 )
 			{
-				cerr << "# Rejected new acceptance angle:" << nSystem.hostLatticeObject.param.aAngle << " from old acceptance angle " << oldaAngle << "on step " << nSystem.hostLatticeObject.param.mStep << endl;
-				nSystem.hostLatticeObject.param.aAngle = oldaAngle;
+				cerr << "# Rejected new acceptance angle:" << nSystem.param.aAngle << " from old acceptance angle " << oldaAngle << "on step " << nSystem.param.mStep << endl;
+				nSystem.param.aAngle = oldaAngle;
 				
 			}
 
-			nSystem.hostLatticeObject.param.acceptCounter = 0;
-			nSystem.hostLatticeObject.param.rejectCounter = 0;
+			nSystem.param.acceptCounter = 0;
+			nSystem.param.rejectCounter = 0;
 		}
 
 		/* cooling algorithm
 		*  After every 150,000 m.c.s we increase iTk i.e. we decrease the "temperature".
 		*/
-		if((nSystem.hostLatticeObject.param.mStep%150000)==0 && nSystem.hostLatticeObject.param.mStep!=0) nSystem.hostLatticeObject.param.iTk *= 1.01;
+		if((nSystem.param.mStep%150000)==0 && nSystem.param.mStep!=0) nSystem.param.iTk *= 1.01;
 
 		//output annealing information
-		annealF << nSystem.hostLatticeObject.param.mStep << "           " << nSystem.hostLatticeObject.param.aAngle << "             " << nSystem.hostLatticeObject.param.iTk << endl;
+		annealF << nSystem.param.mStep << "           " << nSystem.param.aAngle << "             " << nSystem.param.iTk << endl;
 	
 		//output energy information
 		energy = nSystem.calculateTotalEnergy();
-		energyF << nSystem.hostLatticeObject.param.mStep << "\t" << energy << endl;
+		energyF << nSystem.param.mStep << "\t" << energy << endl;
 
 		//check if a request to exit has occured
 		if(requestExit)
@@ -286,7 +286,7 @@ int main(int n, char* argv[])
 void setExit(int sig)
 {
 	cout << "Received signal:" << sig << "\n" <<
-		"Will exit when monte carlo step " << nSystemp->hostLatticeObject.param.mStep << " completes." << endl;
+		"Will exit when monte carlo step " << nSystemp->param.mStep << " completes." << endl;
 	requestExit=true;
 }
 
@@ -298,7 +298,7 @@ void requestStateHandler(int sig)
 
 void exitHandler()
 {
-	cout << "Monte carlo step " << nSystemp->hostLatticeObject.param.mStep << " complete, saving binary state file to " << BACKUP_LATTICE_STATE_FILE << "...";
+	cout << "Monte carlo step " << nSystemp->param.mStep << " complete, saving binary state file to " << BACKUP_LATTICE_STATE_FILE << "...";
 	cout.flush();
 	bool saveOk=true;
 
