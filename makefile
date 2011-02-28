@@ -110,6 +110,9 @@ save-load-test: save-load-test.o ${OBJECTS}
 #ARGS 30 30 2
 #ARGS 30 30 3
 
+flip-test: flip-test.o ${OBJECTS}
+	${CXX} $^ ${CPPFLAGS} -o $@
+#ARGS dummyargument
 
 #TEST HARNESSES END
 

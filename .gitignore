@@ -19,6 +19,7 @@ uniform-rnd
 calc-cosine-between-test
 rotate-director-test
 save-load-test
+flip-test
 #ignore dump files
 *.dump
 #ignore saved state files
