@@ -682,23 +682,35 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 	double secondTerm=0;
 	double temp=0;
 	double temp2=0;
+	
+	//calculate derivatives for first term
+	double t_dNxdx_F = dNxdx_F(this,xPos,yPos);
+	double t_dNxdx_B = dNxdx_B(this,xPos,yPos);
+	double t_dNydy_F = dNydy_F(this,xPos,yPos);
+	double t_dNydy_B = dNydy_B(this,xPos,yPos);
+
+	//calculate derivative for second term
+	double t_dNydx_F = dNydx_F(this,xPos,yPos);
+	double t_dNydx_B = dNydx_B(this,xPos,yPos);
+	double t_dNxdy_F = dNxdy_F(this,xPos,yPos);
+	double t_dNxdy_B = dNxdy_B(this,xPos,yPos);
 
 	//Estimate first term by calculating the 4 different ways of calculating the first term and taking the average
 	
 	//Using T & R (forward differencing in both directions)
-	temp = dNxdx_F(this,xPos,yPos) + dNydy_F(this,xPos,yPos);
+	temp = t_dNxdx_F + t_dNydy_F;
 	firstTerm = temp*temp;
 
 	//Using B & R (forward differencing in x direction & backward differencing in y direction)
-	temp = dNxdx_F(this,xPos,yPos) + dNydy_B(this,xPos,yPos);
+	temp = t_dNxdx_F + t_dNydy_B;
 	firstTerm += temp*temp;	
 
 	//Using B & L (backward differencing in both directions)
-	temp = dNxdx_B(this,xPos,yPos) + dNydy_B(this,xPos,yPos);
+	temp = t_dNxdx_B + t_dNydy_B;
 	firstTerm += temp*temp;
 
 	//Using T & L (backward differencing in x direction & forward differencing in y direction)
-	temp = dNxdx_B(this,xPos,yPos) + dNydy_F(this,xPos,yPos);
+	temp = t_dNxdx_B + t_dNydy_F;
 	firstTerm += temp*temp;
 
 	//Divide by 4 to get average to estimate first term
@@ -711,15 +723,15 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 	secondTerm = temp*temp;
 
 	//Using B & R (forward differencing in x direction & backward differencing in y direction)
-	temp = dNydx_F(this,xPos,yPos) - dNxdy_B(this,xPos,yPos);
+	temp = t_dNydx_F - t_dNxdy_B;
 	secondTerm += temp*temp;
 
 	//Using B & L (backward differencing in both directions)
-	temp = dNydx_B(this,xPos,yPos) - dNxdy_B(this,xPos,yPos);
+	temp = t_dNydx_B - t_dNxdy_B;
 	secondTerm += temp*temp;
 
 	//Using T & L (backward differencing in x direction & forward differencing in y direction)
-	temp = dNydx_B(this,xPos,yPos) - dNxdy_F(this,xPos,yPos);
+	temp = t_dNydx_B - t_dNxdy_F;
 	secondTerm += temp*temp;
 
 	//Divide by 4 to get average to estimate second term
