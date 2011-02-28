@@ -112,7 +112,7 @@ save-load-test: save-load-test.o ${OBJECTS}
 
 flip-test: flip-test.o ${OBJECTS}
 	${CXX} $^ ${CPPFLAGS} -o $@
-#ARGS dummyargument
+#ARGS tests/random.bin
 
 #TEST HARNESSES END
 
