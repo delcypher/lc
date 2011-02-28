@@ -42,8 +42,8 @@ int main(int n, char* argv[])
 	cout << "Angle step: " << atof(argv[1]) << " in degrees, " << angleStep << " in radians." << endl;
 
 	//Start with both a & b pointing along x-axis
-	DirectorElement a = {1,0,0};
-	DirectorElement b = {1,0,0};
+	DirectorElement a(1,0,0);
+	DirectorElement b(1,0,0);
 	
 	//Move a through an angular range of [0,2*PI] is steps of angleStep
 	for(double aAngle=0; aAngle <= 2*PI; aAngle += angleStep)
