@@ -88,13 +88,13 @@
 			int mNumNano; //The number of nanoparticles associated with this lattice
 			Nanoparticle** mNanoparticles; //An array of pointers to the nanoparticles associated with this lattice
 			bool badState;
-			const bool constructedFromFile;// Used to indicate which constructor was called
 
 			//Define the 2D lattice array (we use a linear memory block however)
 			DirectorElement* lattice;
 			
-			const DirectorElement PERPENDICULAR_DIRECTOR;
+			const bool constructedFromFile;// Used to indicate which constructor was called
 			const DirectorElement PARALLEL_DIRECTOR;
+			const DirectorElement PERPENDICULAR_DIRECTOR;
 			
 			/* This DUMMY_DIRECTOR exists so that a pointer to something that isn't
 			*  NULL is returned by getN() and setN() if an invalid point in the lattice

@@ -8,11 +8,15 @@
         *  Included with this 2D vector is a variable identifying if the
         *  DirectorElement is a nanoparticle.
         */
-        typedef struct
+        struct DirectorElement
         {
                 double x,y;
                 int isNanoparticle;
-        } DirectorElement;
+		DirectorElement(double xValue, double yValue, int inp) : x(xValue) , y(yValue) , isNanoparticle(inp)
+		{
+			//do nothing
+		}
+        };
 
 	/* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
         *
