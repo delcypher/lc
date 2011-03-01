@@ -22,98 +22,130 @@
 
 
 	//Calculate partial derivative of Nx w.r.t to x using forward differencing at point (xPos,yPos) on LatticeObject l
-	double dNxdx_F(Lattice* l, int xPos, int yPos)
+	double dNxdx_F(const Lattice* l, int xPos, int yPos)
 	{
-		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos +1, yPos)) < 0)
+		//make a local copy of director elements
+		DirectorElement centre = *(l->getN(xPos,yPos));
+		const DirectorElement right =  *(l->getN(xPos +1, yPos));
+
+		if(calculateCosineBetween(&centre, &right) < 0)
 		{
-			flipDirector(l->setN(xPos,yPos));
+			flipDirector(&centre);
 		}
 
-		return l->getN(xPos + 1,yPos)->x - l->getN(xPos, yPos)->x;
+		return right.x - centre.x;
 
 	}
 
 	//Calculate partial derivative of Nx w.r.t to x using backward differencing at point (xPos,yPos) on LatticeObject l
-	double dNxdx_B(Lattice* l, int xPos, int yPos)
+	double dNxdx_B(const Lattice* l, int xPos, int yPos)
 	{
-		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos -1, yPos)) < 0)
+		//make a local copy of director elements
+		DirectorElement centre = *(l->getN(xPos,yPos));
+		const DirectorElement left =  *(l->getN(xPos -1, yPos));
+
+		if(calculateCosineBetween(&centre, &left) < 0)
 		{
-			flipDirector(l->setN(xPos,yPos));
+			flipDirector(&centre);
 		}
 
-		return l->getN(xPos,yPos)->x - l->getN(xPos -1, yPos)->x;
+		return centre.x - left.x;
 
 	}
 
 	//Calculate partial derivative of Nx w.r.t to y using forward differencing at point (xPos,yPos) on LatticeObject l
-	double dNxdy_F(Lattice* l, int xPos, int yPos)
+	double dNxdy_F(const Lattice* l, int xPos, int yPos)
 	{
-		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos, yPos +1)) < 0)
+		//make a local copy of director elements
+		DirectorElement centre = *(l->getN(xPos,yPos));
+		const DirectorElement top =  *(l->getN(xPos, yPos +1));
+
+		if(calculateCosineBetween(&centre, &top) < 0)
 		{
-			flipDirector(l->setN(xPos,yPos));
+			flipDirector(&centre);
 		}
 
-		return l->getN(xPos,yPos +1)->x - l->getN(xPos, yPos)->x;
+		return top.x - centre.x;
 
 	}
 
 	//Calculate partial derivative of Nx w.r.t to y using backward differencing at point (xPos,yPos) on LatticeObject l
-	double dNxdy_B(Lattice* l, int xPos, int yPos)
+	double dNxdy_B(const Lattice* l, int xPos, int yPos)
 	{
-		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos, yPos -1)) < 0)
+		//make a local copy of director elements
+		DirectorElement centre = *(l->getN(xPos,yPos));
+		const DirectorElement bottom =  *(l->getN(xPos, yPos -1));
+
+		if(calculateCosineBetween(&centre, &bottom) < 0)
 		{
-			flipDirector(l->setN(xPos,yPos));
+			flipDirector(&centre);
 		}
 
-		return l->getN(xPos,yPos)->x - l->getN(xPos, yPos -1)->x;
+		return centre.x - bottom.x;
 
 	}
 
 	//Calculate partial derivative of Ny w.r.t to x using forward differencing at point (xPos,yPos) on LatticeObject l
-	double dNydx_F(Lattice* l, int xPos, int yPos)
+	double dNydx_F(const Lattice* l, int xPos, int yPos)
 	{
-		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos +1, yPos)) < 0)
+		//make a local copy of director elements
+		DirectorElement centre = *(l->getN(xPos,yPos));
+		const DirectorElement right =  *(l->getN(xPos +1, yPos));
+
+		if(calculateCosineBetween(&centre, &right) < 0)
 		{
-			flipDirector(l->setN(xPos,yPos));
+			flipDirector(&centre);
 		}
 
-		return l->getN(xPos +1 ,yPos)->y - l->getN(xPos, yPos)->y;
+		return right.y - centre.y;
 
 	}
 
 	//Calculate partial derivative of Ny w.r.t to x using backward differencing at point (xPos,yPos) on LatticeObject l
-	double dNydx_B(Lattice* l, int xPos, int yPos)
+	double dNydx_B(const Lattice* l, int xPos, int yPos)
 	{
-		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos -1, yPos)) < 0)
+		//make a local copy of director elements
+		DirectorElement centre = *(l->getN(xPos,yPos));
+		const DirectorElement left =  *(l->getN(xPos -1, yPos));
+
+		if(calculateCosineBetween(&centre, &left) < 0)
 		{
-			flipDirector(l->setN(xPos,yPos));
+			flipDirector(&centre);
 		}
 
-		return l->getN(xPos,yPos)->y - l->getN(xPos -1, yPos)->y;
+		return centre.y - left.y;
 
 	}
 
 	//Calculate partial derivative of Ny w.r.t to y using forward differencing at point (xPos,yPos) on LatticeObject l
-	double dNydy_F(Lattice* l, int xPos, int yPos)
+	double dNydy_F(const Lattice* l, int xPos, int yPos)
 	{
-		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos, yPos +1)) < 0)
+		//make a local copy of director elements
+		DirectorElement centre = *(l->getN(xPos,yPos));
+		const DirectorElement top =  *(l->getN(xPos, yPos +1));
+
+		if(calculateCosineBetween(&centre, &top) < 0)
 		{
-			flipDirector(l->setN(xPos,yPos));
+			flipDirector(&centre);
 		}
 
-		return l->getN(xPos,yPos +1)->y - l->getN(xPos,yPos)->y;
+		return top.y - centre.y;
 
 	}
 
 	//Calculate partial derivative of Ny w.r.t to y using backward differencing at point (xPos,yPos) on LatticeObject l
-	double dNydy_B(Lattice* l, int xPos, int yPos)
+	double dNydy_B(const Lattice* l, int xPos, int yPos)
 	{
-		if(calculateCosineBetween(l->getN(xPos,yPos), l->getN( xPos, yPos -1)) < 0)
+		//make a local copy of director elements
+		DirectorElement centre = *(l->getN(xPos,yPos));
+		const DirectorElement bottom =  *(l->getN(xPos, yPos -1));
+
+		if(calculateCosineBetween(&centre, &bottom) < 0)
 		{
-			flipDirector(l->setN(xPos,yPos));
+			flipDirector(&centre);
 		}
 
-		return l->getN(xPos,yPos)->y - l->getN(xPos,yPos -1)->y;
+		return centre.y - bottom.y;
 
 	}
 
