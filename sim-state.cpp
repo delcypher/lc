@@ -38,7 +38,7 @@ using namespace std;
 const char ANNEALING_FILE[] = "annealing.dump";
 const char ENERGY_FILE[] = "energy.dump";
 const char FINAL_LATTICE_STATE_FILE[] = "final-lattice-state.dump";
-const char FINAL_LATTICE_BINARY_STATE_FILE[] = "final-latice-state.bin";
+const char FINAL_LATTICE_BINARY_STATE_FILE[] = "final-lattice-state.bin";
 const char REQUEST_LATTICE_STATE_FILE[] = "current-lattice-state.dump";
 const char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bin";
 
