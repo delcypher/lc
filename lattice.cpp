@@ -419,6 +419,19 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 		}
 	}
 
+	/* Handle case with non-periodic boundary conditions asking for undefined points (-1,-1);(width,-1);(-1,height);(width,height)
+	*  We will just return the dummy director. This will occur when asking to calculate the energy of a cell in the boundary
+	*/
+	if( (xPos==-1 && yPos==-1 && param.bottomBoundary!= LatticeConfig::BOUNDARY_PERIODIC && param.leftBoundary != LatticeConfig::BOUNDARY_PERIODIC) ||
+	    (xPos==param.width && yPos==-1 && param.bottomBoundary != LatticeConfig::BOUNDARY_PERIODIC && param.rightBoundary != LatticeConfig::BOUNDARY_PERIODIC) ||
+	    (xPos==-1 && yPos==param.height && param.topBoundary != LatticeConfig::BOUNDARY_PERIODIC && param.leftBoundary != LatticeConfig::BOUNDARY_PERIODIC) ||
+	    (xPos==param.width && yPos==param.height && param.topBoundary != LatticeConfig::BOUNDARY_PERIODIC && param.rightBoundary != LatticeConfig::BOUNDARY_PERIODIC)
+	  )
+	{
+		return &(DUMMY_DIRECTOR);
+	}
+
+
 	//Every case should already of been handled. An invalid point (xPos,yPos) must of been asked for
 	cerr << "Error: Attempt to access boundary a point (" << xPos << ","  << yPos << ") which couldn't be handled!" << endl;
 	return &(DUMMY_DIRECTOR);
