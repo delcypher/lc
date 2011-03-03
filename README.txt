@@ -87,7 +87,10 @@ WARNINGS:
 SCRIPTS:
 In the scripts/ directory are bash shell and gnuplot scripts for doing various useful things.
 
+aangle.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ANNEALING_FILE. It plots "Acceptance angle" aginst monte carlo step.
+energy.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ENERGY_FILE. It plots "Free Energy" against monte carlo step.
 ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
+itk.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ANNEALING_FILE. It plots "iTk" against monte carlo step.
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
 tests.sh - This is a script to automatically build and execute test harnesses in the make file.
 vpn.sh - This is a bash shell script used to setup a connection to the UoB VPN if pptpclient has already been configured on a GNU/Linux system with ppsetup.
