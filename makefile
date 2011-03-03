@@ -50,8 +50,8 @@ endif
 
 
 #The Monte Carlo annealing simulator
-sim-state : sim.o ${OBJECTS}
-	${CXX} ${CPPFLAGS} sim.o ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
+sim-state : sim-state.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} sim-state.o ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
 	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
 
 #include prerequesite files in make file

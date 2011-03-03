@@ -151,7 +151,7 @@ int main(int n, char* argv[])
 	annealF << "#Starting at:" << ctime(&rawTime);
 	annealF << "# Step    Acceptance angle    1/Tk" << endl;
 	//output initial acceptance angle
-	annealF << -1 << " " << nSystem.param.aAngle << end;
+	annealF << -1 << " " << nSystem.param.aAngle << endl;
 
 	//output initial energy
 	energyF << "#Starting at:" << ctime(&rawTime);
