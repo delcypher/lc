@@ -150,11 +150,13 @@ int main(int n, char* argv[])
 	//output header for annealing file
 	annealF << "#Starting at:" << ctime(&rawTime);
 	annealF << "# Step    Acceptance angle    1/Tk" << endl;
-	
+	//output initial acceptance angle
+	annealF << -1 << " " << nSystem.param.aAngle << end;
+
 	//output initial energy
 	energyF << "#Starting at:" << ctime(&rawTime);
 	energyF << "#Step\tEnergy" << endl;
-	energyF << -1 << "\t" << energy << endl;
+	energyF << -1 << " " << energy << endl;
 
 	
 	for(; nSystem.param.mStep < loopMax; nSystem.param.mStep++)
