@@ -50,7 +50,7 @@ endif
 
 
 #The Monte Carlo annealing simulator
-sim-state : sim-state.o ${OBJECTS}
+sim-state: sim-state.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} sim-state.o ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
 	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
 
@@ -119,5 +119,5 @@ flip-test: flip-test.o ${OBJECTS}
 #Phont target used to remove generated objects and dependency files
 .PHONY: clean
 clean: 
-	rm *.dep *.o ${EXEC_NAME} $(shell grep -Eo '^[a-z0-9_-]+:' makefile | sed 's/://' | sed 's/^clean//' )
+	rm *.dep *.o  $(shell grep -Eo '^[a-z0-9_-]+:' makefile | sed 's/://' | sed 's/^clean//' )
 
