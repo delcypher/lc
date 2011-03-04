@@ -58,9 +58,9 @@ time_t rawTime;
 
 int main(int n, char* argv[])
 {
-	if(n!=2)
+	if(n!=3)
 	{
-		cerr << "Usage: " << argv[0] << " <filename>" << endl <<
+		cerr << "Usage: " << argv[0] << " <filename> <mcs>" << endl <<
 		"<filename> - Binary state file to load for simulation" << endl;
 		exit(1);
 	}
@@ -136,7 +136,7 @@ int main(int n, char* argv[])
 
 	DirectorElement *temp;
 	int x, y; 
-	unsigned long loopMax = 250000000;
+	unsigned long loopMax = atof(argv[2]);
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 	double oldaAngle;
 	double CurAcceptRatio = 0;

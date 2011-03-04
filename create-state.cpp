@@ -60,7 +60,7 @@ int main(int n, char* argv[])
 	configuration.desAcceptRatio=0.5;
 
 	//create circular nanoparticle (x,y,radius, boundary)
-	CircularNanoparticle particle1 = CircularNanoparticle(7,7,5,CircularNanoparticle::PARALLEL);
+/*	CircularNanoparticle particle1 = CircularNanoparticle(7,7,5,CircularNanoparticle::PARALLEL);
 
 	if(particle1.inBadState())
 		badState=true;
@@ -72,16 +72,16 @@ int main(int n, char* argv[])
 	if(particle2.inBadState())
 		badState=true;
 
-	//create lattice object
+*/	//create lattice object
 	Lattice nSystem = Lattice(configuration);
 
 	//add nanoparticles to lattice
-	if(! nSystem.add(particle1) )
+/*	if(! nSystem.add(particle1) )
 		badState=true;
 
 	if(! nSystem.add(particle2) )
 		badState=true;
-
+*/
 	if(nSystem.inBadState())
 	{
 		cerr << "Lattice in bad state!" << endl;
