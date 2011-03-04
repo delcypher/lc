@@ -140,7 +140,17 @@ int main(int n, char* argv[])
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 	double oldaAngle;
 	double CurAcceptRatio = 0;
+	
+	//roughly (because of integer division) the number of steps in 1%
 	int percentStep = loopMax /100;
+	if(percentStep ==0)
+	{
+		//We must be doing less than 100 steps, set this way so program doesn't crash.
+		percentStep=1;
+		cerr << "Warning: Progress information will be inaccurate!" << endl;
+	}
+
+
 	//Get the current time to show in files.
 	time(&rawTime);
 
