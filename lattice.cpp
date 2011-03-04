@@ -46,7 +46,7 @@ Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false) , PAR
 	//set every lattice point to not be a nanoparticle
 	for(int point=0; point < (param.width)*(param.height) ; point++)
 	{
-		lattice[point].isNanoparticle=0;
+		lattice[point].isNanoparticle=false;
 	}
 	
 	//set the number of nanoparticles associated with the lattice to 0
@@ -470,7 +470,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 			index = xPos + (param.width)*yPos;
 
 			//only set if the lattice cell isn't a nanoparticle.
-			if(lattice[index].isNanoparticle==0)
+			if(lattice[index].isNanoparticle==false)
 			{
 				switch(param.initialState)
 				{
@@ -581,16 +581,16 @@ void Lattice::nDump(enum Lattice::dumpMode mode, std::ostream& stream) const
 				case PARTICLES:
 					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
 						( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
-						( (getN(xPos,yPos)->isNanoparticle==1)?(getN(xPos,yPos)->x):0 ) << " " <<
-						( (getN(xPos,yPos)->isNanoparticle==1)?(getN(xPos,yPos)->y):0 ) << "\n";
+						( (getN(xPos,yPos)->isNanoparticle==true)?(getN(xPos,yPos)->x):0 ) << " " <<
+						( (getN(xPos,yPos)->isNanoparticle==true)?(getN(xPos,yPos)->y):0 ) << "\n";
 				break;
 
 				case NOT_PARTICLES:
 
 					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
 						( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
-						( (getN(xPos,yPos)->isNanoparticle==0)?(getN(xPos,yPos)->x):0 ) << " " <<
-						( (getN(xPos,yPos)->isNanoparticle==0)?(getN(xPos,yPos)->y):0 ) << "\n";
+						( (getN(xPos,yPos)->isNanoparticle==false)?(getN(xPos,yPos)->x):0 ) << " " <<
+						( (getN(xPos,yPos)->isNanoparticle==false)?(getN(xPos,yPos)->y):0 ) << "\n";
 
 				break;
 				

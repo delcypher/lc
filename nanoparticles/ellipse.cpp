@@ -70,7 +70,7 @@ bool EllipticalNanoparticle::processCell(int x, int y, enum writeMethods method,
 		switch(method)
 		{
 			case DRY_ADD:
-				if(element->isNanoparticle == 1)
+				if(element->isNanoparticle == true)
 				{
 					//overlapping nanoparticle
 					cerr << "Error: Adding nanoparticle would result in overlap with another at (" << x << "," << y << ")" << endl;
@@ -82,7 +82,7 @@ bool EllipticalNanoparticle::processCell(int x, int y, enum writeMethods method,
 
 			case ADD:
 				{
-					if(element->isNanoparticle == 1)
+					if(element->isNanoparticle == true)
 					{
 						//overlapping nanoparticle
 						cerr << "Error: Nanoparticle would overlap itself at (" << x << "," << y << ")" << endl;
@@ -94,7 +94,7 @@ bool EllipticalNanoparticle::processCell(int x, int y, enum writeMethods method,
 					*/
 					if(distance==0)
 					{
-						element->isNanoparticle=1;
+						element->isNanoparticle=true;
 						element->x=0;
 						element->y=0;
 						return true;
@@ -121,7 +121,7 @@ bool EllipticalNanoparticle::processCell(int x, int y, enum writeMethods method,
 
 					
 					//everything seems ok. We now add the particle
-					element->isNanoparticle=1;
+					element->isNanoparticle=true;
 					element->x = cos(vectorAngle);
 					element->y = sin(vectorAngle);
 					return true;

@@ -177,7 +177,7 @@ int main(int n, char* argv[])
 			temp = nSystem.setN(x,y);
 			
 			//if it's a Nanoparticle cell we skip it.
-			if(temp->isNanoparticle == 1)
+			if(temp->isNanoparticle == true)
 			{
 				/* We don't add to the rejection counter here because this rejection
 				*  has NOTHING to do with the Coning Algorithm. 

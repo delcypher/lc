@@ -11,8 +11,8 @@
         struct DirectorElement
         {
                 double x,y;
-                int isNanoparticle;
-		DirectorElement(double xValue, double yValue, int inp) : x(xValue) , y(yValue) , isNanoparticle(inp)
+                bool isNanoparticle;
+		DirectorElement(double xValue, double yValue, bool inp) : x(xValue) , y(yValue) , isNanoparticle(inp)
 		{
 			//do nothing
 		}

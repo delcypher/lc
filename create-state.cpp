@@ -67,7 +67,7 @@ int main(int n, char* argv[])
 
 	//create elliptical nanoparticle
 	//(xCentre,yCentre, a, b, theta, boundary)
-	EllipticalNanoparticle particle2 = EllipticalNanoparticle(20,20,10,5,PI/4,EllipticalNanoparticle::PARALLEL);
+	EllipticalNanoparticle particle2 = EllipticalNanoparticle(20,20,6,2,PI/4,EllipticalNanoparticle::PARALLEL);
 
 	if(particle2.inBadState())
 		badState=true;
