@@ -103,6 +103,9 @@
 			*/
 			const DirectorElement DUMMY_DIRECTOR; 
 
+			//Helper function of calculateEnergyOfCell()
+			double calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign);
+
 		public:
 			//Lattice Parameters
 			LatticeConfig param;

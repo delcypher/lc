@@ -18,11 +18,6 @@
 		}
         };
 
-	/* This function calculates & returns the cosine of the angle between two DirectorElements (must be passed as pointers)
-        *
-        */
-        double calculateCosineBetween(const DirectorElement* a, const DirectorElement* b);
-
         /* Flips a DirectorElement (vector in physics sense) in the opposite direction
         *
         */
