@@ -1,0 +1,309 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 43.20     11.47    11.47 500520000     0.00     0.00  Lattice::calculateCosineBetween(DirectorElement const*, DirectorElement const*, double const&)
+ 28.41     19.01     7.54 62565000     0.00     0.00  Lattice::calculateEnergyOfCell(int, int)
+ 21.29     24.66     5.65 319100816     0.00     0.00  Lattice::getN(int, int) const
+  2.34     25.28     0.62                             main
+  1.32     25.63     0.35 11142031     0.00     0.00  rnd()
+  1.24     25.96     0.33                             Lattice::add(Nanoparticle&)
+  0.83     26.18     0.22 12500000     0.00     0.00  intRnd()
+  0.70     26.37     0.19                             Nanoparticle::getY()
+  0.28     26.44     0.08  4003204     0.00     0.00  mod(int, int)
+  0.15     26.48     0.04  6250000     0.00     0.00  rotateDirector(DirectorElement*, double)
+  0.11     26.51     0.03        1    30.01    30.01  sgenrand(unsigned long)
+  0.08     26.53     0.02        2    10.00    10.00  Lattice::dumpDescription(std::ostream&) const
+  0.04     26.54     0.01  6250000     0.00     0.00  Lattice::setN(int, int)
+  0.04     26.55     0.01                             setDirectorAngle(DirectorElement*, double)
+  0.02     26.56     0.01        3     1.67     1.67  std::operator|(std::_Ios_Openmode, std::_Ios_Openmode)
+  0.00     26.56     0.00       26     0.00     0.98  Lattice::calculateTotalEnergy()
+  0.00     26.56     0.00        5     0.00     0.00  std::ios_base::precision(long)
+  0.00     26.56     0.00        3     0.00     0.00  DirectorElement::DirectorElement(double, double, bool)
+  0.00     26.56     0.00        3     0.00     0.15  Lattice::nDump(Lattice::dumpMode, std::ostream&) const
+  0.00     26.56     0.00        1     0.00     0.00  global constructors keyed to _ZN20CircularNanoparticleC2EiiiNS_8boundaryE
+  0.00     26.56     0.00        1     0.00     0.00  global constructors keyed to _ZN22EllipticalNanoparticleC2EiidddNS_8boundaryE
+  0.00     26.56     0.00        1     0.00     0.00  global constructors keyed to _ZN7LatticeC2E13LatticeConfig
+  0.00     26.56     0.00        1     0.00     0.00  global constructors keyed to requestExit
+  0.00     26.56     0.00        1     0.00     0.00  closeFiles()
+  0.00     26.56     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00     26.56     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00     26.56     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00     26.56     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00     26.56     0.00        1     0.00    30.01  setSeed()
+  0.00     26.56     0.00        1     0.00     3.33  Lattice::saveState(char const*)
+  0.00     26.56     0.00        1     0.00     1.67  Lattice::Lattice(char const*)
+  0.00     26.56     0.00        1     0.00     0.00  Lattice::~Lattice()
+  0.00     26.56     0.00        1     0.00     0.00  Lattice::inBadState() const
+  0.00     26.56     0.00        1     0.00    10.47  Lattice::indexedNDump(std::ostream&) const
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.04% of 26.56 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     98.0    0.62   25.41                 main [1]
+                7.53   17.06 62500000/62565000     Lattice::calculateEnergyOfCell(int, int) [2]
+                0.35    0.00 11142031/11142031     rnd() [5]
+                0.22    0.00 12500000/12500000     intRnd() [7]
+                0.01    0.11 6250000/6250000     Lattice::setN(int, int) [9]
+                0.04    0.00 6250000/6250000     rotateDirector(DirectorElement*, double) [11]
+                0.00    0.03       1/1           setSeed() [12]
+                0.00    0.03      26/26          Lattice::calculateTotalEnergy() [14]
+                0.00    0.01       1/1           Lattice::indexedNDump(std::ostream&) const [16]
+                0.01    0.00       1/2           Lattice::dumpDescription(std::ostream&) const [15]
+                0.00    0.00       1/1           Lattice::saveState(char const*) [19]
+                0.00    0.00       1/1           Lattice::Lattice(char const*) [20]
+                0.00    0.00       5/5           std::ios_base::precision(long) [26]
+                0.00    0.00       1/1           Lattice::inBadState() const [38]
+                0.00    0.00       1/1           closeFiles() [32]
+                0.00    0.00       1/1           Lattice::~Lattice() [37]
+-----------------------------------------------
+                0.01    0.02   65000/62565000     Lattice::calculateTotalEnergy() [14]
+                7.53   17.06 62500000/62565000     main [1]
+[2]     92.7    7.54   17.08 62565000         Lattice::calculateEnergyOfCell(int, int) [2]
+               11.47    0.00 500520000/500520000     Lattice::calculateCosineBetween(DirectorElement const*, DirectorElement const*, double const&) [3]
+                5.54    0.07 312825000/319100816     Lattice::getN(int, int) const [4]
+-----------------------------------------------
+               11.47    0.00 500520000/500520000     Lattice::calculateEnergyOfCell(int, int) [2]
+[3]     43.2   11.47    0.00 500520000         Lattice::calculateCosineBetween(DirectorElement const*, DirectorElement const*, double const&) [3]
+-----------------------------------------------
+                0.00    0.00   25816/319100816     Lattice::nDump(Lattice::dumpMode, std::ostream&) const [21]
+                0.11    0.00 6250000/319100816     Lattice::setN(int, int) [9]
+                5.54    0.07 312825000/319100816     Lattice::calculateEnergyOfCell(int, int) [2]
+[4]     21.6    5.65    0.08 319100816         Lattice::getN(int, int) const [4]
+                0.08    0.00 4003204/4003204     mod(int, int) [10]
+-----------------------------------------------
+                0.35    0.00 11142031/11142031     main [1]
+[5]      1.3    0.35    0.00 11142031         rnd() [5]
+-----------------------------------------------
+                                                 <spontaneous>
+[6]      1.2    0.33    0.00                 Lattice::add(Nanoparticle&) [6]
+-----------------------------------------------
+                0.22    0.00 12500000/12500000     main [1]
+[7]      0.8    0.22    0.00 12500000         intRnd() [7]
+-----------------------------------------------
+                                                 <spontaneous>
+[8]      0.7    0.19    0.00                 Nanoparticle::getY() [8]
+-----------------------------------------------
+                0.01    0.11 6250000/6250000     main [1]
+[9]      0.5    0.01    0.11 6250000         Lattice::setN(int, int) [9]
+                0.11    0.00 6250000/319100816     Lattice::getN(int, int) const [4]
+-----------------------------------------------
+                0.08    0.00 4003204/4003204     Lattice::getN(int, int) const [4]
+[10]     0.3    0.08    0.00 4003204         mod(int, int) [10]
+-----------------------------------------------
+                0.04    0.00 6250000/6250000     main [1]
+[11]     0.2    0.04    0.00 6250000         rotateDirector(DirectorElement*, double) [11]
+-----------------------------------------------
+                0.00    0.03       1/1           main [1]
+[12]     0.1    0.00    0.03       1         setSeed() [12]
+                0.03    0.00       1/1           sgenrand(unsigned long) [13]
+-----------------------------------------------
+                0.03    0.00       1/1           setSeed() [12]
+[13]     0.1    0.03    0.00       1         sgenrand(unsigned long) [13]
+-----------------------------------------------
+                0.00    0.03      26/26          main [1]
+[14]     0.1    0.00    0.03      26         Lattice::calculateTotalEnergy() [14]
+                0.01    0.02   65000/62565000     Lattice::calculateEnergyOfCell(int, int) [2]
+-----------------------------------------------
+                0.01    0.00       1/2           main [1]
+                0.01    0.00       1/2           Lattice::indexedNDump(std::ostream&) const [16]
+[15]     0.1    0.02    0.00       2         Lattice::dumpDescription(std::ostream&) const [15]
+-----------------------------------------------
+                0.00    0.01       1/1           main [1]
+[16]     0.0    0.00    0.01       1         Lattice::indexedNDump(std::ostream&) const [16]
+                0.01    0.00       1/2           Lattice::dumpDescription(std::ostream&) const [15]
+                0.00    0.00       3/3           Lattice::nDump(Lattice::dumpMode, std::ostream&) const [21]
+-----------------------------------------------
+                                                 <spontaneous>
+[17]     0.0    0.01    0.00                 setDirectorAngle(DirectorElement*, double) [17]
+-----------------------------------------------
+                0.00    0.00       1/3           Lattice::Lattice(char const*) [20]
+                0.00    0.00       2/3           Lattice::saveState(char const*) [19]
+[18]     0.0    0.01    0.00       3         std::operator|(std::_Ios_Openmode, std::_Ios_Openmode) [18]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[19]     0.0    0.00    0.00       1         Lattice::saveState(char const*) [19]
+                0.00    0.00       2/3           std::operator|(std::_Ios_Openmode, std::_Ios_Openmode) [18]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[20]     0.0    0.00    0.00       1         Lattice::Lattice(char const*) [20]
+                0.00    0.00       1/3           std::operator|(std::_Ios_Openmode, std::_Ios_Openmode) [18]
+                0.00    0.00       3/3           DirectorElement::DirectorElement(double, double, bool) [27]
+-----------------------------------------------
+                0.00    0.00       3/3           Lattice::indexedNDump(std::ostream&) const [16]
+[21]     0.0    0.00    0.00       3         Lattice::nDump(Lattice::dumpMode, std::ostream&) const [21]
+                0.00    0.00   25816/319100816     Lattice::getN(int, int) const [4]
+-----------------------------------------------
+                0.00    0.00       5/5           main [1]
+[26]     0.0    0.00    0.00       5         std::ios_base::precision(long) [26]
+-----------------------------------------------
+                0.00    0.00       3/3           Lattice::Lattice(char const*) [20]
+[27]     0.0    0.00    0.00       3         DirectorElement::DirectorElement(double, double, bool) [27]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [67]
+[28]     0.0    0.00    0.00       1         global constructors keyed to _ZN20CircularNanoparticleC2EiiiNS_8boundaryE [28]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [35]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [67]
+[29]     0.0    0.00    0.00       1         global constructors keyed to _ZN22EllipticalNanoparticleC2EiidddNS_8boundaryE [29]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [36]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [67]
+[30]     0.0    0.00    0.00       1         global constructors keyed to _ZN7LatticeC2E13LatticeConfig [30]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [34]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [67]
+[31]     0.0    0.00    0.00       1         global constructors keyed to requestExit [31]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [33]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[32]     0.0    0.00    0.00       1         closeFiles() [32]
+-----------------------------------------------
+                0.00    0.00       1/1           global constructors keyed to requestExit [31]
+[33]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [33]
+-----------------------------------------------
+                0.00    0.00       1/1           global constructors keyed to _ZN7LatticeC2E13LatticeConfig [30]
+[34]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [34]
+-----------------------------------------------
+                0.00    0.00       1/1           global constructors keyed to _ZN20CircularNanoparticleC2EiiiNS_8boundaryE [28]
+[35]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [35]
+-----------------------------------------------
+                0.00    0.00       1/1           global constructors keyed to _ZN22EllipticalNanoparticleC2EiidddNS_8boundaryE [29]
+[36]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [36]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[37]     0.0    0.00    0.00       1         Lattice::~Lattice() [37]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[38]     0.0    0.00    0.00       1         Lattice::inBadState() const [38]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+
+Index by function name
+
+  [28] global constructors keyed to _ZN20CircularNanoparticleC2EiiiNS_8boundaryE (circle.cpp) [36] __static_initialization_and_destruction_0(int, int) (ellipse.cpp) [20] Lattice::Lattice(char const*)
+  [29] global constructors keyed to _ZN22EllipticalNanoparticleC2EiidddNS_8boundaryE (ellipse.cpp) [7] intRnd() [37] Lattice::~Lattice()
+  [30] global constructors keyed to _ZN7LatticeC2E13LatticeConfig (lattice.cpp) [12] setSeed() [38] Lattice::inBadState() const
+  [31] global constructors keyed to requestExit (sim-state.cpp) [13] sgenrand(unsigned long) [16] Lattice::indexedNDump(std::ostream&) const
+  [32] closeFiles()            [8] Nanoparticle::getY()   [15] Lattice::dumpDescription(std::ostream&) const
+  [11] rotateDirector(DirectorElement*, double) [27] DirectorElement::DirectorElement(double, double, bool) [4] Lattice::getN(int, int) const
+  [17] setDirectorAngle(DirectorElement*, double) [14] Lattice::calculateTotalEnergy() [21] Lattice::nDump(Lattice::dumpMode, std::ostream&) const
+  [10] mod(int, int)           [2] Lattice::calculateEnergyOfCell(int, int) [26] std::ios_base::precision(long)
+   [5] rnd()                   [3] Lattice::calculateCosineBetween(DirectorElement const*, DirectorElement const*, double const&) [18] std::operator|(std::_Ios_Openmode, std::_Ios_Openmode)
+  [33] __static_initialization_and_destruction_0(int, int) (sim-state.cpp) [6] Lattice::add(Nanoparticle&) [1] main
+  [34] __static_initialization_and_destruction_0(int, int) (lattice.cpp) [9] Lattice::setN(int, int)
+  [35] __static_initialization_and_destruction_0(int, int) (circle.cpp) [19] Lattice::saveState(char const*)
