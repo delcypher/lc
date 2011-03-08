@@ -676,9 +676,16 @@ void Lattice::dumpDescription(std::ostream& stream) const
 
 inline double Lattice::calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign)
 {
-	// Note in denominator we drop flipSign because, flipSign*flipSign == 1
-	return ( flipSign*(C->x)*(O->x) + flipSign*(C->y)*(O->y) ) /
-		sqrt( ( (C->x)*(C->x) + (C->y)*(C->y) )*( (O->x)*(O->x) + (O->y)*(O->y)    )  );
+	/* This is calculated using the definition of the dot product cos(theta) = a.b /|a||b|
+	*  between two vectors "a" and "b". It also uses the definition of the dot product that is
+	*  a.b = (a->x)*(b->x) + (a->y)*(b->y)
+	*/
+
+
+	/* Note we drop the denominator (|a||b|) as the director should be a unit vector.
+	*  denominator because the director should be a unit vector, hence the denominator should be 1.
+	*/
+	return flipSign*( (C->x)*(O->x) + (C->y)*(O->y) );
 
 }
 double Lattice::calculateEnergyOfCell(int xPos, int yPos)
