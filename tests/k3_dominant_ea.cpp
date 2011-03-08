@@ -19,7 +19,6 @@
 #include <cstdlib>
 #include <cmath>
 #include "randgen.h"
-#include "differentiate.h"
 #include "lattice.h"
 #include "exitcodes.h"
 

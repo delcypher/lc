@@ -10,7 +10,6 @@
 #include <iostream>
 #include <cstdlib>
 #include "randgen.h"
-#include "differentiate.h"
 #include "lattice.h"
 #include "exitcodes.h"
 

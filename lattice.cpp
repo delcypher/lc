@@ -8,7 +8,6 @@
 #include <cmath>
 #include "randgen.h"
 #include "lattice.h"
-#include "differentiate.h"
 #include <cstring>
 #include <fstream>
 #include "nanoparticles/circle.h"
@@ -675,10 +674,17 @@ void Lattice::dumpDescription(std::ostream& stream) const
 	stream.flush();
 }
 
+inline double Lattice::calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign)
+{
+	// Note in denominator we drop flipSign because, flipSign*flipSign == 1
+	return ( flipSign*(C->x)*(O->x) + flipSign*(C->y)*(O->y) ) /
+		sqrt( ( (C->x)*(C->x) + (C->y)*(C->y) )*( (O->x)*(O->x) + (O->y)*(O->y)    )  );
+
+}
 double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 {
 	/*   |T|     y|
-	*  |L|X|R|    |
+	*  |L|C|R|    |
 	*    |B|      |_____
 	*                  x
 	* energy = 0.5*(k_1*firstTerm + k_3*(n_x^2 + n_y^2)*secondTerm)
@@ -691,39 +697,71 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 	* Note we assume k_1 =1 & k_3=beta*k_1
 	*/
 
+	//Get pointers to T,B,L,R & C cells
+	const DirectorElement* T = getN(xPos, yPos +1);
+	const DirectorElement* B = getN(xPos, yPos -1);
+	const DirectorElement* L = getN(xPos -1, yPos);
+	const DirectorElement* R = getN(xPos +1, yPos);
+	const DirectorElement* C = getN(xPos,yPos);
+	
+	/* set original flip sign to 1 (we assume no initial flipping needed).
+	*  This flip sign says what the sign of the components in the C cell are.
+	*  If we flip that cell all components of that cell get mulitplied by -1.
+	*/
+	double flipSign=1;
+	
+	/* For Each derivitive we calculate what the (smallest) angle between DirectorElements are for
+	*  the derivitive. If this is > 90 degrees we flip the Centre (C) DirectorElement by 180degrees.
+	*  This effectively changes the sign of the components of the Centre DirectorElement (C).
+	*/
+		
+	//calculate derivatives for first term
+
+	if(calculateCosineBetween(C,R,flipSign) < 0) flipSign *= -1;
+	double dNxdx_F = R->x - flipSign*(C->x);
+
+	if(calculateCosineBetween(C,L,flipSign) < 0) flipSign *= -1;
+	double dNxdx_B = flipSign*(C->x) - L->x;
+
+	if(calculateCosineBetween(C,T,flipSign) < 0) flipSign *= -1;
+	double dNydy_F = T->y - flipSign*(C->y);
+
+	if(calculateCosineBetween(C,B,flipSign) < 0) flipSign *= -1;
+	double dNydy_B = flipSign*(C->y) - B->y;
+
+	//calculate derivative for second term
+	if(calculateCosineBetween(C,R,flipSign) < 0) flipSign *= -1;
+	double dNydx_F = R->y - flipSign*(C->y);
+
+	if(calculateCosineBetween(C,L,flipSign) < 0) flipSign *= -1;
+	double dNydx_B = flipSign*(C->y) - L->y; 
+
+	if(calculateCosineBetween(C,T,flipSign) < 0) flipSign *= -1;
+	double dNxdy_F = T->x - flipSign*(C->x);
+
+	if(calculateCosineBetween(C,B,flipSign) < 0) flipSign *= -1;
+	double dNxdy_B = flipSign*(C->x) - B->x;
+
 	double firstTerm=0;
 	double secondTerm=0;
 	double temp=0;
-	double temp2=0;
-	
-	//calculate derivatives for first term
-	double t_dNxdx_F = dNxdx_F(this,xPos,yPos);
-	double t_dNxdx_B = dNxdx_B(this,xPos,yPos);
-	double t_dNydy_F = dNydy_F(this,xPos,yPos);
-	double t_dNydy_B = dNydy_B(this,xPos,yPos);
-
-	//calculate derivative for second term
-	double t_dNydx_F = dNydx_F(this,xPos,yPos);
-	double t_dNydx_B = dNydx_B(this,xPos,yPos);
-	double t_dNxdy_F = dNxdy_F(this,xPos,yPos);
-	double t_dNxdy_B = dNxdy_B(this,xPos,yPos);
 
 	//Estimate first term by calculating the 4 different ways of calculating the first term and taking the average
 	
 	//Using T & R (forward differencing in both directions)
-	temp = t_dNxdx_F + t_dNydy_F;
+	temp = dNxdx_F + dNydy_F;
 	firstTerm = temp*temp;
 
 	//Using B & R (forward differencing in x direction & backward differencing in y direction)
-	temp = t_dNxdx_F + t_dNydy_B;
+	temp = dNxdx_F + dNydy_B;
 	firstTerm += temp*temp;	
 
 	//Using B & L (backward differencing in both directions)
-	temp = t_dNxdx_B + t_dNydy_B;
+	temp = dNxdx_B + dNydy_B;
 	firstTerm += temp*temp;
 
 	//Using T & L (backward differencing in x direction & forward differencing in y direction)
-	temp = t_dNxdx_B + t_dNydy_F;
+	temp = dNxdx_B + dNydy_F;
 	firstTerm += temp*temp;
 
 	//Divide by 4 to get average to estimate first term
@@ -732,32 +770,25 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 	//Estimate second term by calculating the 4 different ways of calculating the second term and taking the average
 	
 	//Using T & R (forward differencing in both directions)
-	temp = dNydx_F(this,xPos,yPos) - dNxdy_F(this,xPos,yPos);
+	temp = dNydx_F - dNxdy_F ;
 	secondTerm = temp*temp;
 
 	//Using B & R (forward differencing in x direction & backward differencing in y direction)
-	temp = t_dNydx_F - t_dNxdy_B;
+	temp = dNydx_F - dNxdy_B;
 	secondTerm += temp*temp;
 
 	//Using B & L (backward differencing in both directions)
-	temp = t_dNydx_B - t_dNxdy_B;
+	temp = dNydx_B - dNxdy_B;
 	secondTerm += temp*temp;
 
 	//Using T & L (backward differencing in x direction & forward differencing in y direction)
-	temp = t_dNydx_B - t_dNxdy_F;
+	temp = dNydx_B - dNxdy_F;
 	secondTerm += temp*temp;
 
 	//Divide by 4 to get average to estimate second term
 	secondTerm /= 4.0;
 	
-	//calculate n_x^2
-	temp = getN(xPos,yPos)->x;
-	temp *=temp;
-
-	temp2 = getN(xPos,yPos)->y;
-	temp2 *=temp2;
-	
-	return 0.5*(firstTerm + (param.beta)*(temp + temp2)*secondTerm );
+	return 0.5*(firstTerm + (param.beta)*((C->x)*(C->x) + (C->y)*(C->y))*secondTerm );
 
 }
 
