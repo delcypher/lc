@@ -722,14 +722,28 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 	const DirectorElement* C = getN(xPos,yPos);
 	
 	/* set original flip sign to 1 (we assume no initial flipping needed).
-	*  This flip sign says what the sign of the components in the C cell are.
+	*  This flip sign says what the sign of the components in the C (central) cell are.
 	*  If we flip that cell all components of that cell get mulitplied by -1.
 	*/
 	double flipSign=1;
 	
-	/* For Each derivitive we calculate what the (smallest) angle between DirectorElements are for
+	/* The convention for deriviate variables names is d{component}{w.r.t. variable}_{estimate_method}
+	*  For example dNxdy_B => differentiate the x component of N (Nx) w.r.t y using backward differencing.
+	* 
+	*  We use to different schemes for estimating the partial derivitive.
+	*  Forward differencing : df/dx at point (x_0,y_0) = ( f( x_0 + L, y_0) - f(x_0,y_0) )/L
+	*  Backward differencing : df/dx at point (x_0,y_0) = ( f(x_0,y_0) - f(x_0 -L, y_0) )/L
+	*
+	* Note in our code L=1 so we don't do the division.  
+	*
+	*  For Each derivitive we calculate what the (smallest) angle between DirectorElements are for
 	*  the derivitive. If this is > 90 degrees we flip the Centre (C) DirectorElement by 180degrees.
-	*  This effectively changes the sign of the components of the Centre DirectorElement (C).
+	*  This effectively changes the sign of the components of the Centre DirectorElement (C). We do this
+	*  because of unixial property of LCs (i.e. n = -n). Note that derivitive varies under the change of sign
+	*  (but the free energy per unit volume does not). Our estimates of the derivitive are also vary on the change
+	*  of sign so we need to pick a method to consistently obtain the same derivitive for n or -n. The above method
+	*  is one of the ways of doing this.
+	* 
 	*/
 		
 	//calculate derivatives for first term
@@ -761,51 +775,28 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 
 	double firstTerm=0;
 	double secondTerm=0;
-	double temp=0;
 
 	//Estimate first term by calculating the 4 different ways of calculating the first term and taking the average
-	
 	//Using T & R (forward differencing in both directions)
-	temp = dNxdx_F + dNydy_F;
-	firstTerm = temp*temp;
-
 	//Using B & R (forward differencing in x direction & backward differencing in y direction)
-	temp = dNxdx_F + dNydy_B;
-	firstTerm += temp*temp;	
-
 	//Using B & L (backward differencing in both directions)
-	temp = dNxdx_B + dNydy_B;
-	firstTerm += temp*temp;
-
 	//Using T & L (backward differencing in x direction & forward differencing in y direction)
-	temp = dNxdx_B + dNydy_F;
-	firstTerm += temp*temp;
-
-	//Divide by 4 to get average to estimate first term
-	firstTerm /= 4.0;
-
+	firstTerm = ( (dNxdx_F + dNydy_F)*(dNxdx_F + dNydy_F) +
+		(dNxdx_F + dNydy_B)*(dNxdx_F + dNydy_B) +
+		(dNxdx_B + dNydy_B)*(dNxdx_B + dNydy_B) +
+		(dNxdx_B + dNydy_F)*(dNxdx_B + dNydy_F) ) /4.0;
+	
 	//Estimate second term by calculating the 4 different ways of calculating the second term and taking the average
-	
 	//Using T & R (forward differencing in both directions)
-	temp = dNydx_F - dNxdy_F ;
-	secondTerm = temp*temp;
-
 	//Using B & R (forward differencing in x direction & backward differencing in y direction)
-	temp = dNydx_F - dNxdy_B;
-	secondTerm += temp*temp;
-
 	//Using B & L (backward differencing in both directions)
-	temp = dNydx_B - dNxdy_B;
-	secondTerm += temp*temp;
-
 	//Using T & L (backward differencing in x direction & forward differencing in y direction)
-	temp = dNydx_B - dNxdy_F;
-	secondTerm += temp*temp;
-
-	//Divide by 4 to get average to estimate second term
-	secondTerm /= 4.0;
-	
-	return 0.5*(firstTerm + (param.beta)*((C->x)*(C->x) + (C->y)*(C->y))*secondTerm );
+	secondTerm = ( (dNydx_F - dNxdy_F)*(dNydx_F - dNxdy_F) +
+		(dNydx_F - dNxdy_B)*(dNydx_F - dNxdy_B) +
+		(dNydx_B - dNxdy_B)*(dNydx_B - dNxdy_B) +
+		(dNydx_B - dNxdy_F)*(dNydx_B - dNxdy_F) ) /4.0;
+		
+		return 0.5*(firstTerm + (param.beta)*((C->x)*(C->x) + (C->y)*(C->y))*secondTerm );
 
 }
 
