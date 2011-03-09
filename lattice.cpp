@@ -299,6 +299,16 @@ bool Lattice::add(Nanoparticle& np)
 
 const DirectorElement* Lattice::getN(int xPos, int yPos) const
 {
+	/*
+	* If the requested "DirectorElement" is in the lattice array just return it.
+	* We do this first (and then again after handling periodic boundary conditions)
+	* because the majority of calls to getN() should be in the lattice.
+	*/
+	if(xPos >= 0 && xPos < param.width && yPos >= 0 && yPos < param.height)
+	{
+		return &(lattice[ xPos + (param.width)*yPos ]);
+	}
+	
 	/* set xPos & yPos in the lattice taking into account periodic boundary conditions
 	*  of the 2D lattice
 	*/
