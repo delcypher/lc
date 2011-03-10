@@ -7,7 +7,7 @@ CXX = g++
 VPATH=nanoparticles tests
 
 #Set defaults that can be overriden by command line passing
-debug=1
+debug=0
 profile=0
 runth=1
 
