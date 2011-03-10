@@ -54,6 +54,10 @@ sim-state: sim-state.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} sim-state.o ${OBJECTS} $(foreach library,$(LIBRARIES),-l$(library))  -o $@ 
 	$(info IF YOU RENAME ANY SOURCE FILES RUN ``make clean'' to clean up dependencies)
 
+#This builds the Monte Carlo simulator as one compilation unit as opposed to using objects... this may produce faster code when optimising.
+osim-state:
+	${CXX} ${CPPFLAGS} sim-state.cpp $(foreach file,$(OBJECTS:.o=.cpp),$(shell find . -name '${file}')) -o $@
+
 #include prerequesite files in make file
 -include $(OBJECTS:.o=.dep) 
 
