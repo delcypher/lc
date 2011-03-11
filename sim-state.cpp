@@ -133,7 +133,7 @@ int main(int n, char* argv[])
 	//set seed for random number generator
 	setSeed();
 
-	DirectorElement temp(0,0,false);
+	//have reference point to (0,0) at beginning.
 	int x, y; 
 	unsigned long loopMax = 250000000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
@@ -183,7 +183,7 @@ int main(int n, char* argv[])
 			x = intRnd() % (nSystem.param.width);
 			y = intRnd() % (nSystem.param.height);
 
-			temp = nSystem.setN(x,y);
+			DirectorElement& temp = nSystem.setN(x,y);
 			
 			//if it's a Nanoparticle cell we skip it.
 			if(temp.isNanoparticle == true)
