@@ -222,7 +222,7 @@ bool Lattice::add(Nanoparticle& np)
 	{
 		for(int x=0; x < param.width; x++)
 		{
-			if(! np.processCell(x,y,Nanoparticle::DRY_ADD, setN(x,y)) )
+			if(! np.processCell(x,y,Nanoparticle::DRY_ADD, &setN(x,y)) )
 			{
 				cerr << "Error: Adding nanoparticle on dry run failed." << endl;
 				badState=true;
@@ -236,7 +236,7 @@ bool Lattice::add(Nanoparticle& np)
 	{
 		for(int x=0; x < param.width; x++)
 		{
-			if(! np.processCell(x,y,Nanoparticle::ADD, setN(x,y)) )
+			if(! np.processCell(x,y,Nanoparticle::ADD, &setN(x,y)) )
 			{
 				cerr << "Error: Adding nanoparticle on actuall run failed." << endl;
 				badState=true;
@@ -297,7 +297,7 @@ bool Lattice::add(Nanoparticle& np)
 
 }
 
-const DirectorElement* Lattice::getN(int xPos, int yPos) const
+const DirectorElement& Lattice::getN(int xPos, int yPos) const
 {
 	/*
 	* If the requested "DirectorElement" is in the lattice array just return it.
@@ -306,7 +306,7 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	*/
 	if(xPos >= 0 && xPos < param.width && yPos >= 0 && yPos < param.height)
 	{
-		return &(lattice[ xPos + (param.width)*yPos ]);
+		return (lattice[ xPos + (param.width)*yPos ]);
 	}
 	
 	/* set xPos & yPos in the lattice taking into account periodic boundary conditions
@@ -345,7 +345,7 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	*/
 	if(xPos >= 0 && xPos < param.width && yPos >= 0 && yPos < param.height)
 	{
-		return &(lattice[ xPos + (param.width)*yPos ]);
+		return (lattice[ xPos + (param.width)*yPos ]);
 	}
 
 	/*we now know (xPos,yPos) isn't in lattice so either (xPos,yPos) is on the PARALLEL or PERPENDICULAR
@@ -357,17 +357,17 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	{
 		if(param.topBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &(PARALLEL_DIRECTOR);
+			return (PARALLEL_DIRECTOR);
 		} 
 		else if(param.topBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &(PERPENDICULAR_DIRECTOR);
+			return (PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
 			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
-			return &(DUMMY_DIRECTOR);
+			return (DUMMY_DIRECTOR);
 		}
 	}
 
@@ -376,17 +376,17 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	{
 		if(param.bottomBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &(PARALLEL_DIRECTOR);
+			return (PARALLEL_DIRECTOR);
 		}
 		else if(param.bottomBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &(PERPENDICULAR_DIRECTOR);
+			return (PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
 			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
-			return &(DUMMY_DIRECTOR);
+			return (DUMMY_DIRECTOR);
 		}
 	}
 
@@ -395,17 +395,17 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	{
 		if(param.leftBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &(PARALLEL_DIRECTOR);
+			return (PARALLEL_DIRECTOR);
 		}
 		else if(param.leftBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &(PERPENDICULAR_DIRECTOR);
+			return (PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
 			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
-			return &(DUMMY_DIRECTOR);
+			return (DUMMY_DIRECTOR);
 		}
 	}
 
@@ -414,17 +414,17 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	{
 		if(param.rightBoundary == LatticeConfig::BOUNDARY_PARALLEL)
 		{
-			return &(PARALLEL_DIRECTOR);
+			return (PARALLEL_DIRECTOR);
 		}
 		else if(param.rightBoundary == LatticeConfig::BOUNDARY_PERPENDICULAR)
 		{
-			return &(PERPENDICULAR_DIRECTOR);
+			return (PERPENDICULAR_DIRECTOR);
 		}
 		else
 		{
 			//Boundary cases should of already been handled, something went wrong if we get here!
 			cerr << "Error: Attempt to access boundary at (" << xPos << "," << yPos << ") where an unsupported boundary is set." << endl;
-			return &(DUMMY_DIRECTOR);
+			return (DUMMY_DIRECTOR);
 		}
 	}
 
@@ -437,24 +437,24 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	    (xPos==param.width && yPos==param.height && param.topBoundary != LatticeConfig::BOUNDARY_PERIODIC && param.rightBoundary != LatticeConfig::BOUNDARY_PERIODIC)
 	  )
 	{
-		return &(DUMMY_DIRECTOR);
+		return (DUMMY_DIRECTOR);
 	}
 
 
 	//Every case should already of been handled. An invalid point (xPos,yPos) must of been asked for
 	cerr << "Error: Attempt to access boundary a point (" << xPos << ","  << yPos << ") which couldn't be handled!" << endl;
-	return &(DUMMY_DIRECTOR);
+	return (DUMMY_DIRECTOR);
 
 }
 
 
-DirectorElement* Lattice::setN(int xPos, int yPos)
+DirectorElement& Lattice::setN(int xPos, int yPos)
 {
 
 	/* set xPos & yPos in the lattice taking into account periodic boundary conditions
 	*  of the 2D lattice
 	*/
-	return (DirectorElement*) getN(xPos,yPos);
+	return (DirectorElement&) getN(xPos,yPos);
 }
 
 void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
@@ -488,7 +488,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					{
 						//generate a random angle between 0 & 2*PI radians
 						angle = 2*PI*rnd();
-						setDirectorAngle(&(lattice[index]), angle);
+						setDirectorAngle((lattice[index]), angle);
 					}
 
 					break;
@@ -506,7 +506,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K1_EQUAL_K3:
 					{
 						angle = PI*( (double) (yPos + 1)/(2*(param.height +1)) );
-						setDirectorAngle(&(lattice[index]), angle);
+						setDirectorAngle((lattice[index]), angle);
 					}
 
 					break;
@@ -515,7 +515,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
 						angle = PI/2 - acos( (double) (yPos + 1)/(param.height + 1));
-						setDirectorAngle(&(lattice[index]), angle);
+						setDirectorAngle((lattice[index]), angle);
 					}
 
 					break;
@@ -524,7 +524,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
 						angle = PI/2 -asin(1 - (double) (yPos +1)/(param.height +1)   );
-						setDirectorAngle(&(lattice[index]), angle);
+						setDirectorAngle((lattice[index]), angle);
 					}
 					break;
 
@@ -581,35 +581,35 @@ void Lattice::nDump(enum Lattice::dumpMode mode, std::ostream& stream) const
 			switch(mode)
 			{
 				case EVERYTHING:	
-					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
-						( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
-						(getN(xPos,yPos)->x) << " " <<
-						(getN(xPos,yPos)->y) << "\n";
+					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos).x) ) << " " <<
+						( ( (double) yPos) - 0.5*(getN(xPos,yPos).y) ) << " " <<
+						(getN(xPos,yPos).x) << " " <<
+						(getN(xPos,yPos).y) << "\n";
 				break;
 
 				case PARTICLES:
-					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
-						( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
-						( (getN(xPos,yPos)->isNanoparticle==true)?(getN(xPos,yPos)->x):0 ) << " " <<
-						( (getN(xPos,yPos)->isNanoparticle==true)?(getN(xPos,yPos)->y):0 ) << "\n";
+					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos).x) ) << " " <<
+						( ( (double) yPos) - 0.5*(getN(xPos,yPos).y) ) << " " <<
+						( (getN(xPos,yPos).isNanoparticle==true)?(getN(xPos,yPos).x):0 ) << " " <<
+						( (getN(xPos,yPos).isNanoparticle==true)?(getN(xPos,yPos).y):0 ) << "\n";
 				break;
 
 				case NOT_PARTICLES:
 
-					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
-						( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
-						( (getN(xPos,yPos)->isNanoparticle==false)?(getN(xPos,yPos)->x):0 ) << " " <<
-						( (getN(xPos,yPos)->isNanoparticle==false)?(getN(xPos,yPos)->y):0 ) << "\n";
+					stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos).x) ) << " " <<
+						( ( (double) yPos) - 0.5*(getN(xPos,yPos).y) ) << " " <<
+						( (getN(xPos,yPos).isNanoparticle==false)?(getN(xPos,yPos).x):0 ) << " " <<
+						( (getN(xPos,yPos).isNanoparticle==false)?(getN(xPos,yPos).y):0 ) << "\n";
 
 				break;
 				
 				case BOUNDARY:
 					if(xPos==xInitial || xPos==xFinal || yPos==yInitial || yPos==yFinal)
 					{
-						stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos)->x) ) << " " <<
-							( ( (double) yPos) - 0.5*(getN(xPos,yPos)->y) ) << " " <<
-							(getN(xPos,yPos)->x) << " " <<
-							(getN(xPos,yPos)->y) << "\n";
+						stream << ( ( (double) xPos) - 0.5*(getN(xPos,yPos).x) ) << " " <<
+							( ( (double) yPos) - 0.5*(getN(xPos,yPos).y) ) << " " <<
+							(getN(xPos,yPos).x) << " " <<
+							(getN(xPos,yPos).y) << "\n";
 
 					}
 				break;
@@ -684,7 +684,7 @@ void Lattice::dumpDescription(std::ostream& stream) const
 	stream.flush();
 }
 
-inline double Lattice::calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign)
+inline double Lattice::calculateCosineBetween(const DirectorElement& C, const DirectorElement& O, const double& flipSign)
 {
 	/* This is calculated using the definition of the dot product cos(theta) = a.b /|a||b|
 	*  between two vectors "a" and "b". It also uses the definition of the dot product that is
@@ -695,7 +695,7 @@ inline double Lattice::calculateCosineBetween(const DirectorElement* C, const Di
 	/* Note we drop the denominator (|a||b|) as the director should be a unit vector.
 	*  denominator because the director should be a unit vector, hence the denominator should be 1.
 	*/
-	return flipSign*( (C->x)*(O->x) + (C->y)*(O->y) );
+	return flipSign*( (C.x)*(O.x) + (C.y)*(O.y) );
 
 }
 double Lattice::calculateEnergyOfCell(int xPos, int yPos)
@@ -715,11 +715,11 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 	*/
 
 	//Get pointers to T,B,L,R & C cells
-	const DirectorElement* T = getN(xPos, yPos +1);
-	const DirectorElement* B = getN(xPos, yPos -1);
-	const DirectorElement* L = getN(xPos -1, yPos);
-	const DirectorElement* R = getN(xPos +1, yPos);
-	const DirectorElement* C = getN(xPos,yPos);
+	const DirectorElement T = getN(xPos, yPos +1);
+	const DirectorElement B = getN(xPos, yPos -1);
+	const DirectorElement L = getN(xPos -1, yPos);
+	const DirectorElement R = getN(xPos +1, yPos);
+	const DirectorElement C = getN(xPos,yPos);
 	
 	/* set original flip sign to 1 (we assume no initial flipping needed).
 	*  This flip sign says what the sign of the components in the C (central) cell are.
@@ -749,29 +749,29 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 	//calculate derivatives for first term
 
 	if(calculateCosineBetween(C,R,flipSign) < 0) flipSign *= -1;
-	double dNxdx_F = R->x - flipSign*(C->x);
+	double dNxdx_F = R.x - flipSign*(C.x);
 
 	if(calculateCosineBetween(C,L,flipSign) < 0) flipSign *= -1;
-	double dNxdx_B = flipSign*(C->x) - L->x;
+	double dNxdx_B = flipSign*(C.x) - L.x;
 
 	if(calculateCosineBetween(C,T,flipSign) < 0) flipSign *= -1;
-	double dNydy_F = T->y - flipSign*(C->y);
+	double dNydy_F = T.y - flipSign*(C.y);
 
 	if(calculateCosineBetween(C,B,flipSign) < 0) flipSign *= -1;
-	double dNydy_B = flipSign*(C->y) - B->y;
+	double dNydy_B = flipSign*(C.y) - B.y;
 
 	//calculate derivative for second term
 	if(calculateCosineBetween(C,R,flipSign) < 0) flipSign *= -1;
-	double dNydx_F = R->y - flipSign*(C->y);
+	double dNydx_F = R.y - flipSign*(C.y);
 
 	if(calculateCosineBetween(C,L,flipSign) < 0) flipSign *= -1;
-	double dNydx_B = flipSign*(C->y) - L->y; 
+	double dNydx_B = flipSign*(C.y) - L.y; 
 
 	if(calculateCosineBetween(C,T,flipSign) < 0) flipSign *= -1;
-	double dNxdy_F = T->x - flipSign*(C->x);
+	double dNxdy_F = T.x - flipSign*(C.x);
 
 	if(calculateCosineBetween(C,B,flipSign) < 0) flipSign *= -1;
-	double dNxdy_B = flipSign*(C->x) - B->x;
+	double dNxdy_B = flipSign*(C.x) - B.x;
 
 	double firstTerm=0;
 	double secondTerm=0;
@@ -796,7 +796,7 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 		(dNydx_B - dNxdy_B)*(dNydx_B - dNxdy_B) +
 		(dNydx_B - dNxdy_F)*(dNydx_B - dNxdy_F) ) /4.0;
 		
-		return 0.5*(firstTerm + (param.beta)*((C->x)*(C->x) + (C->y)*(C->y))*secondTerm );
+		return 0.5*(firstTerm + (param.beta)*((C.x)*(C.x) + (C.y)*(C.y))*secondTerm );
 
 }
 

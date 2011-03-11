@@ -18,20 +18,15 @@
 		}
         };
 
-        /* Flips a DirectorElement (vector in physics sense) in the opposite direction
-        *
-        */
-        void flipDirector(DirectorElement* a);
-
 	/* Set the Angle(in radians) the DirectorElement makes with the x-axis
 	*
 	*/
-	void setDirectorAngle(DirectorElement* a, double angle);
+	void setDirectorAngle(DirectorElement& a, double angle);
 	
 	/* Rotate the DirectorElement by an angle "angle" in radians.
 	*
 	*/
-	void rotateDirector(DirectorElement* a, double angle);
+	void rotateDirector(DirectorElement& a, double angle);
 
 	#define DIRECTOR_ELEMENT 1
 #endif
