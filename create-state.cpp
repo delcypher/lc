@@ -180,9 +180,9 @@ double getiTk(const LatticeConfig& realConfig)
 	beforeEnergy += smallL.calculateEnergyOfCell(x,y+1); // add energy per unit volume of cell T
 
 	//rotate cell C by 90 degrees
-	DirectorElement& temp = smallL.setN(x,y);
-	temp.x=0;
-	temp.y=1;
+	DirectorElement* temp = smallL.setN(x,y);
+	temp->x=0;
+	temp->y=1;
 
 	//calculate the energy of cells after
 
