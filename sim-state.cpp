@@ -133,7 +133,7 @@ int main(int n, char* argv[])
 	//set seed for random number generator
 	setSeed();
 
-	DirectorElement *temp;
+	DirectorElement temp(0,0,false);
 	int x, y; 
 	unsigned long loopMax = 250000000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
@@ -186,7 +186,7 @@ int main(int n, char* argv[])
 			temp = nSystem.setN(x,y);
 			
 			//if it's a Nanoparticle cell we skip it.
-			if(temp->isNanoparticle == true)
+			if(temp.isNanoparticle == true)
 			{
 				/* We don't add to the rejection counter here because this rejection
 				*  has NOTHING to do with the Coning Algorithm. 
@@ -195,8 +195,8 @@ int main(int n, char* argv[])
 			}
 			
 			angle = (2*rnd()-1)*nSystem.param.aAngle; 
-			oldNx = temp->x;
-			oldNy = temp->y;
+			oldNx = temp.x;
+			oldNy = temp.y;
 
 			before = nSystem.calculateEnergyOfCell(x,y);
 			before += nSystem.calculateEnergyOfCell(x+1,y);
@@ -221,8 +221,8 @@ int main(int n, char* argv[])
 				if(rollOfTheDice > exp(-dE*nSystem.param.iTk)) 
 				{
 					// reject change
-					temp->x = oldNx;
-					temp->y = oldNy;
+					temp.x = oldNx;
+					temp.y = oldNy;
 					nSystem.param.rejectCounter++;
 				}
 				else nSystem.param.acceptCounter++;

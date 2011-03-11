@@ -5,27 +5,17 @@
 #include <cmath>
 
 
-/* Flips a DirectorElement (vector in physics sense) in the opposite direction
-*
-*/
-void flipDirector(DirectorElement* a)
+void setDirectorAngle(DirectorElement& a, double angle)
 {
-        //flip component directions
-        a->x *= -1;
-        a->y *= -1;
+	a.x = cos(angle);
+	a.y = sin(angle);
 }
 
-void setDirectorAngle(DirectorElement* a, double angle)
+void rotateDirector(DirectorElement& a, double angle)
 {
-	a->x = cos(angle);
-	a->y = sin(angle);
-}
+	double tempX = a.x;
+	double tempY = a.y;
 
-void rotateDirector(DirectorElement* a, double angle)
-{
-	double tempX = a->x;
-	double tempY = a->y;
-
-	a->x = cos(angle)*tempX -sin(angle)*tempY;
-	a->y = sin(angle)*tempX + cos(angle)*tempY;
+	a.x = cos(angle)*tempX -sin(angle)*tempY;
+	a.y = sin(angle)*tempX + cos(angle)*tempY;
 }

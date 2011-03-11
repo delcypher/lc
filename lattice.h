@@ -104,7 +104,7 @@
 			const DirectorElement DUMMY_DIRECTOR; 
 
 			//Helper function of calculateEnergyOfCell()
-			double calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign);
+			double calculateCosineBetween(const DirectorElement& C, const DirectorElement& O, const double& flipSign);
 
 		public:
 			//Lattice Parameters
@@ -132,12 +132,12 @@
 			 * boundary conditions of a LatticeObject (theLattice). Note that if you wish to change the director value at point (x,y)
 			 * you should use getN().
 			*/
-			const DirectorElement* getN(int xPos, int yPos) const;
+			const DirectorElement& getN(int xPos, int yPos) const;
 		
 			/* This is like getN() accept it allows you to change the director value at point (x,y).
 			*  Use with CAUTION!
 			*/
-			DirectorElement * setN(int xPos, int yPos);
+			DirectorElement& setN(int xPos, int yPos);
 
 			/* This sets the state of the lattice to one of the initialState presets.
 			*  Note: This only affects lattice cells that aren't marked as Nanoparticles.
