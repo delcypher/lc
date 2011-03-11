@@ -133,7 +133,7 @@ int main(int n, char* argv[])
 	//set seed for random number generator
 	setSeed();
 
-	DirectorElement *temp;
+	DirectorElement *temp=NULL;
 	int x, y; 
 	unsigned long loopMax = 250000000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
@@ -179,20 +179,18 @@ int main(int n, char* argv[])
 
 		for(int i=0; i < (nSystem.param.width)*(nSystem.param.height); i++)
 		{
-			//pick "random" (x,y) co-ordinate in range ( [0, lattice width -1] , [0, lattice height -1] )
-			x = intRnd() % (nSystem.param.width);
-			y = intRnd() % (nSystem.param.height);
-			
-			temp = nSystem.setN(x,y);
-
-			//if it's a Nanoparticle cell we skip it.
-			if(temp->isNanoparticle == true)
+			/* Keep randomly selecting lattice cells until we find one that isn't a nanoparticle.
+			*  This has the potential of becoming very inefficient for a lattice that has lots of nanoparticles!
+			*/
+			do
 			{
-				/* We don't add to the rejection counter here because this rejection
-				*  has NOTHING to do with the Coning Algorithm. 
-				*/
-				break;
-			}
+				//pick "random" (x,y) co-ordinate in range ( [0, lattice width -1] , [0, lattice height -1] )
+				x = intRnd() % (nSystem.param.width);
+				y = intRnd() % (nSystem.param.height);
+				
+				temp = nSystem.setN(x,y);
+			} while (temp->isNanoparticle ==true);
+			
 			
 			angle = (2*rnd()-1)*nSystem.param.aAngle; 
 			oldNx = temp->x;
