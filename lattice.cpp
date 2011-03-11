@@ -746,31 +746,22 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 	* 
 	*/
 		
-	//calculate derivatives for first term
+	//calculate derivatives for first term and second term
 
 	if(calculateCosineBetween(C,R,flipSign) < 0) flipSign *= -1;
 	double dNxdx_F = R.x - flipSign*(C.x);
-
-	if(calculateCosineBetween(C,L,flipSign) < 0) flipSign *= -1;
-	double dNxdx_B = flipSign*(C.x) - L.x;
-
-	if(calculateCosineBetween(C,T,flipSign) < 0) flipSign *= -1;
-	double dNydy_F = T.y - flipSign*(C.y);
-
-	if(calculateCosineBetween(C,B,flipSign) < 0) flipSign *= -1;
-	double dNydy_B = flipSign*(C.y) - B.y;
-
-	//calculate derivative for second term
-	if(calculateCosineBetween(C,R,flipSign) < 0) flipSign *= -1;
 	double dNydx_F = R.y - flipSign*(C.y);
 
 	if(calculateCosineBetween(C,L,flipSign) < 0) flipSign *= -1;
+	double dNxdx_B = flipSign*(C.x) - L.x;
 	double dNydx_B = flipSign*(C.y) - L.y; 
 
 	if(calculateCosineBetween(C,T,flipSign) < 0) flipSign *= -1;
+	double dNydy_F = T.y - flipSign*(C.y);
 	double dNxdy_F = T.x - flipSign*(C.x);
 
 	if(calculateCosineBetween(C,B,flipSign) < 0) flipSign *= -1;
+	double dNydy_B = flipSign*(C.y) - B.y;
 	double dNxdy_B = flipSign*(C.x) - B.x;
 
 	double firstTerm=0;
