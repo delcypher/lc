@@ -172,19 +172,27 @@ int main(int n, char* argv[])
 	annealF << "#Starting at:" << ctime(&rawTime) << endl;
 	annealF << "# Step    1/Tk" << endl;
 	//output initial iTk
-	annealF << -1 << " " <<  nSystem.param.iTk << endl;
+	if(nSystem.param.mStep==0)
+	{
+		annealF << -1 << " " <<  nSystem.param.iTk << endl;
+	}
 
 	//output header for annealing file
 	coningF << "#Starting at:" << ctime(&rawTime) << endl;
 	coningF << "#Step Acceptance angle" << endl;
 	//output initial acceptance angle
-	coningF << -1 << " " << nSystem.param.aAngle << endl;
+	if(nSystem.param.mStep==0)
+	{
+		coningF << -1 << " " << nSystem.param.aAngle << endl;
+	}
 
 	//output initial energy
 	energyF << "#Starting at:" << ctime(&rawTime);
 	energyF << "#Step Energy" << endl;
-	energyF << -1 << " " << energy << endl;
-
+	if(nSystem.param.mStep==0)
+	{
+		energyF << -1 << " " << energy << endl;
+	}
 	
 	for(; nSystem.param.mStep < loopMax; nSystem.param.mStep++)
 	{

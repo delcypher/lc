@@ -1,10 +1,13 @@
-#!/bin/bash
 #Script that adds the executables to the work path
 # run as ``source path.sh'' or ``. path.sh'' from the bash shell
 
-addpath=$( echo "$(pwd)" | sed -e  's/\/'$(basename $(pwd))'//' )
-
 declare -i INPATH=0
+
+addpath=$( cd ${BASH_SOURCE[0]%/*} ; echo "$PWD" )
+
+#strip off '/scripts'
+addpath=${addpath%/*}
+
 
 #check if path already present
 tempIFS=$IFS
@@ -25,4 +28,3 @@ fi
 
 #Set IFS back...
 IFS=$tempIFS
-
