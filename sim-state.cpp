@@ -23,7 +23,8 @@ using namespace std;
 #include "nanoparticles/ellipse.h"
 
 /* Output filenames:
-*  ANNEALING_FILE - contains iTK and acceptance angle as the simulation progresses.
+*  ANNEALING_FILE - contains iTk (inverse temperature) and monte carlo step as simulation progresses. 
+*  CONING_FILE - contaings acceptance angle and monte carlo step as simulation progresses.
 *  ENERGY_FILE - Contains energy and monte carlo step as the simulation progresses.
 *  FINAL_LATTICE_BINARY_STATE_FILE - Contains the final state of the lattice that can be loaded using the Lattice::Lattice(const char* filepath)
 					constructor.
@@ -35,6 +36,7 @@ using namespace std;
 */
 
 const char ANNEALING_FILE[] = "annealing.dump";
+const char CONING_FILE[] = "coning.dump";
 const char ENERGY_FILE[] = "energy.dump";
 const char FINAL_LATTICE_STATE_FILE[] = "final-lattice-state.dump";
 const char FINAL_LATTICE_BINARY_STATE_FILE[] = "final-lattice-state.bin";
@@ -50,7 +52,7 @@ void closeFiles();
 
 bool requestExit=false;
 Lattice* nSystemp;
-ofstream annealF, finalLF, energyF;
+ofstream annealF, coningF, finalLF, energyF;
 time_t rawTime;
 
 
@@ -71,7 +73,7 @@ int main(int n, char* argv[])
 	signal(SIGTERM,&setExit);
 	signal(SIGUSR1,&requestStateHandler);
 
-	
+		
 	//open and check we have access to necessary files. Then set precision on them.
 
 	//append file output as when we resume we'd like to keep the results of previous attempt.
@@ -82,7 +84,17 @@ int main(int n, char* argv[])
 		return 1;
 	}
 
-	annealF.precision(STD_PRECISION);
+	coningF.precision(STD_PRECISION);
+
+	//append file output as when we resume we'd like to keep the results of previous attempt.
+	coningF.open(CONING_FILE, ios::app);
+	if(!coningF.is_open())
+	{
+		cerr << "Error: couldn't open open ofstream on file " <<  CONING_FILE  << endl;
+		return 1;
+	}
+
+	coningF.precision(STD_PRECISION);
 
 	//truncate file (erase old contents) as we don't want old file contents
 	finalLF.open(FINAL_LATTICE_STATE_FILE, ios::trunc);
@@ -157,14 +169,20 @@ int main(int n, char* argv[])
 	cout << "#At monte carlo step " << nSystem.param.mStep << " of " << loopMax << endl;
 	
 	//output header for annealing file
-	annealF << "#Starting at:" << ctime(&rawTime);
-	annealF << "# Step    Acceptance angle    1/Tk" << endl;
+	annealF << "#Starting at:" << ctime(&rawTime) << endl;
+	annealF << "# Step    1/Tk" << endl;
+	//output initial iTk
+	annealF << -1 << " " <<  nSystem.param.iTk << endl;
+
+	//output header for annealing file
+	coningF << "#Starting at:" << ctime(&rawTime) << endl;
+	coningF << "#Step Acceptance angle" << endl;
 	//output initial acceptance angle
-	annealF << -1 << " " << nSystem.param.aAngle << endl;
+	coningF << -1 << " " << nSystem.param.aAngle << endl;
 
 	//output initial energy
 	energyF << "#Starting at:" << ctime(&rawTime);
-	energyF << "#Step\tEnergy" << endl;
+	energyF << "#Step Energy" << endl;
 	energyF << -1 << " " << energy << endl;
 
 	
@@ -252,6 +270,9 @@ int main(int n, char* argv[])
 
 		nSystem.param.acceptCounter = 0;
 		nSystem.param.rejectCounter = 0;
+		
+		//output coning information
+		coningF << nSystem.param.mStep << " " << nSystem.param.aAngle << endl;
 
 		/* cooling algorithm
 		*  After every 30 m.c.s we increase iTk i.e. we decrease the "temperature".
@@ -262,7 +283,7 @@ int main(int n, char* argv[])
 			nSystem.param.iTk *= 1.01;
 
 			//output annealing information
-			annealF << nSystem.param.mStep << "           " << nSystem.param.aAngle << "             " << nSystem.param.iTk << endl;
+			annealF << nSystem.param.mStep << " " << nSystem.param.iTk << endl;
 		}
 
 		//output energy information
@@ -333,6 +354,7 @@ void exitHandler()
 
 void closeFiles()
 {
+	coningF.close();
 	finalLF.close();
 	energyF.close();
 	annealF.close();
