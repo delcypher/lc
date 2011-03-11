@@ -138,7 +138,7 @@ int main(int n, char* argv[])
 	unsigned long loopMax = 250000000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 	double oldaAngle;
-	double CurAcceptRatio = 0;
+	double currentAcceptanceRatio = 0;
 	
 	//roughly (because of integer division) the number of steps in 1%
 	int percentStep = loopMax /100;
@@ -229,33 +229,29 @@ int main(int n, char* argv[])
 		}
 		
 		/* coning algorithm
-		*  NOTE: Hobdell & Windle do this every 500 steps and apply additional check (READ THE PAPER)
-		*  Previous project students calculate the acceptance angle every 10,000 steps.
+		*  NOTE: Hobdell & Windle do this every 500 trial flips and apply additional check (READ THE PAPER)
+		*  Previous project students (Kimmet & Young) calculate the acceptance angle every 10,000 trial flips.
 		*
 		*  This additional check is implemented here and is the one described by Hobdell & Windle
 		*
-		*  BEWARE: if width*height*500 > MAXIMUM VALUE of data type of acceptCounter 
-		*          then there is a risk that wrap around will occur and the algorithm will be broken!
-		*
-		*          This applies similarly to rejectCounter
+		* We work in terms of monte carlo flips and NOT trials so our algorithm will need to be a little different.
 		*/
-		if((nSystem.param.mStep%500)==0 && nSystem.param.mStep !=0)
+		
+		//calculate currentAcceptance Ratio and acceptance Angle every m.c.s
+		currentAcceptanceRatio = (double) nSystem.param.acceptCounter / (nSystem.param.acceptCounter + nSystem.param.rejectCounter);
+		oldaAngle = nSystem.param.aAngle;
+		nSystem.param.aAngle *= currentAcceptanceRatio / nSystem.param.desAcceptRatio; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
+		
+		//reject new acceptance angle if it has changed by more than a factor of 10
+		if( (nSystem.param.aAngle/oldaAngle) > 10 || (nSystem.param.aAngle/oldaAngle) < 0.1 )
 		{
-			CurAcceptRatio = (double) nSystem.param.acceptCounter / (nSystem.param.acceptCounter + nSystem.param.rejectCounter);
-			oldaAngle = nSystem.param.aAngle;
-			nSystem.param.aAngle *= CurAcceptRatio / nSystem.param.desAcceptRatio; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
+			cerr << "# Rejected new acceptance angle:" << nSystem.param.aAngle << " from old acceptance angle " << oldaAngle << "on step " << nSystem.param.mStep << endl;
+			nSystem.param.aAngle = oldaAngle;
 			
-			//reject new acceptance angle if it has changed by more than a factor of 10
-			if( (nSystem.param.aAngle/oldaAngle) > 10 || (nSystem.param.aAngle/oldaAngle) < 0.1 )
-			{
-				cerr << "# Rejected new acceptance angle:" << nSystem.param.aAngle << " from old acceptance angle " << oldaAngle << "on step " << nSystem.param.mStep << endl;
-				nSystem.param.aAngle = oldaAngle;
-				
-			}
-
-			nSystem.param.acceptCounter = 0;
-			nSystem.param.rejectCounter = 0;
 		}
+
+		nSystem.param.acceptCounter = 0;
+		nSystem.param.rejectCounter = 0;
 
 		/* cooling algorithm
 		*  After every 30 m.c.s we increase iTk i.e. we decrease the "temperature".
