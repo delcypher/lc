@@ -260,19 +260,18 @@ int main(int n, char* argv[])
 		oldaAngle = nSystem.param.aAngle;
 		nSystem.param.aAngle *= currentAcceptanceRatio / nSystem.param.desAcceptRatio; // acceptance angle *= (current accept. ratio) / (desired accept. ratio = 0.5)
 		
-		//reject new acceptance angle if it has changed by more than a factor of 10
-		if( (nSystem.param.aAngle/oldaAngle) > 10 || (nSystem.param.aAngle/oldaAngle) < 0.1 )
+		//Force acceptance angle to stay in range [0.01, PI/2] radians ~ [0.5,90] degrees (Assuming it was in that range to begin with)
+		if( (nSystem.param.aAngle > PI/2 ) || (nSystem.param.aAngle < 0.01) )
 		{
-			cerr << "# Rejected new acceptance angle:" << nSystem.param.aAngle << " from old acceptance angle " << oldaAngle << "on step " << nSystem.param.mStep << endl;
 			nSystem.param.aAngle = oldaAngle;
-			
 		}
 
 		nSystem.param.acceptCounter = 0;
 		nSystem.param.rejectCounter = 0;
 		
 		//output coning information
-		coningF << nSystem.param.mStep << " " << nSystem.param.aAngle << endl;
+		if((nSystem.param.mStep%1000)==0) 
+			coningF << nSystem.param.mStep << " " << nSystem.param.aAngle << endl;
 
 		/* cooling algorithm
 		*  After every 30 m.c.s we increase iTk i.e. we decrease the "temperature".

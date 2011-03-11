@@ -42,7 +42,7 @@ Here are the supported kill signals and what they cause the main program to do:
             resume execution. This is useful for seeing how the lattice looks during a simulation.
 
 DEBUGGING AND CODE OPTIMISATION:
-By default the makefile is set to build code for debugging with gdb and does no optimisation. To explicitly set this run
+By default the makefile is set to build optimised code. To build for debugging through gdb run the following.
   $ make [target] debug=1
 
 To disable debugging and aggressively optimise the code then run
@@ -92,6 +92,7 @@ energy.gnu - This is a GNUplot script to show the output of the sim-state progra
 ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
 itk.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ANNEALING_FILE. It plots "iTk" against monte carlo step.
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
+path.sh - This is a bash shell script to add the build directory to the PATH variable so you can run the executables from any directory. To use it run ``source path.sh'' .
 tests.sh - This is a script to automatically build and execute test harnesses in the make file.
 vpn.sh - This is a bash shell script used to setup a connection to the UoB VPN if pptpclient has already been configured on a GNU/Linux system with ppsetup.
 
