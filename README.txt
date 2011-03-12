@@ -15,11 +15,30 @@ This README file has the following conventions:
 
 Now to the important stuff...
 
+BINARY STATE FILES:
+The *-state tools work with "binary state files". These files contain the binary data for the lattice, nanoparticles within the lattice and the monte carlo parameters.
+The purpose of these files is to allow simulations to be stopped and resumed as required. It also means the simulator "sim-state" does not need to be recompiled to work
+with different situations.
+
+Note that as these "binary state files" are tied to architecture of the CPU that they are made on. So for example a "binary state file" made on a x86_64 CPU will probably
+not work on a machine with a x86 CPU.
+
 HOW TO COMPILE AND RUN:
 1. run the following command
   $ make
-2. An executable probably named 2dlc will be created (check the makefile to see what it will be called). To execute it run
-  $ ./2dlc
+   This will build the following tools:
+
+   create-state : Creates a binary state file.
+   dump-state   : Reads a binary state file and sends to standard output data for use with the "ildump.gnu" GNUplot script.
+   probe-state  : Displays information about a binary state file.
+   sim-state    : Simulates the lattice specified by a binary state file with Monte Carlo parameters specified by the binary state file in
+                  a free energy minimisation Monte Carlo simulation.
+   
+   To add these tools to your work path run
+   $ source scripts/path.sh
+
+2. add more later....
+
 
 SIGNAL HANDLING:
 The 2dlc program is designed to handle UNIX kill signals whilst running to do some useful things. You send a signal to the application

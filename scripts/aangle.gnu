@@ -1,8 +1,8 @@
-#GNUplot script to display the output of sim-state into the file annealing.dump
+#GNUplot script to display the output of sim-state into the file coning.dump
 # It outputs the Accentance angle as a function of monte carlo step
 #It should be called as follows from within an interactive GNUplot session:
 # call "aangle.gnu" "filename"
-# e.g. call "aangle.gnu" "/path/to/annealing.dump"
+# e.g. call "aangle.gnu" "/path/to/coning.dump"
 
 #enable mouse
 set mouse

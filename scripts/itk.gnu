@@ -16,5 +16,5 @@ set ylabel "iTK"
 
 set title "Cooling progress in Monte Carlo Simulation"
 
-#select columns 1 & 3 for plotting data 
-plot "$0" using 1:3 with linespoints
+#select columns 1 & 2 for plotting data 
+plot "$0" using 1:2 with linespoints
