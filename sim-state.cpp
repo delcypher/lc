@@ -59,14 +59,26 @@ time_t rawTime;
 
 int main(int n, char* argv[])
 {
-	if(n!=2)
+	if(n!=3)
 	{
-		cerr << "Usage: " << argv[0] << " <filename>" << endl <<
-		"<filename> - Binary state file to load for simulation" << endl;
+		cerr << "Usage: " << argv[0] << " <filename> <mcs>" << endl <<
+		"<filename> - Binary state file to load for simulation." << endl <<
+		"<mcs> - Number of monte carlo steps to run simulation for." << endl;
 		exit(1);
 	}
 	
 	char* stateFile = argv[1];
+	unsigned long loopMax = 0;
+
+	if(atoi(argv[2]) < 1)
+	{
+		cerr << "Error: Number of monte carlo steps must be 1 or more" << endl;
+		return 1;
+	}
+	else
+	{
+		loopMax = atoi(argv[2]);
+	}
 
 	//add signal handlers
 	signal(SIGINT,&setExit);
@@ -147,18 +159,17 @@ int main(int n, char* argv[])
 
 	DirectorElement *temp=NULL;
 	int x, y; 
-	unsigned long loopMax = 250000000;
 	double angle, before, after, oldNx, oldNy, dE, rollOfTheDice;
 	double oldaAngle;
 	double currentAcceptanceRatio = 0;
-	
+
 	//roughly (because of integer division) the number of steps in 1%
 	int percentStep = loopMax /100;
 	if(percentStep ==0)
 	{
 		//We must be doing less than 100 steps, set this way so program doesn't crash.
 		percentStep=1;
-		cerr << "Warning: Progress information will be inaccurate!" << endl;
+		cerr << "Warning: Progress information will be very inaccurate!" << endl;
 	}
 
 
@@ -166,11 +177,23 @@ int main(int n, char* argv[])
 	time(&rawTime);
 
 	cout << "#Starting Monte Carlo process:" << ctime(&rawTime) << endl;
-	cout << "#At monte carlo step " << nSystem.param.mStep << " of " << loopMax << endl;
+
+	//exit if loaded binary state has already completed simulation
+	if(nSystem.param.mStep >= loopMax)
+	{
+		cerr << "Error: Loaded binary state file at monte carlo step " << nSystem.param.mStep << " but simulation only runs for "
+			<< loopMax << " monte carlo steps" << endl;
+		closeFiles();
+		return 1;
+		
+	}
 	
+	cout << "#Running simulation from monte carlo step " << nSystem.param.mStep << " of " << loopMax << endl;
+	
+
 	//output header for annealing file
 	annealF << "#Starting at:" << ctime(&rawTime) << endl;
-	annealF << "# Step    1/Tk" << endl;
+	annealF << "#[Step]    [1/Tk]" << endl;
 	//output initial iTk
 	if(nSystem.param.mStep==0)
 	{
@@ -179,7 +202,7 @@ int main(int n, char* argv[])
 
 	//output header for annealing file
 	coningF << "#Starting at:" << ctime(&rawTime) << endl;
-	coningF << "#Step Acceptance angle" << endl;
+	coningF << "#[Step] [Acceptance angle]" << endl;
 	//output initial acceptance angle
 	if(nSystem.param.mStep==0)
 	{
@@ -188,7 +211,7 @@ int main(int n, char* argv[])
 
 	//output initial energy
 	energyF << "#Starting at:" << ctime(&rawTime);
-	energyF << "#Step Energy" << endl;
+	energyF << "#[Step] [Energy]" << endl;
 	if(nSystem.param.mStep==0)
 	{
 		energyF << -1 << " " << energy << endl;
