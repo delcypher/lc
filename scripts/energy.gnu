@@ -10,7 +10,7 @@ set title "Free energy of lattice progression through Monte Carlo Algorithm"
 set xlabel "Monte Carlo Step"
 set ylabel "Energy/k_1 (Joules/Newton)"
 
-#Hide key as it's "every" is misleading as it's not quite correct.
+#Hide key 
 set key off
 
 #Don't have border cover up y-axis

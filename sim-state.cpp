@@ -294,7 +294,7 @@ int main(int n, char* argv[])
 		}
 
 		//output energy information
-		if( (nSystem.param.mStep%100)==0 )
+		if( (nSystem.param.mStep%10)==0 )
 		{
 			energy = nSystem.calculateTotalEnergy();
 			energyF << nSystem.param.mStep << " " << energy << endl;

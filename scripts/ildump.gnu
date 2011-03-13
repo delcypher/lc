@@ -28,4 +28,4 @@ set yrange [-2:$2]
 #set 1:1 aspect ratio
 set size ratio -1
 
-plot "$0" index 0 with vectors, "$0" index 1 with vectors, "$0" index 2 with vectors
+plot "$0" index 0 with vectors nohead, "$0" index 1 with vectors nohead, "$0" index 2 with vectors nohead
