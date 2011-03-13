@@ -12,7 +12,7 @@ set xlabel "Monte Carlo Step"
 set ylabel "Acceptance angle (degrees)"
 
 #set 1:1 aspect ratio
-set size ratio -1
+set size ratio 1
 
 #define radians to degrees convert function
 f(x) = x*(180/pi)

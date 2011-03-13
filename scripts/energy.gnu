@@ -13,10 +13,11 @@ set ylabel "Energy/k_1 (Joules/Newton)"
 #Hide key 
 set key off
 
-#Don't have border cover up y-axis
+#set aspect ratio to 1:1
+set size ratio 1
 
 #plot from -1 so that border doesn't cover x-axis (could do ``unset border'') but this looks nicer
 set yrange [-1:*]
 
 #plot data
-plot "$0"  with linespoints
+plot "$0"  with lines
