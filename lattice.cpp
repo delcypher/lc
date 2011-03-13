@@ -688,7 +688,7 @@ void Lattice::dumpDescription(std::ostream& stream) const
 	stream.flush();
 }
 
-inline double Lattice::calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign)
+inline double Lattice::calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign) const
 {
 	/* This is calculated using the definition of the dot product cos(theta) = a.b /|a||b|
 	*  between two vectors "a" and "b". It also uses the definition of the dot product that is
@@ -702,7 +702,7 @@ inline double Lattice::calculateCosineBetween(const DirectorElement* C, const Di
 	return flipSign*( (C->x)*(O->x) + (C->y)*(O->y) );
 
 }
-double Lattice::calculateEnergyOfCell(int xPos, int yPos)
+double Lattice::calculateEnergyOfCell(int xPos, int yPos) const
 {
 	/*   |T|     y|
 	*  |L|C|R|    |
@@ -795,7 +795,7 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 
 }
 
-double Lattice::calculateTotalEnergy()
+double Lattice::calculateTotalEnergy() const
 {
 	/*
 	* This calculation isn't very efficient as it uses calculateEngergyOfCell() for everycell
@@ -817,7 +817,7 @@ double Lattice::calculateTotalEnergy()
 
 }
 
-bool Lattice::saveState(const char* filename)
+bool Lattice::saveState(const char* filename) const
 {
 	/* Assume following ordering of binary blocks
 	*  <configuration><mNumNano><lattice><Nanoparticle_1_ID><Nanoparticle_1_data><Nanoparticle_2_ID><Nanoparticle_2_data>...
