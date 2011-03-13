@@ -26,13 +26,13 @@ using namespace std;
 *  ANNEALING_FILE - contains iTk (inverse temperature) and monte carlo step as simulation progresses. 
 *  CONING_FILE - contaings acceptance angle and monte carlo step as simulation progresses.
 *  ENERGY_FILE - Contains energy and monte carlo step as the simulation progresses.
-*  FINAL_LATTICE_BINARY_STATE_FILE - Contains the final state of the lattice that can be loaded using the Lattice::Lattice(const char* filepath)
+*  FINAL_LATTICE_BINARY_STATE_FILE - Contains the final binary state of the lattice that can be loaded using the Lattice::Lattice(const char* filepath)
 					constructor.
 *  FINAL_LATTICE_STATE_FILE - Contains the final state of lattice from Lattice::indexedNDump() for when the simulation end.
 *  REQUEST_LATTICE_STATE_FILE - Contains the current state of the lattice from Lattice::indexedNDump() at any point
 *                               in the simulation. This is written to when SIGUSR1 is sent to this program or when it is
 * 				terminated by SIGTERM or SIGINT.
-*  BACKUP_LATTICE_STATE - Contains the lattice state that can be reloaded by the program to resume simulation.
+*  BACKUP_LATTICE_STATE - Contains the binary lattice state that can be reloaded by the program to resume simulation.
 */
 
 const char ANNEALING_FILE[] = "annealing.dump";
@@ -49,6 +49,7 @@ void setExit(int sig);
 void requestStateHandler(int sig);
 void dumpViewableLatticeState();
 void closeFiles();
+bool openFiles(bool overwrite);
 
 bool requestExit=false;
 Lattice* nSystemp;
@@ -73,7 +74,7 @@ int main(int n, char* argv[])
 	if(atoi(argv[2]) < 1)
 	{
 		cerr << "Error: Number of monte carlo steps must be 1 or more" << endl;
-		return 1;
+		exit(1);
 	}
 	else
 	{
@@ -85,50 +86,6 @@ int main(int n, char* argv[])
 	signal(SIGTERM,&setExit);
 	signal(SIGUSR1,&requestStateHandler);
 
-		
-	//open and check we have access to necessary files. Then set precision on them.
-
-	//append file output as when we resume we'd like to keep the results of previous attempt.
-	annealF.open(ANNEALING_FILE, ios::app);
-	if(!annealF.is_open())
-	{
-		cerr << "Error: couldn't open open ofstream on file " << ANNEALING_FILE  << endl;
-		return 1;
-	}
-
-	coningF.precision(STD_PRECISION);
-
-	//append file output as when we resume we'd like to keep the results of previous attempt.
-	coningF.open(CONING_FILE, ios::app);
-	if(!coningF.is_open())
-	{
-		cerr << "Error: couldn't open open ofstream on file " <<  CONING_FILE  << endl;
-		return 1;
-	}
-
-	coningF.precision(STD_PRECISION);
-
-	//truncate file (erase old contents) as we don't want old file contents
-	finalLF.open(FINAL_LATTICE_STATE_FILE, ios::trunc);
-	if(!finalLF.is_open())
-	{
-		cerr << "Error: couldn't open open ofstream on file " << FINAL_LATTICE_STATE_FILE << endl;
-		return 1;
-	}
-
-	finalLF.precision(STATE_SAVE_PRECISION);
-
-	//append file output as when we resume we'd like to keep the results of previous attempt.
-	energyF.open(ENERGY_FILE, ios::app);
-	if(!energyF.is_open())
-	{
-		cerr << "Error: couldn't open open ofstream on file " << ENERGY_FILE << endl;
-		return 1;
-	}
-
-	energyF.precision(STATE_SAVE_PRECISION);
-
-
 	//set precision for std::cout and std::cerr
 	cout.precision(STD_PRECISION);
 	cerr.precision(STD_PRECISION);
@@ -136,6 +93,8 @@ int main(int n, char* argv[])
 
 	//create lattice object
 	Lattice nSystem = Lattice(stateFile);
+	
+	
 
 	//setup nSystem pointer so other functions can access it.
 	nSystemp = &nSystem;
@@ -144,12 +103,25 @@ int main(int n, char* argv[])
 	if(nSystem.inBadState())
 	{
 		cerr << "Lattice in bad state!" << endl;
-		closeFiles();
 		exit(2);
 	}
 	//Dump the initial state of the lattice to standard output
 	nSystem.dumpDescription(std::cout);
-	
+
+	//open files, if new simulation truncate all files, if not append to some files
+	if(nSystem.param.mStep ==0 )
+	{
+		//truncate (overwrite) all files
+		if(! openFiles(true))
+			exit(2);
+	}
+	else
+	{
+		//Append to some files
+		if(! openFiles(false))
+			exit(2);
+	}	
+
 	//START MONTE CARLO ALGORITHM
 
 	double energy = nSystem.calculateTotalEnergy();
@@ -192,7 +164,7 @@ int main(int n, char* argv[])
 	
 
 	//output header for annealing file
-	annealF << "#Starting at:" << ctime(&rawTime) << endl;
+	annealF << "#Starting at:" << ctime(&rawTime);
 	annealF << "#[Step]    [1/Tk]" << endl;
 	//output initial iTk
 	if(nSystem.param.mStep==0)
@@ -201,7 +173,7 @@ int main(int n, char* argv[])
 	}
 
 	//output header for annealing file
-	coningF << "#Starting at:" << ctime(&rawTime) << endl;
+	coningF << "#Starting at:" << ctime(&rawTime);
 	coningF << "#[Step] [Acceptance angle]" << endl;
 	//output initial acceptance angle
 	if(nSystem.param.mStep==0)
@@ -241,10 +213,14 @@ int main(int n, char* argv[])
 			} while (temp->isNanoparticle ==true);
 			
 			
+			//pick a random angle between [- nSystem.param.aAngle , nSystem.param.aAngle]
 			angle = (2*rnd()-1)*nSystem.param.aAngle; 
+
+			//Make a copy of the DirectorElement n_x & n_y values so we can set temp back to its original value if we reject a change
 			oldNx = temp->x;
 			oldNy = temp->y;
 
+			//calculate the Energy per unit volume of cells that will affected by change to cell (x,y)
 			before = nSystem.calculateEnergyOfCell(x,y);
 			before += nSystem.calculateEnergyOfCell(x+1,y);
 			before += nSystem.calculateEnergyOfCell(x-1,y);
@@ -254,12 +230,14 @@ int main(int n, char* argv[])
 			// rotate director by random angle
 			rotateDirector(temp, angle);
 			
+			//calculate the Energy per unit volumes of cells that have been affect by change to cell (x,y)
 			after = nSystem.calculateEnergyOfCell(x,y);
 			after += nSystem.calculateEnergyOfCell(x+1,y);
 			after += nSystem.calculateEnergyOfCell(x-1,y);
 			after += nSystem.calculateEnergyOfCell(x,y+1);
 			after += nSystem.calculateEnergyOfCell(x,y-1);
 
+			//Work out the change in energy of the lattice
 			dE = after-before;
 
 			if(dE>0) // if the energy increases, determine if change is accepted of rejected
@@ -277,11 +255,13 @@ int main(int n, char* argv[])
 			else nSystem.param.acceptCounter++;
 		}
 		
+		//output coning information
+		if((nSystem.param.mStep%100)==0) 
+			coningF << nSystem.param.mStep << " " << nSystem.param.aAngle << endl;
+
 		/* coning algorithm
 		*  NOTE: Hobdell & Windle do this every 500 trial flips and apply additional check (READ THE PAPER)
 		*  Previous project students (Kimmet & Young) calculate the acceptance angle every 10,000 trial flips.
-		*
-		*  This additional check is implemented here and is the one described by Hobdell & Windle
 		*
 		* We work in terms of monte carlo flips and NOT trials so our algorithm will need to be a little different.
 		*/
@@ -300,10 +280,7 @@ int main(int n, char* argv[])
 		nSystem.param.acceptCounter = 0;
 		nSystem.param.rejectCounter = 0;
 		
-		//output coning information
-		if((nSystem.param.mStep%1000)==0) 
-			coningF << nSystem.param.mStep << " " << nSystem.param.aAngle << endl;
-
+		
 		/* cooling algorithm
 		*  After every 30 m.c.s we increase iTk i.e. we decrease the "temperature".
 		*  Note this is equivilant to "Kimmet & Young"'s code but we have a different definition of monte carlo step
@@ -320,7 +297,7 @@ int main(int n, char* argv[])
 		if( (nSystem.param.mStep%100)==0 )
 		{
 			energy = nSystem.calculateTotalEnergy();
-			energyF << nSystem.param.mStep << "\t" << energy << endl;
+			energyF << nSystem.param.mStep << " " << energy << endl;
 		}
 
 		//check if a request to exit has occured
@@ -377,9 +354,86 @@ void exitHandler()
 	
 	//dump the lattice state
 	dumpViewableLatticeState();
-	
+
 	closeFiles();
 	exit(0);
+}
+
+bool openFiles(bool overwrite)
+{
+	//open and check we have access to necessary files. Then set precision on them.
+	
+	//Decide whether to append or truncate all files but FINAL_LATTICE_STATE_FILE
+	std::ios_base::openmode mode;
+	if(overwrite)
+	{
+		mode=ios::trunc;
+		cout << "#Truncating files..." << ANNEALING_FILE << " , " <<
+			CONING_FILE << " , " << ENERGY_FILE << endl;
+	}
+	else
+	{
+		mode=ios::app;
+		cout << "#Appending to files..." << ANNEALING_FILE << " , " <<
+			CONING_FILE << " , " << ENERGY_FILE << endl;
+	}
+
+	//append file output as when we resume we'd like to keep the results of previous attempt.
+	annealF.open(ANNEALING_FILE, mode);
+	if(!annealF.is_open())
+	{
+		cerr << "Error: couldn't open open ofstream on file " << ANNEALING_FILE  << endl;
+		return false;
+	}
+
+	coningF.precision(STD_PRECISION);
+
+	//append file output as when we resume we'd like to keep the results of previous attempt.
+	coningF.open(CONING_FILE, mode);
+	if(!coningF.is_open())
+	{
+		cerr << "Error: couldn't open open ofstream on file " <<  CONING_FILE  << endl;
+
+		//close fstreams
+		annealF.close();
+
+		return false;
+	}
+
+	coningF.precision(STD_PRECISION);
+
+	//truncate file (erase old contents) as we don't want old file contents
+	finalLF.open(FINAL_LATTICE_STATE_FILE, ios::trunc);
+	if(!finalLF.is_open())
+	{
+		cerr << "Error: couldn't open open ofstream on file " << FINAL_LATTICE_STATE_FILE << endl;
+
+		//close fstreams
+		annealF.close();
+		coningF.close();
+
+		return false;
+	}
+
+	finalLF.precision(STATE_SAVE_PRECISION);
+
+	//append file output as when we resume we'd like to keep the results of previous attempt.
+	energyF.open(ENERGY_FILE, mode);
+	if(!energyF.is_open())
+	{
+		cerr << "Error: couldn't open open ofstream on file " << ENERGY_FILE << endl;
+
+		//close fstreams
+		annealF.close();
+		coningF.close();
+		energyF.close();
+
+		return false;
+	}
+
+	energyF.precision(STATE_SAVE_PRECISION);
+
+	return true;
 }
 
 void closeFiles()
