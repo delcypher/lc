@@ -106,6 +106,7 @@
 			//Helper function of calculateEnergyOfCell()
 			double calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign);
 
+
 		public:
 			//Lattice Parameters
 			LatticeConfig param;
@@ -192,6 +193,12 @@
 			/* Saves binary state file to filename
 			*/
 			bool saveState(const char* filename);
+
+			//Calculate the number of Nanoparticle cells in lattice.
+			int getNanoparticleCellCount() const;
+
+			//Calculate the area of the lattice (excluding boundaries)
+			int getArea() const;
 
 			//overloaded comparison operator
 			bool operator==(const Lattice & rhs) const;

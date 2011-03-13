@@ -51,6 +51,7 @@ Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false) , PAR
 	//set the number of nanoparticles associated with the lattice to 0
 	mNumNano=0;
 	mNanoparticles=NULL;
+	
 
 	//initialise the lattice to a particular state
 	reInitialise(param.initialState);
@@ -70,7 +71,7 @@ Lattice::Lattice(const char* filepath) : constructedFromFile(true) , PARALLEL_DI
 	badState=false;
 	mNumNano=0;
 	mNanoparticles=NULL;
-	
+
 	param.width=0;
 	param.height=0;
 
@@ -292,10 +293,11 @@ bool Lattice::add(Nanoparticle& np)
 
 
 	}
-
+	
 	return true;
 
 }
+
 
 const DirectorElement* Lattice::getN(int xPos, int yPos) const
 {
@@ -663,7 +665,9 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Accept Counter:" << param.acceptCounter << "\n" <<
 		"#Reject Counter:" << param.rejectCounter << "\n" <<
 		"#Current Acceptance angle:" << param.aAngle << "\n" <<
-		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n";
+		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" <<
+		"#" << "\n" <<
+		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n";
 
 		if(mNanoparticles!=NULL)
 		{
@@ -983,3 +987,22 @@ bool Lattice::operator!=(const Lattice & rhs) const
 {
 	return !(*this == rhs);
 }
+
+int Lattice::getNanoparticleCellCount() const
+{
+	int numNanoparticleCells=0;
+
+	for(int index=0; ( index < (param.width)*(param.height) ); index++)
+	{
+		if(lattice[index].isNanoparticle == true)
+			numNanoparticleCells++;
+	}	
+	
+	return numNanoparticleCells;
+}
+
+int Lattice::getArea() const
+{
+	return (param.width)*(param.height);
+}
+
