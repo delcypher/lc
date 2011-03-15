@@ -25,10 +25,6 @@ set grid mxtics mytics noxtics noytics
 set xrange [-2:$1]
 set yrange [-2:$2]
 
-#set axis names
-set xlabel "x"
-set ylabel "y"
-
 #set 1:1 aspect ratio
 set size ratio -1
 
