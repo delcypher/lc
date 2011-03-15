@@ -24,3 +24,10 @@ set title "Coning algorithm progress in Monte Carlo Simulation"
 
 #select columns 1 & 2 for plotting data (processing column 2 which is in radians and converting to degrees)
 plot "$0" using 1:(f(column(2))) with linespoints
+
+#set ytics back to auto for other plots
+set ytics autofreq
+
+unset xlabel
+unset ylabel
+unset title

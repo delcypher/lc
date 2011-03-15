@@ -18,3 +18,7 @@ set title "Cooling progress in Monte Carlo Simulation"
 
 #select columns 1 & 2 for plotting data 
 plot "$0" using 1:2 with linespoints
+
+unset xlabel
+unset ylabel
+unset title

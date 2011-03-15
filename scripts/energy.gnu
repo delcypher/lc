@@ -21,3 +21,10 @@ set yrange [-1:*]
 
 #plot data
 plot "$0"  with lines
+
+#set yrange back to automatic
+set yrange [*:*]
+
+unset title
+unset xlabel
+unset ylabel
