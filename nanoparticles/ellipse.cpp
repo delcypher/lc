@@ -49,7 +49,7 @@ EllipticalNanoparticle::EllipticalNanoparticle(std::ifstream & stream) : Nanopar
 
 bool EllipticalNanoparticle::processCell(int x, int y, enum writeMethods method, DirectorElement* element)
 {
-	double r;
+	double effectiveRadius;
 	double distance;
 	double pointTheta;
 	double angle;
@@ -60,10 +60,12 @@ bool EllipticalNanoparticle::processCell(int x, int y, enum writeMethods method,
 	pointTheta = atan2(y-myPos, x-mxPos);
 	angle = pointTheta - theta;
 
-	r = a*b / sqrt(b*b*cos(angle)*cos(angle) + a*a*sin(angle)*sin(angle) );
+	effectiveRadius = a*b / sqrt(b*b*cos(angle)*cos(angle) + a*a*sin(angle)*sin(angle) );
 	
-
-	if(distance <= r)
+	/* We compare to (distance +0.5) not (distance) because (distance) measures from the centre of cell (mxPos,myPos)
+	*  to the centre of another cell. But we care about including whole cells so we use (distance +0.5)
+	*/
+	if( (distance +0.5) <= effectiveRadius)
 	{
 		//we are in the ellipse
 
