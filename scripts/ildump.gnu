@@ -28,4 +28,20 @@ set yrange [-2:$2]
 #set 1:1 aspect ratio
 set size ratio -1
 
-plot "$0" index 0 with vectors, "$0" index 1 with vectors, "$0" index 2 with vectors
+#set axis titles
+set xlabel "x"
+set ylabel "y"
+
+plot "$0" index 0 with vectors nohead, "$0" index 1 with vectors nohead, "$0" index 2 with vectors nohead
+
+#set ranges to auto for other plots
+set xrange [*:*]
+set yrange [*:*]
+
+#set xtics and ytics to auto for other plots
+set xtics autofreq
+set ytics autofreq
+
+unset mxtics
+unset mytics
+

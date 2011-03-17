@@ -104,7 +104,8 @@
 			const DirectorElement DUMMY_DIRECTOR; 
 
 			//Helper function of calculateEnergyOfCell()
-			double calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign);
+			double calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign) const;
+
 
 		public:
 			//Lattice Parameters
@@ -178,20 +179,26 @@
 			*/
 			void dumpDescription(std::ostream& stream) const;
 
-			/* Calculate the Free energy per unit area in the cell located at (xPos,yPos) in the lattice on the HOST!
+			/* Calculate the Free energy per unit volume in the cell located at (xPos,yPos) in the lattice
 			*/
-			double calculateEnergyOfCell(int xPos, int yPos);
+			double calculateEnergyOfCell(int xPos, int yPos) const;
 			
-			/* Calculate the Free energy of the lattice on the HOST!
+			/* Calculate the Free energy of the lattice.
 			*/
-			double calculateTotalEnergy();
+			double calculateTotalEnergy() const;
 
 			//returns true if Lattice is in a bad state (usually from initialisation or add() )
 			bool inBadState() const { return badState;}
 
 			/* Saves binary state file to filename
 			*/
-			bool saveState(const char* filename);
+			bool saveState(const char* filename) const;
+
+			//Calculate the number of Nanoparticle cells in lattice.
+			int getNanoparticleCellCount() const;
+
+			//Calculate the area of the lattice (excluding boundaries)
+			int getArea() const;
 
 			//overloaded comparison operator
 			bool operator==(const Lattice & rhs) const;

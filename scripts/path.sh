@@ -1,0 +1,30 @@
+#Script that adds the executables to the work path
+# run as ``source path.sh'' or ``. path.sh'' from the bash shell
+
+declare -i INPATH=0
+
+addpath=$( cd ${BASH_SOURCE[0]%/*} ; echo "$PWD" )
+
+#strip off '/scripts'
+addpath=${addpath%/*}
+
+
+#check if path already present
+tempIFS=$IFS
+IFS=$':'
+#Extract each path seperated by a ':' character and compare
+for singlepath in $PATH ; do
+	if [ "$singlepath" = "$addpath" ]; then
+		INPATH=1;
+	fi
+done
+
+if [ $INPATH -eq 0 ]; then
+	export PATH=$PATH:$addpath
+	echo "Added $addpath to PATH environmental variable"
+else
+	echo "$addpath is already in PATH environmental variable"
+fi
+
+#Set IFS back...
+IFS=$tempIFS

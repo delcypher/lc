@@ -51,6 +51,7 @@ Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false) , PAR
 	//set the number of nanoparticles associated with the lattice to 0
 	mNumNano=0;
 	mNanoparticles=NULL;
+	
 
 	//initialise the lattice to a particular state
 	reInitialise(param.initialState);
@@ -70,7 +71,7 @@ Lattice::Lattice(const char* filepath) : constructedFromFile(true) , PARALLEL_DI
 	badState=false;
 	mNumNano=0;
 	mNanoparticles=NULL;
-	
+
 	param.width=0;
 	param.height=0;
 
@@ -292,10 +293,11 @@ bool Lattice::add(Nanoparticle& np)
 
 
 	}
-
+	
 	return true;
 
 }
+
 
 const DirectorElement* Lattice::getN(int xPos, int yPos) const
 {
@@ -488,7 +490,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					{
 						//generate a random angle between 0 & 2*PI radians
 						angle = 2*PI*rnd();
-						setDirectorAngle(&(lattice[index]), angle);
+						lattice[index].setAngle(angle);
 					}
 
 					break;
@@ -506,7 +508,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K1_EQUAL_K3:
 					{
 						angle = PI*( (double) (yPos + 1)/(2*(param.height +1)) );
-						setDirectorAngle(&(lattice[index]), angle);
+						lattice[index].setAngle(angle);
 					}
 
 					break;
@@ -515,7 +517,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
 						angle = PI/2 - acos( (double) (yPos + 1)/(param.height + 1));
-						setDirectorAngle(&(lattice[index]), angle);
+						lattice[index].setAngle(angle);
 					}
 
 					break;
@@ -524,7 +526,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
 						angle = PI/2 -asin(1 - (double) (yPos +1)/(param.height +1)   );
-						setDirectorAngle(&(lattice[index]), angle);
+						lattice[index].setAngle(angle);
 					}
 					break;
 
@@ -663,7 +665,9 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Accept Counter:" << param.acceptCounter << "\n" <<
 		"#Reject Counter:" << param.rejectCounter << "\n" <<
 		"#Current Acceptance angle:" << param.aAngle << "\n" <<
-		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n";
+		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" <<
+		"#" << "\n" <<
+		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n";
 
 		if(mNanoparticles!=NULL)
 		{
@@ -684,7 +688,7 @@ void Lattice::dumpDescription(std::ostream& stream) const
 	stream.flush();
 }
 
-inline double Lattice::calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign)
+inline double Lattice::calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign) const
 {
 	/* This is calculated using the definition of the dot product cos(theta) = a.b /|a||b|
 	*  between two vectors "a" and "b". It also uses the definition of the dot product that is
@@ -698,7 +702,8 @@ inline double Lattice::calculateCosineBetween(const DirectorElement* C, const Di
 	return flipSign*( (C->x)*(O->x) + (C->y)*(O->y) );
 
 }
-double Lattice::calculateEnergyOfCell(int xPos, int yPos)
+
+double Lattice::calculateEnergyOfCell(int xPos, int yPos) const
 {
 	/*   |T|     y|
 	*  |L|C|R|    |
@@ -791,7 +796,7 @@ double Lattice::calculateEnergyOfCell(int xPos, int yPos)
 
 }
 
-double Lattice::calculateTotalEnergy()
+double Lattice::calculateTotalEnergy() const
 {
 	/*
 	* This calculation isn't very efficient as it uses calculateEngergyOfCell() for everycell
@@ -813,7 +818,7 @@ double Lattice::calculateTotalEnergy()
 
 }
 
-bool Lattice::saveState(const char* filename)
+bool Lattice::saveState(const char* filename) const
 {
 	/* Assume following ordering of binary blocks
 	*  <configuration><mNumNano><lattice><Nanoparticle_1_ID><Nanoparticle_1_data><Nanoparticle_2_ID><Nanoparticle_2_data>...
@@ -983,3 +988,22 @@ bool Lattice::operator!=(const Lattice & rhs) const
 {
 	return !(*this == rhs);
 }
+
+int Lattice::getNanoparticleCellCount() const
+{
+	int numNanoparticleCells=0;
+
+	for(int index=0; ( index < (param.width)*(param.height) ); index++)
+	{
+		if(lattice[index].isNanoparticle == true)
+			numNanoparticleCells++;
+	}	
+	
+	return numNanoparticleCells;
+}
+
+int Lattice::getArea() const
+{
+	return (param.width)*(param.height);
+}
+

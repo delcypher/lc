@@ -15,11 +15,30 @@ This README file has the following conventions:
 
 Now to the important stuff...
 
+BINARY STATE FILES:
+The *-state tools work with "binary state files". These files contain the binary data for the lattice, nanoparticles within the lattice and the monte carlo parameters.
+The purpose of these files is to allow simulations to be stopped and resumed as required. It also means the simulator "sim-state" does not need to be recompiled to work
+with different situations.
+
+Note that as these "binary state files" are tied to architecture of the CPU that they are made on. So for example a "binary state file" made on a x86_64 CPU will probably
+not work on a machine with a x86 CPU.
+
 HOW TO COMPILE AND RUN:
 1. run the following command
   $ make
-2. An executable probably named 2dlc will be created (check the makefile to see what it will be called). To execute it run
-  $ ./2dlc
+   This will build the following tools:
+
+   create-state : Creates a binary state file.
+   dump-state   : Reads a binary state file and sends to standard output data for use with the "ildump.gnu" GNUplot script.
+   probe-state  : Displays information about a binary state file.
+   sim-state    : Simulates the lattice specified by a binary state file with Monte Carlo parameters specified by the binary state file in
+                  a free energy minimisation Monte Carlo simulation.
+   
+   To add these tools to your work path run
+   $ source scripts/path.sh
+
+2. add more later....
+
 
 SIGNAL HANDLING:
 The 2dlc program is designed to handle UNIX kill signals whilst running to do some useful things. You send a signal to the application
@@ -42,7 +61,7 @@ Here are the supported kill signals and what they cause the main program to do:
             resume execution. This is useful for seeing how the lattice looks during a simulation.
 
 DEBUGGING AND CODE OPTIMISATION:
-By default the makefile is set to build code for debugging with gdb and does no optimisation. To explicitly set this run
+By default the makefile is set to build optimised code. To build for debugging through gdb run the following.
   $ make [target] debug=1
 
 To disable debugging and aggressively optimise the code then run
@@ -92,6 +111,7 @@ energy.gnu - This is a GNUplot script to show the output of the sim-state progra
 ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
 itk.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ANNEALING_FILE. It plots "iTk" against monte carlo step.
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
+path.sh - This is a bash shell script to add the build directory to the PATH variable so you can run the executables from any directory. To use it run ``source path.sh'' .
 tests.sh - This is a script to automatically build and execute test harnesses in the make file.
 vpn.sh - This is a bash shell script used to setup a connection to the UoB VPN if pptpclient has already been configured on a GNU/Linux system with ppsetup.
 
