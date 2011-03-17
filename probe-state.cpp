@@ -8,13 +8,6 @@
 
 using namespace std;
 
-/* Include the nanoparticle header files you wish you use here.
-*  Make sure the nanoparticle is listed in the OBJECTS variable
-*  in the make file too!
-*/
-#include "nanoparticles/circle.h"
-#include "nanoparticles/ellipse.h"
-
 
 int main(int n, char* argv[])
 {
@@ -36,10 +29,7 @@ int main(int n, char* argv[])
 	
 	//display description
 	nSystem.dumpDescription(std::cout);
-
-	double energy= nSystem.calculateTotalEnergy();
-	cout << "#Energy of Lattice: " << energy << endl;
-
+	
 	return 0;
 }
 
