@@ -41,7 +41,7 @@ HOW TO COMPILE AND RUN:
 
 
 SIGNAL HANDLING:
-The 2dlc program is designed to handle UNIX kill signals whilst running to do some useful things. You send a signal to the application
+The sim-state program is designed to handle UNIX kill signals whilst running to do some useful things. You send a signal to the application
 by finding out the PID of the running program by running
 $ pgrep 2dlc
 
@@ -87,14 +87,15 @@ A constructor that takes regular arguments. e.g. mynanoparticle::mynanoparticle(
 A constructor that takes an ifstream as input. e.g. mynanoparticle::mynanoparticle(std::ifstream & input);
 
    See nanoparticles/circle.h and nanoparticles/circle.cpp as an example.
-3. Include your new nanoparticle header in the relevant files (e.g. sim-state). (i.e. #include "nanoparticles/mynewnanoparticle.h" )
+3. Include your new nanoparticle header in create-state.cpp & lattice.h . (i.e. #include "nanoparticles/mynewnanoparticle.h" )
 4. Add an ID for your nanoparticle to the "types" enum in the Nanoparticle class definition.
 5. Add the ifstream argument constructor to your nanoparticle to the switch statement in Lattice::saveState() so that your nanoparticle
    can be reconstructed from binary data saved to a file.
-
-5. Add your particle to the lattice using the Lattice::add() method in the relevant programs (e.g. create-state)
-6. Add your nanoparticle to the variable OBJECTS with a ".o" extension in the makefile. (e.g. mynewnanoparticle.o )
-7. Recompile by running ``make''
+6. Add support for your nanoparticle in the switch statement in the Lattice::Lattice(const char* filepath) constructor so that
+   your nanoparticle can be recreated from a binary state file.
+7. Add your particle to the lattice using the Lattice::add() method in the relevant programs (e.g. create-state)
+8. Add your nanoparticle to the variable OBJECTS with a ".o" extension in the makefile. (e.g. mynewnanoparticle.o )
+9. Recompile by running ``make''
 
 HOW TO CLEAN UP THE BUILD:
 Compiling the program will generate lots of .o files (object files) & .dep (dependency files for make). Run the following command to clean this up.
