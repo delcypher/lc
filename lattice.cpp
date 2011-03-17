@@ -490,7 +490,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					{
 						//generate a random angle between 0 & 2*PI radians
 						angle = 2*PI*rnd();
-						setDirectorAngle(&(lattice[index]), angle);
+						lattice[index].setAngle(angle);
 					}
 
 					break;
@@ -508,7 +508,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K1_EQUAL_K3:
 					{
 						angle = PI*( (double) (yPos + 1)/(2*(param.height +1)) );
-						setDirectorAngle(&(lattice[index]), angle);
+						lattice[index].setAngle(angle);
 					}
 
 					break;
@@ -517,7 +517,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
 						angle = PI/2 - acos( (double) (yPos + 1)/(param.height + 1));
-						setDirectorAngle(&(lattice[index]), angle);
+						lattice[index].setAngle(angle);
 					}
 
 					break;
@@ -526,7 +526,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
 						angle = PI/2 -asin(1 - (double) (yPos +1)/(param.height +1)   );
-						setDirectorAngle(&(lattice[index]), angle);
+						lattice[index].setAngle(angle);
 					}
 					break;
 

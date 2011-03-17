@@ -93,7 +93,7 @@ int main(int n, char* argv[])
 		{
 			if ( (nSystem.getN(xPos,yPos))->isNanoparticle ==0 )
 			{
-				rotateDirector(nSystem.setN(xPos,yPos),rotAngle);
+				nSystem.setN(xPos,yPos)->rotate(rotAngle);
 			}
 		}
 	}

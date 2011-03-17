@@ -4,18 +4,50 @@
 #include "directorelement.h"
 #include <cmath>
 
-
-void setDirectorAngle(DirectorElement* a, double angle)
+void DirectorElement::setAngle(double angle)
 {
-	a->x = cos(angle);
-	a->y = sin(angle);
+	x = cos(angle);
+	y = sin(angle);
 }
 
-void rotateDirector(DirectorElement* a, double angle)
+double DirectorElement::calculateAngle() const
 {
-	double tempX = a->x;
-	double tempY = a->y;
+	return atan2(y,x);
+}
 
-	a->x = cos(angle)*tempX -sin(angle)*tempY;
-	a->y = sin(angle)*tempX + cos(angle)*tempY;
+void DirectorElement::rotate(double angle)
+{
+	//Work out the angle the DirectorElement currently makes
+	double currentAngle=atan2(y,x);
+
+	x=cos(currentAngle + angle);
+	y=sin(currentAngle + angle);
+}
+
+double DirectorElement::calculateModulus() const
+{
+	return sqrt(x*x + y*y);
+}
+
+bool DirectorElement::makeUnitVector()
+{
+	double modulus = calculateModulus();
+	if(modulus ==0)
+	{
+		//can't do divide by zero
+		return false;
+	}
+	else
+	{
+		/* R vector
+		*  |R| modulus of vector R
+		* r unit vector of vector R
+		* R=|R|r
+		*
+		* so r = R/|r|
+		*/
+		x /= modulus;
+		y /= modulus;
+		return true;
+	}
 }
