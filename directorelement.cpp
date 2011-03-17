@@ -5,16 +5,6 @@
 #include <cmath>
 
 
-/* Flips a DirectorElement (vector in physics sense) in the opposite direction
-*
-*/
-void flipDirector(DirectorElement* a)
-{
-        //flip component directions
-        a->x *= -1;
-        a->y *= -1;
-}
-
 void setDirectorAngle(DirectorElement* a, double angle)
 {
 	a->x = cos(angle);

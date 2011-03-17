@@ -17,12 +17,7 @@
 			//do nothing
 		}
         };
-
-        /* Flips a DirectorElement (vector in physics sense) in the opposite direction
-        *
-        */
-        void flipDirector(DirectorElement* a);
-
+        
 	/* Set the Angle(in radians) the DirectorElement makes with the x-axis
 	*
 	*/
