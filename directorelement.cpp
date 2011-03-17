@@ -4,28 +4,50 @@
 #include "directorelement.h"
 #include <cmath>
 
-
-/* Flips a DirectorElement (vector in physics sense) in the opposite direction
-*
-*/
-void flipDirector(DirectorElement* a)
+void DirectorElement::setAngle(double angle)
 {
-        //flip component directions
-        a->x *= -1;
-        a->y *= -1;
+	x = cos(angle);
+	y = sin(angle);
 }
 
-void setDirectorAngle(DirectorElement* a, double angle)
+double DirectorElement::calculateAngle() const
 {
-	a->x = cos(angle);
-	a->y = sin(angle);
+	return atan2(y,x);
 }
 
-void rotateDirector(DirectorElement* a, double angle)
+void DirectorElement::rotate(double angle)
 {
-	double tempX = a->x;
-	double tempY = a->y;
+	//Work out the angle the DirectorElement currently makes
+	double currentAngle=atan2(y,x);
 
-	a->x = cos(angle)*tempX -sin(angle)*tempY;
-	a->y = sin(angle)*tempX + cos(angle)*tempY;
+	x=cos(currentAngle + angle);
+	y=sin(currentAngle + angle);
+}
+
+double DirectorElement::calculateModulus() const
+{
+	return sqrt(x*x + y*y);
+}
+
+bool DirectorElement::makeUnitVector()
+{
+	double modulus = calculateModulus();
+	if(modulus ==0)
+	{
+		//can't do divide by zero
+		return false;
+	}
+	else
+	{
+		/* R vector
+		*  |R| modulus of vector R
+		* r unit vector of vector R
+		* R=|R|r
+		*
+		* so r = R/|r|
+		*/
+		x /= modulus;
+		y /= modulus;
+		return true;
+	}
 }
