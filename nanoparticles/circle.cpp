@@ -63,7 +63,10 @@ bool CircularNanoparticle::processCell(int x, int y, enum writeMethods method, D
 	distance= sqrt( (x - mxPos)*(x - mxPos) + (y - myPos)*(y - myPos) );
 	
 
-	if(distance <= (double) mRadius)
+	/* We compare to (distance +0.5) not (distance) because (distance) measures from the centre of cell (mxPos,myPos)
+	*  to the centre of another cell. But we care about including whole cells so we use (distance +0.5)
+	*/
+	if( (distance +0.5) <= (double) mRadius)
 	{
 		//we are in the circle
 
