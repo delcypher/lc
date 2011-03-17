@@ -10,6 +10,10 @@
 #include "lattice.h"
 #include <cstring>
 #include <fstream>
+
+/* Include the nanoparticles header files that the Lattice class needs
+   to handle here
+*/
 #include "nanoparticles/circle.h"
 #include "nanoparticles/ellipse.h"
 

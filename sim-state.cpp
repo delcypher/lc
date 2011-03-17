@@ -14,14 +14,6 @@
 
 using namespace std;
 
-/* Include the nanoparticle header files you wish you use here.
-*  Make sure the nanoparticle is listed in the OBJECTS variable
-*  in the make file too!
-*/
-
-#include "nanoparticles/circle.h"
-#include "nanoparticles/ellipse.h"
-
 /* Output filenames:
 *  ANNEALING_FILE - contains iTk (inverse temperature) and monte carlo step as simulation progresses. 
 *  CONING_FILE - contaings acceptance angle and monte carlo step as simulation progresses.
@@ -228,7 +220,7 @@ int main(int n, char* argv[])
 			before += nSystem.calculateEnergyOfCell(x,y-1);
 			
 			// rotate director by random angle
-			rotateDirector(temp, angle);
+			temp->rotate(angle);
 			
 			//calculate the Energy per unit volumes of cells that have been affect by change to cell (x,y)
 			after = nSystem.calculateEnergyOfCell(x,y);
