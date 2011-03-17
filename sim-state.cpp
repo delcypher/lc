@@ -228,7 +228,7 @@ int main(int n, char* argv[])
 			before += nSystem.calculateEnergyOfCell(x,y-1);
 			
 			// rotate director by random angle
-			rotateDirector(temp, angle);
+			temp->rotate(angle);
 			
 			//calculate the Energy per unit volumes of cells that have been affect by change to cell (x,y)
 			after = nSystem.calculateEnergyOfCell(x,y);
