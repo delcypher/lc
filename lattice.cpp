@@ -671,8 +671,10 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Current Acceptance angle:" << param.aAngle << "\n" <<
 		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" <<
 		"#" << "\n" <<
-		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n";
-
+		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n" <<
+		"#\n" <<
+		"#Total Free energy of lattice:" << calculateTotalEnergy() << "\n" <<
+		"#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n";
 		if(mNanoparticles!=NULL)
 		{
 			for(int counter=0; counter < mNumNano; counter++)

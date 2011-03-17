@@ -187,6 +187,14 @@
 			*/
 			double calculateTotalEnergy() const;
 
+			/* Calculate the average Free energy of a lattice cell.
+			*
+			*/
+			double calculateAverageEnergy() const
+			{
+				return calculateTotalEnergy() / getArea();
+			}
+
 			//returns true if Lattice is in a bad state (usually from initialisation or add() )
 			bool inBadState() const { return badState;}
 

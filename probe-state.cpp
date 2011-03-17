@@ -29,10 +29,7 @@ int main(int n, char* argv[])
 	
 	//display description
 	nSystem.dumpDescription(std::cout);
-
-	double energy= nSystem.calculateTotalEnergy();
-	cout << "#Energy of Lattice: " << energy << endl;
-
+	
 	return 0;
 }
 
