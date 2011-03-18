@@ -1012,7 +1012,7 @@ int Lattice::getArea() const
 	return (param.width)*(param.height);
 }
 
-void compareTo(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleRE) const
+void Lattice::compareTo(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleRE) const
 {
 	//needs to be implemented.
 }
