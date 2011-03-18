@@ -114,6 +114,7 @@ itk.gnu - This is a GNUplot script to show the output of the sim-state program o
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
 path.sh - This is a bash shell script to add the build directory to the PATH variable so you can run the executables from any directory. To use it run ``source path.sh'' .
 tests.sh - This is a script to automatically build and execute test harnesses in the make file.
+torque.sh - This is a script to build a set of binary state files in different folders and submit them to a PBS/torque queing system.
 vpn.sh - This is a bash shell script used to setup a connection to the UoB VPN if pptpclient has already been configured on a GNU/Linux system with ppsetup.
 
 TEST HARNESSES:
