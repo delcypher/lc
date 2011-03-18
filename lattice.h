@@ -214,6 +214,19 @@
 			//overloaded != operator
 			bool operator!=(const Lattice & rhs) const;
 			
+			/* Output comparision data between this lattice and a lattice in an analytical minimum
+			*  energy state specified by "state". Note supported states are
+			*
+			*  PARALLEL_X,
+			*  K1_EQUAL_K3,
+			*  K1_DOMINANT,
+			*  K3_DOMINANT,
+			*
+			*  This information is outputted to an std::ostream "stream".
+			*
+			*  acceptibleRE is the acceptible relative error used for comparisions.
+			*/
+			void compareTo(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleRE) const;
 
 	};
 
