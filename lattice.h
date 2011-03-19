@@ -207,6 +207,28 @@
 
 			//Calculate the area of the lattice (excluding boundaries)
 			int getArea() const;
+			
+			/* Modify DirectorElements so that they are in an angular range [0,PI) to the x-axis
+			 * (anti-clockwise rotation).
+			 *
+			 * This is done by flipping DirectorElements by PI radians (preserving uniaxial properties).
+			 * This is need for calculateAverageAngle() , calculateAngularStdDev() and angleCompareWith()
+			 */
+			void restrictAngularRange();
+
+			/* Calculate average orientation of the DirectorElements in the lattice as an angle
+			*  in radians w.r.t to x-axis (anti-clockwise).
+			*
+			*  It is highly recommended restrictAngularRange() is called first!
+			*/
+			double calculateAverageAngle() const;
+
+			/* Calculate the standard deviation of the orientation of the
+			*  DirectorElements in the lattice in radians w.r.t to the x-axis (anti-clockwise)
+			*
+			*  It is highly recommended restrictAngularRange() is called first!
+			*/
+			double calculateAngularStdDev() const;
 
 			//overloaded comparison operator
 			bool operator==(const Lattice & rhs) const;
@@ -214,19 +236,68 @@
 			//overloaded != operator
 			bool operator!=(const Lattice & rhs) const;
 			
-			/* Output comparision data between this lattice and a lattice in an analytical minimum
-			*  energy state specified by "state". Note supported states are
+			/* Output energy comparision data between this lattice and a lattice in an analytical minimum
+			*  energy state specified by "state". Note supported states are the following:
 			*
-			*  PARALLEL_X,
-			*  K1_EQUAL_K3,
-			*  K1_DOMINANT,
-			*  K3_DOMINANT,
+			*  PARALLEL_X, (T,B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC OR BOUNDARY_PARALLEL)
+			*  K1_EQUAL_K3, (T BOUNDARY_PERPENDICULAR ; B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC)
+			*  K1_DOMINANT,(T BOUNDARY_PERPENDICULAR ; B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC)
+			*  K3_DOMINANT,(T BOUNDARY_PERPENDICULAR ; B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC)
+			*
+			*  Note: The boundary conditions expected for a state are shown in brackets with 
+			*  T = Top Boundary condition
+			*  B = Bottom Boundary condition
+			*  L = Left Boundary condition
+			*  R = Right Boundary condition
 			*
 			*  This information is outputted to an std::ostream "stream".
 			*
-			*  acceptibleRE is the acceptible relative error used for comparisions.
+			*  acceptibleError is the acceptible absolute error used for comparisions.
+			*
+			*  The return value is true if ALL cells of this lattice match the analytical situation specified by "state"
+			*  within "acceptibleError".
+			* 
+			*  The return value is false if one or more cells don't match within "acceptibleErroe" or if 
+			*  there is a problem with the passed arguments.
+			*
+			*  Two comparisions are done
+			*  1. Each cell energy value is compared to the analytical value (for "state") for that cell
+			*  2. Each cell energy value is compared with the energy of the first cell. This is done because
+			      for the analytical solutions energy per unit volume is uniform.
 			*/
-			void compareTo(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleRE) const;
+			bool energyCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError) const;
+
+			/* NOTE: restrictAngularRange() should be called first!  
+			* Output angular comparision data between this lattice and a lattice in an analytical minimum
+			*  energy state specified by "state". Note supported states are the following:
+			*
+			*  PARALLEL_X, (T,B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC OR BOUNDARY_PARALLEL)
+			*  PARALLEL_Y, (T,B BOUNDARY_PERPENDICULAR ; L,R BOUNDARY_PERIODIC OR BOUNDARY_PERPENDICULAR)
+			*  K1_EQUAL_K3, (T BOUNDARY_PERPENDICULAR ; B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC)
+			*  K1_DOMINANT,(T BOUNDARY_PERPENDICULAR ; B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC)
+			*  K3_DOMINANT,(T BOUNDARY_PERPENDICULAR ; B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC)
+			*
+			*  Note: The boundary conditions expected for a state are shown in brackets with 
+			*  T = Top Boundary condition
+			*  B = Bottom Boundary condition
+			*  L = Left Boundary condition
+			*  R = Right Boundary condition
+			*
+			*  This information is outputted to an std::ostream "stream".
+			*
+			*  acceptibleError is the acceptible absolute error used for comparisions.
+			*
+			*  The return value is true if ALL cells of this lattice match the expected angular orientation of a
+			*  lattice (within "acceptibleError") in the analytical minimum energy state (specified by "state").
+			* 
+			*  The return value is false if one or more cells don't match within "acceptibleErroe" or if 
+			*  there is a problem with the passed arguments.
+			*
+			*  One type of comparision is done:
+			*  1. The angular orientation of each of cell is compared to the expected angular orientation for the
+			*     specified ( "state" ) analytical minimum energy state. 
+			*/
+			bool angleCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError) const;
 
 	};
 
