@@ -1016,7 +1016,10 @@ void Lattice::restrictAngularRange()
 {
 	for(int index=0; index < (param.width)*(param.height) ; index++)
 	{
-		if( (lattice[index].y < 0) ||  (lattice[index].x == -1 && lattice[index].y== 0 ) )
+		/* for lattice[index].x == -1 we implicitly assume lattice[index].y=0 but this
+		*  isn't always true due rounding errors where the y component is almost 0 but not quite.
+		*/
+		if( (lattice[index].y < 0) ||  (lattice[index].x == -1 ) )
 		{
 			//flip components
 			lattice[index].x *= -1;
