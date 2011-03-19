@@ -1,9 +1,14 @@
 #!/bin/bash
-#Script to build a set binary state files to simulate on a single machine and then do those simulations
-# one after another.
+#Script to build a set binary state files to simulated on a local machine (local) or on a PBS/torque cluster (pbs)
 
-if [ "$#" -ne 2 ]; then
-	echo "Usage: $0 <target_directory> <log_file>"
+#SET prefix for PBS/torque jobs
+JOB_PREFIX="lc"
+#SET value for PI (20dp from Wolfram Alpha)
+PI="3.14159265358979323846"
+
+if [ "$#" -ne 3 ]; then
+	echo "Usage: $0 <mode> <target_directory> <log_file>"
+	echo "<mode> - Job run mode. hould be local or pbs"
 	echo "<target_directory> - Directory to build simulation directories in"
 	echo "<log_file> - A filename to log the jobs started by this script and their associated directories"
 	exit 0;
@@ -26,14 +31,23 @@ function cyanmessage()
         echo -en "\033[35m${1}\033[0m";
 }
 
+function calc-int()
+{
+	echo "scale=1; ${1}" | bc | grep -Eo "^[0-9]+"
+}
+
+function calc-float()
+{
+	echo "scale=20; ${1}" | bc
+}
+
+
 #Check bc is installed so we can do floating point math in this shell script
 which bc > /dev/null 2>&1
 if [ "$?" -ne 0 ]; then
 	redmessage "bc is either not in PATH variable or is not installed!"
 	exit 1
 fi
-
-NUM_REGEX="^[0-9]+"
 
 
 #Interactive continue function asking to confirm file overwrite
@@ -84,8 +98,19 @@ function ask()
 
 
 #get target directory
-TARGET_DIR="$1"
-LOG_FILE="$2"
+MODE="$1"
+TARGET_DIR="$2"
+LOG_FILE="$3"
+
+if [ -z "$MODE" ]; then
+	redmessage "<mode> must be specified\n"
+	exit 1;
+fi
+
+if [ ! \( "$MODE" = "local" -o $MODE = "pbs" \) ]; then
+	redmessage "<mode> must be local or pbs\n"
+	exit 1;
+fi
 
 if [ -z "$TARGET_DIR" ]; then
 	redmessage "<target_directory> must be specified!\n";
@@ -104,6 +129,12 @@ fi
 
 if [ -z "$LOG_FILE" ]; then
 	redmessage "<log_file> must be specified!\n";
+	exit 1;
+fi
+
+#Check we're running on correct machine if in pbs mode
+if [ "$(hostname)" != "calgary.phy.bris.ac.uk" -a "$MODE" = "pbs" ]; then
+	redmessage "You should run this script on calgary!\n"
 	exit 1;
 fi
 
@@ -134,11 +165,16 @@ if [ "$?" -ne 0 ]; then
 	redmessage "Error: Couldn't write logfile to ${LOG_FILE}\n"
 	exit 1;
 fi
+
+#truncate log file
+echo -n "" > "${LOG_FILE}"
+
 cyanmessage "LOG FILE: ${LOG_FILE}\n"
+cyanmessage "Mode : ${MODE}\n"
 
 #Write logfile header
-echo $(date) >> ${LOG_FILE}
-echo "#[JOB] [BUILD_PATH]" >> ${LOG_FILE}
+echo $(date) >> "${LOG_FILE}"
+echo "#[JOB_ID] [BUILD_PATH]" >> "${LOG_FILE}"
 
 #get scripts path
 SCRIPTS_PATH=$( cd ${BASH_SOURCE[0]%/*} ; echo "$PWD" )
@@ -152,12 +188,12 @@ cyanmessage "Target directory: ${TARGET_DIR}\n"
 
 
 #note n = (1 + m*0.5) where n is scale factor
-LOOP_MAX=10
-for ((m=0; m<=LOOP_MAX ;m++))
+#Add loop here
+for ((m=0; m<=10 ;m++))
 do
 	#Scale the width & height by m
-	width=$( echo "scale=1; 30*(1 + ${m}*0.5) " | bc | grep -Eo "$NUM_REGEX" )
-	height=$( echo "scale=1; 30*(1 + ${m}*0.5) " | bc | grep -Eo "$NUM_REGEX" )
+	width=$( calc-int " 30*(1 + ${m}*0.5) " )
+	height=$( calc-int " 30*(1 + ${m}*0.5) " )
 	beta=1
 	
 	if [ -z "${width}" ]; then
@@ -176,11 +212,11 @@ do
 	mcs=100000
 
 	#nanoparticle configuartion (force a:b ratio 3:1)
-	x=$( echo "scale=1; 14*(1 + ${m}*0.5) " | bc | grep -Eo "$NUM_REGEX" )
-	y=$( echo "scale=1; 14*(1 + ${m}*0.5) " | bc | grep -Eo "$NUM_REGEX" )
-	a=$( echo "scale=1; 12*(1 + ${m}*0.5) " | bc | grep -Eo "$NUM_REGEX" )
+	x=$( calc-int " 14*(1 + ${m}*0.5) " )
+	y=$( calc-int " 14*(1 + ${m}*0.5) " )
+	a=$( calc-int " 12*(1 + ${m}*0.5) " )
 	b=$((a/3))
-	theta=0
+	theta=$( calc-float "${PI}*0" )
 	particleBoundary=0
 
 	#set build directory (make sure slash is appended!)
@@ -208,17 +244,51 @@ do
 		redmessage "Building state file $STATE_FILENAME failed!\n";
 		exit 1;
 	fi
-
-
-	greenmessage "Running job ${m} of ${LOOP_MAX}"
-	cd "${BUILD_DIR}"
-	#Start simulation 
-	sim-state "${STATE_FILENAME}" ${mcs} 
-
-	if [ "$?" -ne 0 ]; then
-		redmessage "sim-state failed!"
-		exit
-	fi
 	
-	echo "${m} ${BUILD_DIR}" >> ${LOG_FILE}
+	if [ "$MODE" = "pbs" ]; then
+		#Build PBS/Torque script (we shouldn't indent the HEREDOC)
+		cat > "${BUILD_DIR}run.sh" <<HEREDOC
+#PBS -N ${JOB_PREFIX}-${width}-${height}
+#PBS -l cput=40:00
+
+cd "${BUILD_DIR}"
+#Add tools to work path
+source ${SCRIPTS_PATH}/path.sh
+#Start simulation putting stdout & stderr to a file so we can view it as we go
+sim-state "${STATE_FILENAME}" ${mcs} > std.log 2>&1
+HEREDOC
+
+		#Submit job (27626.calgary.phy.bris.ac.uk)
+		JOB_ID=$(qsub "${BUILD_DIR}run.sh" || (redmessage "Failed to start job!\n"; exit 1) )
+
+		#write to log
+		if [ -z "$JOB_ID" ]; then
+			redmessage "Something went wrong... I didn't get a JOB_ID !\n"
+			echo "Failed to start job number ${m} in ${BUILD_DIR}\n" >> "${LOG_FILE}"
+		else
+			greenmessage "Running ${JOB_ID} in ${BUILD_DIR}\n"
+			echo "${JOB_ID} ${BUILD_DIR}" >> "${LOG_FILE}"
+		fi
+
+	elif [ "$MODE" = "local" ]; then
+	
+		#Run job locally
+		cd "${BUILD_DIR}"
+
+		sim-state "${STATE_FILENAME}" ${mcs}
+
+		if [ $? -ne 0 ]; then
+			redmessage "Job ${m} failed!\n"
+			echo "Job ${m} failed in ${BUILD_DIR}\n" >> "${LOG_FILE}"
+		else
+			greenmessage "Job ${m} finished"
+			echo "${m} ${BUILD_DIR}" >> "${LOG_FILE}"
+		fi
+
+		#change back to original directory
+		cd -
+
+	fi
+
+	
 done

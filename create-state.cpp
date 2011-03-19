@@ -43,7 +43,9 @@ int main(int n, char* argv[])
 		"<a>        - The a value for the nanoparticle\n" << 
 		"<b>        - The b value for the nanoparticle\n" << 
 		"<theta>    - The theta value for the nanoparticle\n"
-		"<boundary> - The nanoparticle boundary condition (enum)"  << endl;
+		"<boundary> - The nanoparticle boundary condition (enum)\n\n"  <<
+		"Received " << (n -1) << " arguments" << endl;
+
 		exit(1);
 	}
 
@@ -80,8 +82,14 @@ int main(int n, char* argv[])
 	configuration.aAngle=PI/2;
 	configuration.desAcceptRatio=0.5;
 
-	//create circular nanoparticle (x,y,radius, boundary)
-	EllipticalNanoparticle particle1 = EllipticalNanoparticle(atoi(argv[10]),atoi(argv[11]),atoi(argv[12]),atoi(argv[13]), atoi(argv[14]), (EllipticalNanoparticle::boundary) atoi(argv[15]));
+	//create circular nanoparticle (x,y,a,b,theta,boundary))
+	EllipticalNanoparticle particle1 = EllipticalNanoparticle(atoi(argv[10]),
+		atoi(argv[11]),
+		atoi(argv[12]),
+		atoi(argv[13]), 
+		atof(argv[14]), 
+		(EllipticalNanoparticle::boundary) atoi(argv[15])
+		);
 
 	if(particle1.inBadState())
 		badState=true;
