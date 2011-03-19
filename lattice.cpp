@@ -1070,7 +1070,8 @@ double Lattice::calculateAngularStdDev() const
 
 bool Lattice::energyCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError) const
 {
-	bool match=true;
+	bool ccMatch=true;//Cell-Cell comparison success
+	bool caMatch=true;//Cell-Analytical comparision success
 	double expectedEnergy=0;
 
 	if(!stream.good())
@@ -1085,14 +1086,18 @@ bool Lattice::energyCompareWith(enum LatticeConfig::latticeState state, std::ost
 		return false;
 	}
 		
-	stream << "Comparing current state energy to state" << state << " (enum)..." << endl <<
-		"Using error (abs or relative) : " << acceptibleError << endl;
+	stream << "Comparing current state energy to state " << state << " (enum)..." << endl <<
+		"Using absolute error : " << acceptibleError << endl;
 
 	switch(state)
 	{
 
 		//Handle different states
 		case LatticeConfig::PARALLEL_X :
+			expectedEnergy=0;
+		break;
+
+		case LatticeConfig::PARALLEL_Y :
 			expectedEnergy=0;
 		break;
 
@@ -1112,13 +1117,14 @@ bool Lattice::energyCompareWith(enum LatticeConfig::latticeState state, std::ost
 		break;
 
 		default :	
-		stream << "comparision to state " << stream << " (enum) not supported!" << endl;
+			stream << "comparision to state " << state << " (enum) not supported!" << endl;
+			return false;
 	}
 
 	
 	/* Do Energy comparision */
 	double energyAE=0;
-	stream << "Doing energy comparision (absolute error) (should be ~ " << expectedEnergy << ")" << endl;
+	stream << "Doing energy comparision (absolute error) (should be ~ " << expectedEnergy << ")..." << endl;
 	for(int y=0; y < param.height ; y++)
 	{
 		for(int x=0; x < param.width; x++)
@@ -1126,19 +1132,22 @@ bool Lattice::energyCompareWith(enum LatticeConfig::latticeState state, std::ost
 			energyAE = calculateEnergyOfCell(x,y) - expectedEnergy;
 			if(fabs(energyAE) > acceptibleError)
 			{
-				stream << "C-A (" << x << "," << y << " ABS ERROR:" << energyAE << endl;
-				match=false;
+				stream << "C-A (" << x << "," << y << ") ABS ERROR:" << energyAE << endl;
+				caMatch=false;
 			}
 		}
 	}
+
+	if(caMatch)
+		stream << "Cell analytical match within absolute error" << endl;
 
 	/* Now do cell-cell comparision. For the analytical situations each cell
 	*  should have the same energy per unit volume.
 	*  This test compares all cell energies to the energy of the first cell.
 	*/
 	double firstCellEnergy = calculateEnergyOfCell(0,0);
-	double ccAE=0;
-	stream << "Doing cell-cell comparision (analytical situation should have uniform energy)\n" << endl;
+	double ccAE=0;// Cell-Cell absolute error
+	stream << "Doing cell-cell comparision (analytical situation should have uniform energy)..." << endl;
 	for(int y=0; y < param.height; y++)
 	{
 		for(int x=0; x < param.width; x++)
@@ -1147,15 +1156,15 @@ bool Lattice::energyCompareWith(enum LatticeConfig::latticeState state, std::ost
 			if ( fabs(ccAE) > acceptibleError )
 			{
 				stream << "C-C (" << x << "," << y << " ABS ERROR:" << ccAE << endl;
-				match=false;
+				ccMatch=false;
 			}
 		}
 	}
 
-	if(match)
-		stream << "Cell-analytical and Cell-Cell match within requested error" << endl;
+	if(ccMatch)
+		stream << "Cell-Cell match within absolute error" << endl;
 
-	return match;
+	return (caMatch && ccMatch);
 
 }
 
@@ -1175,8 +1184,8 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 		return false;
 	}
 		
-	stream << "Comparing current state to state" << state << " (enum)..." << endl <<
-		"Using error (abs or relative) : " << acceptibleError <<
+	stream << "Comparing current state angular distribution to state " << state << " (enum)..." << endl <<
+		"Using absolute error : " << acceptibleError << endl <<
 		"Average Angle (radians): " << calculateAverageAngle() << endl <<
 		"Standard deviation of Angles (radians): " << calculateAngularStdDev() << endl;
 	
@@ -1184,7 +1193,7 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 	
 	// Do angular comparsion
 	double angularAE=0;
-	stream << "Doing angular comparision (absolute error)  (angle for this situation should be 0)" << endl;
+	stream << "Doing angular comparision..." << endl;
 	for(int y=0; y < param.height ; y++)
 	{
 		for(int x=0; x < param.width ; x++)
@@ -1213,7 +1222,7 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 				break;
 
 				default:
-					cerr << "State " << state << " (enum) not supported";
+					cerr << "State " << state << " (enum) not supported!" << endl;
 					return false;
 			}
 
@@ -1225,7 +1234,9 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 			}
 		}
 	}
-
+	
+	if(match)
+		stream << "Angular comparision matched within absolute error" << endl;
 			
 	return match;
 }

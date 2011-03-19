@@ -240,6 +240,7 @@
 			*  energy state specified by "state". Note supported states are the following:
 			*
 			*  PARALLEL_X, (T,B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC OR BOUNDARY_PARALLEL)
+			*  PARALLEL_Y, (T,B BOUNDARY_PERPENDICULAR ; L,R BOUNDARY_PERIODIC OR BOUNDARY_PERPENDICULAR)
 			*  K1_EQUAL_K3, (T BOUNDARY_PERPENDICULAR ; B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC)
 			*  K1_DOMINANT,(T BOUNDARY_PERPENDICULAR ; B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC)
 			*  K3_DOMINANT,(T BOUNDARY_PERPENDICULAR ; B BOUNDARY_PARALLEL ; L,R BOUNDARY_PERIODIC)
@@ -249,6 +250,14 @@
 			*  B = Bottom Boundary condition
 			*  L = Left Boundary condition
 			*  R = Right Boundary condition
+			*
+			*  For these states the following energy per unit volume (E) is expected to the same in all cells (uniform)
+			*  and is expected to have the following values for different states ( note height is the lattice height)
+			*  
+			*  PARALLEL_X & PARALLEL_Y : E=0
+			*  K1_EQUAL_K3 : E = (PI^2)/(8*(height +1)^2);
+			*  K1_DOMINANT : E = 1/( 2*(height +1)^2 )  (assumes k_1 = 1)
+			*  K3_DOMINANT : E = (k_3)/( 2*(height +1)^2  )
 			*
 			*  This information is outputted to an std::ostream "stream".
 			*
@@ -282,6 +291,16 @@
 			*  B = Bottom Boundary condition
 			*  L = Left Boundary condition
 			*  R = Right Boundary condition
+			*
+			*  For these states the following orientation is expected.
+			*  The configuration is n = (cos(theta), sin(theta), 0) = ( x , y , z )
+			*
+			*  PARALLEL_X : theta = 0
+			*  PARALLEL_Y : theta = PI/2
+			*  K1_EQUAL_K3: theta = (PI/2)(y + 1)/(height +1)
+			*  K1_DOMINANT: theta = (PI/2) - arccos( (y + 1)/(height +1) )
+			*  K3_DOMINANT: theta = (PI/2) - arcsin( 1 - (y + 1)/(height +1) )
+			*
 			*
 			*  This information is outputted to an std::ostream "stream".
 			*
