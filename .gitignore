@@ -11,6 +11,8 @@ dump-state
 probe-state
 create-state
 ea-test
+comp-energy-state
+comp-angle-state
 initialise-test
 uniform-rnd
 rotate-director-test

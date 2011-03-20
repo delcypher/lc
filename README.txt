@@ -28,13 +28,16 @@ HOW TO COMPILE AND RUN:
   $ make
    This will build the following tools:
 
-   create-state : Creates a binary state file.
-   dump-state   : Reads a binary state file and sends to standard output data for use with the "ildump.gnu" GNUplot script.
-   probe-state  : Displays information about a binary state file.
-   sim-state    : Simulates the lattice specified by a binary state file with Monte Carlo parameters specified by the binary state file in
-                  a free energy minimisation Monte Carlo simulation.
+   comp-energy-state : Compares a lattice described by a binary state file against the energy of a known analytical solution.
+   comp-angle-state  : Compares a lattice described by a binary state file against the angular distribution  of a known 
+   		       analytical solution.
+   create-state      : Creates a binary state file.
+   dump-state        : Reads a binary state file and sends to standard output data for use with the "ildump.gnu" GNUplot script.
+   probe-state       : Displays information about a binary state file.
+   sim-state         : Simulates the lattice specified by a binary state file with Monte Carlo parameters specified by the binary 
+   		       state file in a free energy minimisation Monte Carlo simulation.
    
-   To add these tools to your work path run
+   To add these tools to your work path (BASH shell only) run
    $ source scripts/path.sh
 
 2. add more later....
