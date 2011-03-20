@@ -28,13 +28,16 @@ HOW TO COMPILE AND RUN:
   $ make
    This will build the following tools:
 
-   create-state : Creates a binary state file.
-   dump-state   : Reads a binary state file and sends to standard output data for use with the "ildump.gnu" GNUplot script.
-   probe-state  : Displays information about a binary state file.
-   sim-state    : Simulates the lattice specified by a binary state file with Monte Carlo parameters specified by the binary state file in
-                  a free energy minimisation Monte Carlo simulation.
+   comp-energy-state : Compares a lattice described by a binary state file against the energy of a known analytical solution.
+   comp-angle-state  : Compares a lattice described by a binary state file against the angular distribution  of a known 
+   		       analytical solution.
+   create-state      : Creates a binary state file.
+   dump-state        : Reads a binary state file and sends to standard output data for use with the "ildump.gnu" GNUplot script.
+   probe-state       : Displays information about a binary state file.
+   sim-state         : Simulates the lattice specified by a binary state file with Monte Carlo parameters specified by the binary 
+   		       state file in a free energy minimisation Monte Carlo simulation.
    
-   To add these tools to your work path run
+   To add these tools to your work path (BASH shell only) run
    $ source scripts/path.sh
 
 2. add more later....
@@ -107,10 +110,10 @@ WARNINGS:
 SCRIPTS:
 In the scripts/ directory are bash shell and gnuplot scripts for doing various useful things.
 
-aangle.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ANNEALING_FILE. It plots "Acceptance angle" aginst monte carlo step.
+annealing.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ANNEALING_FILE. It plots "iTk" against monte carlo step.
+coning.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable CONING_FILE. It plots "Acceptance angle" aginst monte carlo step.
 energy.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ENERGY_FILE. It plots "Free Energy" against monte carlo step.
 ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
-itk.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ANNEALING_FILE. It plots "iTk" against monte carlo step.
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
 path.sh - This is a bash shell script to add the build directory to the PATH variable so you can run the executables from any directory. To use it run ``source path.sh'' .
 tests.sh - This is a script to automatically build and execute test harnesses in the make file.

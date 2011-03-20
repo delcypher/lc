@@ -48,6 +48,14 @@ bool DirectorElement::makeUnitVector()
 		*/
 		x /= modulus;
 		y /= modulus;
+		
+		//Try to sort rounding errors for vector aligned with axes
+		if(x==1 || x==-1)
+			y=0;
+
+		if(y==1 || y==-1)
+			x=0;
+
 		return true;
 	}
 }
