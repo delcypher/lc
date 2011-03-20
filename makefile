@@ -43,7 +43,7 @@ LIBRARIES = m
 	${CXX} -M ${CPPFLAGS} $< > $*.dep
 
 #Default target that makes various useful tools
-tools : sim-state create-state probe-state dump-state
+tools : sim-state create-state probe-state dump-state comp-energy-state comp-angle-state
 ifeq (${runth},1)
 	 scripts/tests.sh
 endif
@@ -67,6 +67,12 @@ probe-state: probe-state.o ${OBJECTS}
 dump-state: dump-state.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} $^ -o $@
 
+comp-energy-state: comp-energy-state.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} $^ -o $@
+
+comp-angle-state: comp-angle-state.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} $^ -o $@
+
 #Test Harnesses must be defined between the "#TEST HARNESSES START" and "#TEST HARNESSES END" lines
 #After the rule definition you must supply the arguments to call the test harnesses with on the next line(s).
 #
@@ -75,17 +81,15 @@ dump-state: dump-state.o ${OBJECTS}
 
 #TEST HARNESSES START
 
-k1_equal_k3_ea: k1_equal_k3_ea.o ${OBJECTS}
+# Analytical energy test.
+ea-test: ea-test.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} $^ -o $@
-#ARGS 50 50 1e-14 1e-4
-
-k1_dominant_ea: k1_dominant_ea.o lattice.o ${OBJECTS}
-	${CXX} ${CPPFLAGS} $^ -o $@
-#ARGS 50 50 1e-13 1e-13
-
-k3_dominant_ea: k3_dominant_ea.o lattice.o ${OBJECTS}
-	${CXX} ${CPPFLAGS} $^ -o $@
-#ARGS 50 50 1e-13 1e-13
+#ARGS 50 50 1 1e-5
+#ARGS 50 50 2 1e-5
+#ARGS 50 50 3 1e-5
+#ARGS 50 50 4 1e-5
+#Can't really get next test correct as program design doesn't allow k_1=0 and making k_3 very large leads to rounding errors!
+#ARGS 50 50 5 1e-1 
 
 initialise-test: initialise-test.o ${OBJECTS}
 	${CXX} $^ ${CPPFLAGS} -o $@

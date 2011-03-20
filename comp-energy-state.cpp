@@ -1,0 +1,41 @@
+/* This program is used to compare the lattice specified by a binary state
+*  file against the minimum energy state of an analytical solution specified on
+*  the command line.
+*/
+
+#include <iostream>
+#include <cstdlib>
+#include "lattice.h"
+
+using namespace std;
+
+
+int main(int n, char* argv[])
+{
+	if(n !=4)
+	{
+		cerr << "Usage: " << argv[0] << " <filename> <state> <acceptible_error>" << endl <<
+		"<filename> - Binary state file to read\n" <<
+		"<state> - Analytical energy state (LatticeConfig::latticeState enum) to compare with\n" <<
+		"<acceptible_error> - The maximum acceptible absolute error." << endl;
+		exit(1);
+	}
+
+	char* loadfile = argv[1];
+	LatticeConfig::latticeState state = (LatticeConfig::latticeState) atoi(argv[2]);
+	double acceptibleError = atof(argv[3]);
+
+	//set cout precision
+	cout.precision(STD_PRECISION);
+	cout << "#Displaying values to " << STD_PRECISION << " decimal places" << endl;
+
+	//create lattice object from binary state file
+	Lattice nSystem = Lattice(loadfile);
+	
+	//Do comparison
+	nSystem.energyCompareWith(state,std::cout,acceptibleError);
+
+	return 0;
+}
+
+

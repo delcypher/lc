@@ -1012,3 +1012,231 @@ int Lattice::getArea() const
 	return (param.width)*(param.height);
 }
 
+void Lattice::restrictAngularRange()
+{
+	for(int index=0; index < (param.width)*(param.height) ; index++)
+	{
+		/* for lattice[index].x == -1 we implicitly assume lattice[index].y=0 but this
+		*  isn't always true due rounding errors where the y component is almost 0 but not quite.
+		*/
+		if( (lattice[index].y < 0) ||  (lattice[index].x == -1 ) )
+		{
+			//flip components
+			lattice[index].x *= -1;
+			lattice[index].y *= -1;
+		}
+
+		
+	}
+}
+
+double Lattice::calculateAverageAngle() const
+{
+	double avAngle=0;
+
+	for(int y=0; y < param.height; y++)
+	{
+		for(int x=0; x < param.width; x++)
+		{
+			avAngle += getN(x,y)->calculateAngle();
+		}
+	}
+
+	avAngle /= (param.width*param.height);
+
+	return avAngle;
+}
+
+double Lattice::calculateAngularStdDev() const
+{
+	double average = calculateAverageAngle();
+	double stddev=0;
+
+	for(int y=0; y < param.height; y++)
+	{
+		for(int x=0; x < param.width; x++)
+		{
+			stddev += pow( (getN(x,y)->calculateAngle() - average) ,2);	
+		}
+	}
+
+	//Divide by "(N-1)"
+	stddev /= ( (param.width*param.height) -1);
+
+	stddev = sqrt(stddev);
+
+	return stddev;
+}
+
+bool Lattice::energyCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError) const
+{
+	bool ccMatch=true;//Cell-Cell comparison success
+	bool caMatch=true;//Cell-Analytical comparision success
+	double expectedEnergy=0;
+
+	if(!stream.good())
+	{
+		cerr << "Error: Can't use stream in energyCompareWith()" << endl;
+		return false;
+	}
+
+	if(acceptibleError < 0)
+	{
+		cerr << "Error: Acceptible absolute error must be >= 0" << endl;
+		return false;
+	}
+		
+	stream << "Comparing current state energy to state " << state << " (enum)..." << endl <<
+		"Using absolute error : " << acceptibleError << endl;
+
+	switch(state)
+	{
+
+		//Handle different states
+		case LatticeConfig::PARALLEL_X :
+			expectedEnergy=0;
+		break;
+
+		case LatticeConfig::PARALLEL_Y :
+			expectedEnergy=0;
+		break;
+
+		case LatticeConfig::K1_EQUAL_K3 :
+			//Assume k_1=1
+			expectedEnergy=PI*PI/(8*(param.height +1)*(param.height +1));
+		break;
+
+		case LatticeConfig::K1_DOMINANT :
+			//Assume k_1=1
+			expectedEnergy= (double) 1/( 2*(param.height +1)*(param.height +1) );
+		break;
+
+		case LatticeConfig::K3_DOMINANT :
+			//Assume k_1=1
+			expectedEnergy = (double) (param.beta)/( 2*(param.height +1 )*(param.height +1) );
+		break;
+
+		default :	
+			stream << "comparision to state " << state << " (enum) not supported!" << endl;
+			return false;
+	}
+
+	
+	/* Do Energy comparision */
+	double energyAE=0;
+	stream << "Doing energy comparision (absolute error) (should be ~ " << expectedEnergy << ")..." << endl;
+	for(int y=0; y < param.height ; y++)
+	{
+		for(int x=0; x < param.width; x++)
+		{
+			energyAE = calculateEnergyOfCell(x,y) - expectedEnergy;
+			if(fabs(energyAE) > acceptibleError)
+			{
+				stream << "C-A (" << x << "," << y << ") ABS ERROR:" << energyAE << endl;
+				caMatch=false;
+			}
+		}
+	}
+
+	if(caMatch)
+		stream << "Cell analytical match within absolute error" << endl;
+
+	/* Now do cell-cell comparision. For the analytical situations each cell
+	*  should have the same energy per unit volume.
+	*  This test compares all cell energies to the energy of the first cell.
+	*/
+	double firstCellEnergy = calculateEnergyOfCell(0,0);
+	double ccAE=0;// Cell-Cell absolute error
+	stream << "Doing cell-cell comparision (analytical situation should have uniform energy)..." << endl;
+	for(int y=0; y < param.height; y++)
+	{
+		for(int x=0; x < param.width; x++)
+		{
+			ccAE = (calculateEnergyOfCell(x,y) - firstCellEnergy);
+			if ( fabs(ccAE) > acceptibleError )
+			{
+				stream << "C-C (" << x << "," << y << " ABS ERROR:" << ccAE << endl;
+				ccMatch=false;
+			}
+		}
+	}
+
+	if(ccMatch)
+		stream << "Cell-Cell match within absolute error" << endl;
+
+	return (caMatch && ccMatch);
+
+}
+
+bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError) const
+{
+	bool match=true;
+
+	if(!stream.good())
+	{
+		cerr << "Error: Can't use stream in angleCompareWith()" << endl;
+		return false;
+	}
+
+	if(acceptibleError < 0)
+	{
+		cerr << "Error: Acceptible relative error must be >= 0" << endl;
+		return false;
+	}
+		
+	stream << "Comparing current state angular distribution to state " << state << " (enum)..." << endl <<
+		"Using absolute error : " << acceptibleError << endl <<
+		"Average Angle (radians): " << calculateAverageAngle() << endl <<
+		"Standard deviation of Angles (radians): " << calculateAngularStdDev() << endl;
+	
+	double analyticalAngle=0;
+	
+	// Do angular comparsion
+	double angularAE=0;
+	stream << "Doing angular comparision..." << endl;
+	for(int y=0; y < param.height ; y++)
+	{
+		for(int x=0; x < param.width ; x++)
+		{
+			//Handle different states
+			switch(state)
+			{
+				case LatticeConfig::PARALLEL_X :
+					analyticalAngle=0;	
+				break;
+
+				case LatticeConfig::PARALLEL_Y :
+					analyticalAngle=PI/2;
+				break;
+
+				case LatticeConfig::K1_EQUAL_K3 :
+					analyticalAngle= PI*( (double) (y + 1)/(2*(param.height +1)) );
+				break;
+
+				case LatticeConfig::K1_DOMINANT :
+					analyticalAngle= PI/2 - acos( (double) (y + 1)/(param.height + 1));
+				break;
+
+				case LatticeConfig::K3_DOMINANT :
+					analyticalAngle= PI/2 -asin(1 - (double) (y +1)/(param.height +1)   );
+				break;
+
+				default:
+					cerr << "State " << state << " (enum) not supported!" << endl;
+					return false;
+			}
+
+			angularAE = getN(x,y)->calculateAngle() - analyticalAngle;
+			if(fabs(angularAE) > acceptibleError)
+			{
+				stream << "(" << x << "," << y << ") ABS ERROR:" << angularAE << endl;	
+				match=false;
+			}
+		}
+	}
+	
+	if(match)
+		stream << "Angular comparision matched within absolute error" << endl;
+			
+	return match;
+}
