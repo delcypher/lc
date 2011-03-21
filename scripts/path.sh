@@ -28,3 +28,7 @@ fi
 
 #Set IFS back...
 IFS=$tempIFS
+
+#add alias for view-state.sh
+alias view-state="$addpath/scripts/view-state.sh" && echo "Added view-state alias"
+
