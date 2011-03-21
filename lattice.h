@@ -208,7 +208,7 @@
 			//Calculate the area of the lattice (excluding boundaries)
 			int getArea() const;
 			
-			/* Modify DirectorElements so that they are in an angular range [0,PI) to the x-axis
+			/* Modify DirectorElements so that they are in an angular range (-PI/2,PI/2] to the x-axis
 			 * (anti-clockwise rotation).
 			 *
 			 * This is done by flipping DirectorElements by PI radians (preserving uniaxial properties).
