@@ -210,67 +210,51 @@ cyanmessage "Target directory: ${TARGET_DIR}\n"
 
 #note n = (1 + m*0.5) where n is scale factor
 #Add loop here
-for ((m=0; m<=10 ;m++))
+for ((tone=0; tone<180 ;tone+=20))
 do
-	#Scale the width & height by m
-	width=$( calc-int " 30*(1 + ${m}*0.5) " )
-	height=$( calc-int " 30*(1 + ${m}*0.5) " )
-	beta=1
-	
-	if [ -z "${width}" ]; then
-		exit
-	fi
-
-	#lattice boundaries
-	top=0
-	bottom=0
-	left=0
-	right=0
-
-	latticeInitialState=0
-
 	#Number of Monte Carlo steps to run through
 	mcs=700000
 
 	#nanoparticle configuartion (force a:b ratio 3:1)
-	x=$( calc-int " 15*(1 + ${m}*0.5) -1 " )
-	y=$( calc-int " 15*(1 + ${m}*0.5) -1 " )
-	a=$( calc-int " 9*(1 + ${m}*0.5) " )
-	#enforce 3:1 ratio
-	b=$((a/3))
-	theta=$( calc-float "${PI}*0" )
-	particleBoundary=0
+	theta1=$( calc-float "${PI}*${tone}/180" )
+	particle1Boundary=1
 
-	#set build directory (make sure slash is appended!)
-	BUILD_DIR="${TARGET_DIR}/${width}-${height}/"
+	for ((ttwo=0; ttwo<180 ;ttwo+=20))
+	do
 
-	#try to make directory
-	mkdir -p "$BUILD_DIR"
-	if [ "$?" -ne 0 ]; then
-		redmessage "Building directory $BUILD_DIR failed!\n";
-		exit 1;
-	fi
+		theta2=$( calc-float "${PI}*${ttwo}/180" )
+		particle2Boundary=1
 
-	#make binary statefile
-	STATE_FILENAME="state.bin"
+		#set build directory (make sure slash is appended!)
+		BUILD_DIR="${TARGET_DIR}/${tone}-${ttwo}/"
 
-	#check if statefile already exists
-	if [ -a "${BUILD_DIR}${STATE_FILENAME}" ]; then
-		ask "${BUILD_DIR}${STATE_FILENAME}" || exit 1;
-	fi
+		#try to make directory
+		mkdir -p "$BUILD_DIR"
+		if [ "$?" -ne 0 ]; then
+			redmessage "Building directory $BUILD_DIR failed!\n";
+			exit 1;
+		fi
 
-	ARGS="${BUILD_DIR}${STATE_FILENAME} ${width} ${height} ${beta} ${top} ${bottom} ${left} ${right} ${latticeInitialState} ${x} ${y} ${a} ${b} ${theta} ${particleBoundary}"
-	echo "create-state $ARGS"
-	create-state $ARGS > /dev/null
-	if [ "$?" -ne 0 ]; then
-		redmessage "Building state file $STATE_FILENAME failed!\n";
-		exit 1;
-	fi
-	
-	if [ "$MODE" = "pbs" ]; then
-		#Build PBS/Torque script (we shouldn't indent the HEREDOC)
-		cat > "${BUILD_DIR}run.sh" <<HEREDOC
-#PBS -N ${JOB_PREFIX}-${width}-${height}
+		#make binary statefile
+		STATE_FILENAME="state.bin"
+
+		#check if statefile already exists
+		if [ -a "${BUILD_DIR}${STATE_FILENAME}" ]; then
+			ask "${BUILD_DIR}${STATE_FILENAME}" || exit 1;
+		fi
+
+		ARGS="${BUILD_DIR}${STATE_FILENAME} ${theta1} ${particle1Boundary} ${theta2} ${particle2Boundary}"
+		echo "create-state $ARGS"
+		create-state $ARGS > /dev/null
+		if [ "$?" -ne 0 ]; then
+			redmessage "Building state file $STATE_FILENAME failed!\n";
+			exit 1;
+		fi
+		
+		if [ "$MODE" = "pbs" ]; then
+			#Build PBS/Torque script (we shouldn't indent the HEREDOC)
+			cat > "${BUILD_DIR}run.sh" <<HEREDOC
+#PBS -N ${JOB_PREFIX}-${theta1}-${theta2}-2
 #PBS -l cput=40:00:00
 
 cd "${BUILD_DIR}"
@@ -280,48 +264,47 @@ source ${SCRIPTS_PATH}/path.sh
 time -p sim-state "${STATE_FILENAME}" ${mcs} > std.log 2>&1
 HEREDOC
 
-		#Submit job (27626.calgary.phy.bris.ac.uk)
-		if [ "${DRY_RUN}" -eq 0 ]; then
-			JOB_ID=$(qsub "${BUILD_DIR}run.sh" || (redmessage "Failed to start job!\n"; exit 1) )
-		else
-			echo "Doing dry run. Not running qsub ${BUILD_DIR}run.sh";
-			JOB_ID="DRY RUN"
+			#Submit job (27626.calgary.phy.bris.ac.uk)
+			if [ "${DRY_RUN}" -eq 0 ]; then
+				JOB_ID=$(qsub "${BUILD_DIR}run.sh" || (redmessage "Failed to start job!\n"; exit 1) )
+			else
+				echo "Doing dry run. Not running qsub ${BUILD_DIR}run.sh";
+				JOB_ID="DRY RUN"
+			fi
+
+			#write to log
+			if [ -z "$JOB_ID" ]; then
+				redmessage "Something went wrong... I didn't get a JOB_ID !\n"
+				echo "Failed to start job number ${m} in ${BUILD_DIR}\n" >> "${LOG_FILE}"
+			else
+				greenmessage "Running ${JOB_ID} in ${BUILD_DIR}\n"
+				echo "${JOB_ID} ${BUILD_DIR}" >> "${LOG_FILE}"
+			fi
+
+		elif [ "$MODE" = "local" ]; then
+		
+			#Run job locally
+			cd "${BUILD_DIR}"
+
+			if [ "${DRY_RUN}" -eq 0 ]; then
+				time -p sim-state "${STATE_FILENAME}" ${mcs}
+			else
+				echo "Doing dry run. Not running sim-state ${STATE_FILENAME} ${mcs}"	
+				#run true so that $? =0
+				true
+			fi
+
+			if [ $? -ne 0 ]; then
+				redmessage "Job ${m} failed!\n"
+				echo "Job ${m} failed in ${BUILD_DIR}\n" >> "${LOG_FILE}"
+			else
+				greenmessage "Job ${m} finished"
+				echo "${m} ${BUILD_DIR}" >> "${LOG_FILE}"
+			fi
+
+			#change back to original directory
+			cd -
+
 		fi
-
-		#write to log
-		if [ -z "$JOB_ID" ]; then
-			redmessage "Something went wrong... I didn't get a JOB_ID !\n"
-			echo "Failed to start job number ${m} in ${BUILD_DIR}\n" >> "${LOG_FILE}"
-		else
-			greenmessage "Running ${JOB_ID} in ${BUILD_DIR}\n"
-			echo "${JOB_ID} ${BUILD_DIR}" >> "${LOG_FILE}"
-		fi
-
-	elif [ "$MODE" = "local" ]; then
-	
-		#Run job locally
-		cd "${BUILD_DIR}"
-
-		if [ "${DRY_RUN}" -eq 0 ]; then
-			time -p sim-state "${STATE_FILENAME}" ${mcs}
-		else
-			echo "Doing dry run. Not running sim-state ${STATE_FILENAME} ${mcs}"	
-			#run true so that $? =0
-			true
-		fi
-
-		if [ $? -ne 0 ]; then
-			redmessage "Job ${m} failed!\n"
-			echo "Job ${m} failed in ${BUILD_DIR}\n" >> "${LOG_FILE}"
-		else
-			greenmessage "Job ${m} finished"
-			echo "${m} ${BUILD_DIR}" >> "${LOG_FILE}"
-		fi
-
-		#change back to original directory
-		cd -
-
-	fi
-
-	
+	done	
 done
