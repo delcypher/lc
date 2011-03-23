@@ -26,28 +26,20 @@ double getiTk(const LatticeConfig& realConfig);
 
 int main(int n, char* argv[])
 {
-	if(n !=16)
+	if(n !=6)
 	{
-		cerr << "Usage: " << argv[0] << " <filename> <width> <height> <beta> <top> <bottom> <left> <right> <initial> <x> <y> <a> <b> <theta> <boundry>" << endl <<
+		cerr << "Usage: " << argv[0] << " <filename> <theta1> <boundry1> <theta2> <boundry2>" << endl <<
 		"<filename> - Filename to save created binary state file to\n" << 
-		"<width>    - The width of the lattice\n" << 
-		"<height>   - The height of the lattice\n" <<
-		"<beta>     - The ratio of k1 to k3\n" <<
-		"<top>      - The top boundary condition (enum)\n" << 
-		"<bottom>   - The bottom boundary condition (enum)\n" <<
-		"<left>     - The left boundary condition (enum)\n" << 
-		"<right>    - The right boundary condition (enum)\n" << 
-		"<initial>  - The initial state of the lattice (enum)\n" <<
-		"<x>        - The x position of the nanoparticle\n" << 
-		"<y>        - The y position of the nanoparticle\n" << 
-		"<a>        - The a value for the nanoparticle\n" << 
-		"<b>        - The b value for the nanoparticle\n" << 
-		"<theta>    - The theta value for the nanoparticle\n"
-		"<boundary> - The nanoparticle boundary condition (enum)\n\n"  <<
+		"<theta1>    - The theta value for the nanoparticle\n" << 
+		"<boundary1> - The nanoparticle boundary condition (enum)\n"  <<
+		"<theta2>    - The theta value for the nanoparticle\n" << 
+		"<boundary2> - The nanoparticle boundary condition (enum)\n"  <<
 		"Received " << (n -1) << " arguments" << endl;
 
 		exit(1);
 	}
+
+	
 
 
 	char* savefile = argv[1];
@@ -59,20 +51,20 @@ int main(int n, char* argv[])
 
 	LatticeConfig configuration;
 
-	configuration.width = atoi(argv[2]);
-	configuration.height= atoi(argv[3]);
+	configuration.width = 150;
+	configuration.height= 100;
 
 	//set initial director alignment
-	configuration.initialState = (LatticeConfig::latticeState) atoi(argv[9]);
+	configuration.initialState = LatticeConfig::RANDOM;
 
 	//set boundary conditions
-	configuration.topBoundary = (LatticeConfig::latticeBoundary) atoi(argv[5]);
-	configuration.bottomBoundary = (LatticeConfig::latticeBoundary) atoi(argv[6]);
-	configuration.leftBoundary =  (LatticeConfig::latticeBoundary) atoi(argv[7]);
-	configuration.rightBoundary = (LatticeConfig::latticeBoundary) atoi(argv[8]);
+	configuration.topBoundary = LatticeConfig::BOUNDARY_PARALLEL;
+	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL;
+	configuration.leftBoundary =  LatticeConfig::BOUNDARY_PARALLEL;
+	configuration.rightBoundary = LatticeConfig::BOUNDARY_PARALLEL;
 
 	//set lattice beta value
-	configuration.beta = atof(argv[4]);
+	configuration.beta = 1;
 	
 	//set the initial Monte Carlo and coning algorithm parameters
 	configuration.iTk = getiTk(configuration); //Automatically determined
@@ -83,15 +75,12 @@ int main(int n, char* argv[])
 	configuration.desAcceptRatio=0.5;
 
 	//create circular nanoparticle (x,y,a,b,theta,boundary))
-	EllipticalNanoparticle particle1 = EllipticalNanoparticle(atoi(argv[10]),
-		atoi(argv[11]),
-		atoi(argv[12]),
-		atoi(argv[13]), 
-		atof(argv[14]), 
-		(EllipticalNanoparticle::boundary) atoi(argv[15])
-		);
+	EllipticalNanoparticle particle1 = EllipticalNanoparticle(50, 50, 18, 6, atoi(argv[2]), (EllipticalNanoparticle::boundary) atoi(argv[3]));
+	EllipticalNanoparticle particle2 = EllipticalNanoparticle(100, 50, 18, 6, atoi(argv[4]), (EllipticalNanoparticle::boundary) atoi(argv[5]));
 
 	if(particle1.inBadState())
+		badState=true;
+	if(particle2.inBadState())
 		badState=true;
 
 	//create lattice object
@@ -99,6 +88,8 @@ int main(int n, char* argv[])
 
 	//add nanoparticles to lattice
 	if(! nSystem.add(particle1) )
+		badState=true;
+	if(! nSystem.add(particle2) )
 		badState=true;
 
 	if(nSystem.inBadState())
