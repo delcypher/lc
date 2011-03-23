@@ -209,12 +209,13 @@ do
 	latticeInitialState=0
 
 	#Number of Monte Carlo steps to run through
-	mcs=100000
+	mcs=700000
 
 	#nanoparticle configuartion (force a:b ratio 3:1)
-	x=$( calc-int " 14*(1 + ${m}*0.5) " )
-	y=$( calc-int " 14*(1 + ${m}*0.5) " )
-	a=$( calc-int " 12*(1 + ${m}*0.5) " )
+	x=$( calc-int " 15*(1 + ${m}*0.5) -1 " )
+	y=$( calc-int " 15*(1 + ${m}*0.5) -1 " )
+	a=$( calc-int " 9*(1 + ${m}*0.5) " )
+	#enforce 3:1 ratio
 	b=$((a/3))
 	theta=$( calc-float "${PI}*0" )
 	particleBoundary=0
@@ -249,7 +250,7 @@ do
 		#Build PBS/Torque script (we shouldn't indent the HEREDOC)
 		cat > "${BUILD_DIR}run.sh" <<HEREDOC
 #PBS -N ${JOB_PREFIX}-${width}-${height}
-#PBS -l cput=40:00
+#PBS -l cput=40:00:00
 
 cd "${BUILD_DIR}"
 #Add tools to work path
