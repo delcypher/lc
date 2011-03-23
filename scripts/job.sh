@@ -6,11 +6,15 @@ JOB_PREFIX="lc"
 #SET value for PI (20dp from Wolfram Alpha)
 PI="3.14159265358979323846"
 
-if [ "$#" -ne 3 ]; then
-	echo "Usage: $0 <mode> <target_directory> <log_file>"
-	echo "<mode> - Job run mode. hould be local or pbs"
+if [ "$#" -lt 3 ]; then
+	echo "Usage: $0 <mode> <target_directory> <log_file> [OPTION...]"
+	echo "<mode> - Job run mode. Should be local or pbs"
 	echo "<target_directory> - Directory to build simulation directories in"
 	echo "<log_file> - A filename to log the jobs started by this script and their associated directories"
+	echo " "
+	echo "[OPTIONS]"
+	echo "-d , --dryrun"
+	echo "   Do Dry run. All files and directories will be created but jobs will NOT be executed"
 	exit 0;
 fi
 
@@ -101,6 +105,23 @@ function ask()
 MODE="$1"
 TARGET_DIR="$2"
 LOG_FILE="$3"
+
+declare -ix DRY_RUN=0
+#call shift 3 times so $1 is next cmd arg
+shift 3
+while [ -n "$1" ]; do
+	case "$1" in
+		-d | --dryrun )
+		echo "Doing dry run!"
+		DRY_RUN=1
+		;;
+
+		*)
+		echo "Option $1 not recognised!"
+		exit 1;
+	esac
+	shift;
+done;
 
 if [ -z "$MODE" ]; then
 	redmessage "<mode> must be specified\n"
@@ -256,11 +277,16 @@ cd "${BUILD_DIR}"
 #Add tools to work path
 source ${SCRIPTS_PATH}/path.sh
 #Start simulation putting stdout & stderr to a file so we can view it as we go
-sim-state "${STATE_FILENAME}" ${mcs} > std.log 2>&1
+time -p sim-state "${STATE_FILENAME}" ${mcs} > std.log 2>&1
 HEREDOC
 
 		#Submit job (27626.calgary.phy.bris.ac.uk)
-		JOB_ID=$(qsub "${BUILD_DIR}run.sh" || (redmessage "Failed to start job!\n"; exit 1) )
+		if [ "${DRY_RUN}" -eq 0 ]; then
+			JOB_ID=$(qsub "${BUILD_DIR}run.sh" || (redmessage "Failed to start job!\n"; exit 1) )
+		else
+			echo "Doing dry run. Not running qsub ${BUILD_DIR}run.sh";
+			JOB_ID="DRY RUN"
+		fi
 
 		#write to log
 		if [ -z "$JOB_ID" ]; then
@@ -276,7 +302,13 @@ HEREDOC
 		#Run job locally
 		cd "${BUILD_DIR}"
 
-		sim-state "${STATE_FILENAME}" ${mcs}
+		if [ "${DRY_RUN}" -eq 0 ]; then
+			time -p sim-state "${STATE_FILENAME}" ${mcs}
+		else
+			echo "Doing dry run. Not running sim-state ${STATE_FILENAME} ${mcs}"	
+			#run true so that $? =0
+			true
+		fi
 
 		if [ $? -ne 0 ]; then
 			redmessage "Job ${m} failed!\n"
