@@ -63,7 +63,7 @@ HEIGHT=$((HEIGHT + 1))
 
 #Instruct gnuplot to call ildump.gnu to open it and open - (std output so were are left in interactive mode)
 #We have to call gnuplot this horrible way (bash process substitution)  as the GNUplot 4.0 doesn't support -e option!
-gnuplot <(echo "call \"${SCRIPTS_PATH}/ildump.gnu\" \"${TEMP_FILE}\" ${WIDTH} ${HEIGHT}") -
+gnuplot <(echo "set term x11; call \"${SCRIPTS_PATH}/ildump.gnu\" \"${TEMP_FILE}\" ${WIDTH} ${HEIGHT}") -
 
 #Remove temporary file
 echo "Removing temporary file ${TEMP_FILE}..."

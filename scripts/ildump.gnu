@@ -32,7 +32,7 @@ set size ratio -1
 set xlabel "x"
 set ylabel "y"
 
-plot "$0" index 0 with vectors nohead, "$0" index 1 with vectors nohead, "$0" index 2 with vectors nohead
+plot "$0" index 0 with vectors nohead lt 1, "$0" index 1 with vectors nohead lt 4, "$0" index 2 with vectors nohead lt 3
 
 #set ranges to auto for other plots
 set xrange [*:*]

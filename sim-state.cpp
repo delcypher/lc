@@ -274,10 +274,12 @@ int main(int n, char* argv[])
 		
 		
 		/* cooling algorithm
-		*  After every 30 m.c.s we increase iTk i.e. we decrease the "temperature".
-		*  Note this is equivilant to "Kimmet & Young"'s code but we have a different definition of monte carlo step
+		*  After every 280 m.c.s we increase iTk i.e. we decrease the "temperature".
+		*  Note this is NOT equivilant to "Kimmet & Young"'s code.
+		*
+		* It appears that this value needs to be scaled with the lattice dimensions. 280 appears to be adequate for up to 180x180
 		*/
-		if(( nSystem.param.mStep%30)==0 && nSystem.param.mStep!=0) 
+		if(( nSystem.param.mStep%280)==0 && nSystem.param.mStep!=0) 
 		{
 			nSystem.param.iTk *= 1.01;
 
