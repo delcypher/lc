@@ -254,7 +254,7 @@ do
 		if [ "$MODE" = "pbs" ]; then
 			#Build PBS/Torque script (we shouldn't indent the HEREDOC)
 			cat > "${BUILD_DIR}run.sh" <<HEREDOC
-#PBS -N ${JOB_PREFIX}-${theta1}-${theta2}-2
+#PBS -N ${JOB_PREFIX}-${tone}-${ttwo}-2
 #PBS -l cput=40:00:00
 
 cd "${BUILD_DIR}"
