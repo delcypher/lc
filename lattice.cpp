@@ -20,7 +20,12 @@
 using namespace std;
 
 //initialisation constructor
-Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false) , PARALLEL_DIRECTOR(1,0,0) , PERPENDICULAR_DIRECTOR(0,1,0), DUMMY_DIRECTOR(0,0,0)
+Lattice::Lattice(LatticeConfig configuration) : 
+constructedFromFile(false) , 
+PARALLEL_DIRECTOR(1,0,false) , 
+PERPENDICULAR_DIRECTOR(0,1,false), 
+DUMMY_DIRECTOR(0,0,0), 
+CORNER_DIRECTOR(1/sqrt(2),1/sqrt(2),false)
 {
 	//set initial badState
 	badState=false;
@@ -65,7 +70,12 @@ Lattice::Lattice(LatticeConfig configuration) : constructedFromFile(false) , PAR
 
 
 //constructor for savedStates
-Lattice::Lattice(const char* filepath) : constructedFromFile(true) , PARALLEL_DIRECTOR(1,0,0) , PERPENDICULAR_DIRECTOR(0,1,0), DUMMY_DIRECTOR(0,0,0)
+Lattice::Lattice(const char* filepath) : 
+constructedFromFile(true) , 
+PARALLEL_DIRECTOR(1,0,false) , 
+PERPENDICULAR_DIRECTOR(0,1,false), 
+DUMMY_DIRECTOR(0,0,false), 
+CORNER_DIRECTOR(1/sqrt(2),1/sqrt(2),false)
 {
 	/* Assume following ordering of binary blocks
 	*  <configuration><mNumNano><lattice><Nanoparticle_1_ID><Nanoparticle_1_data><Nanoparticle_2_ID><Nanoparticle_2_data>...
@@ -443,7 +453,7 @@ const DirectorElement* Lattice::getN(int xPos, int yPos) const
 	    (xPos==param.width && yPos==param.height && param.topBoundary != LatticeConfig::BOUNDARY_PERIODIC && param.rightBoundary != LatticeConfig::BOUNDARY_PERIODIC)
 	  )
 	{
-		return &(DUMMY_DIRECTOR);
+		return &(CORNER_DIRECTOR);
 	}
 
 

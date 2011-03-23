@@ -98,10 +98,19 @@
 			
 			/* This DUMMY_DIRECTOR exists so that a pointer to something that isn't
 			*  NULL is returned by getN() and setN() if an invalid point in the lattice
-			*  is requested. It should be initialised to {0,0,0} but access via setN()
-			*  can allow its value to be changed which the user "should" be warned about.
+			*  is requested.
+			*
 			*/
 			const DirectorElement DUMMY_DIRECTOR; 
+
+			/* The CORNER_DIRECTOR defines the director in the undefined corner of the lattice of size wxh.
+			*  It is used for points in the lattice (-1,-1), (-1,w), (h,-1) & (w,h) when NO periodic boundary conditions are present.
+			*
+			*  It can be set to any unit vector that won't cause a discontinuity in derivitives between vectors (1,0) or (0,1). That is
+			*  to say it should NOT be set to (1,0), (0,1) or (0,0). A value of (1/sqrt(2),1/sqrt(2)) is usually chosen.
+			*/
+			const DirectorElement CORNER_DIRECTOR;
+
 
 			//Helper function of calculateEnergyOfCell()
 			double calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign) const;
