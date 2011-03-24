@@ -4,6 +4,7 @@
 #SET prefix for PBS/torque jobs
 JOB_PREFIX="lc"
 #SET value for PI (20dp from Wolfram Alpha)
+TIME_CMD="/usr/bin/time -p"
 PI="3.14159265358979323846"
 
 if [ "$#" -lt 3 ]; then
@@ -213,8 +214,8 @@ cyanmessage "Target directory: ${TARGET_DIR}\n"
 for ((m=0; m<=10 ;m++))
 do
 	#Scale the width & height by m
-	width=$( calc-int " 30*(1 + ${m}*0.5) " )
-	height=$( calc-int " 30*(1 + ${m}*0.5) " )
+	width=$( calc-int " 50*(1 + ${m}*0.5) " )
+	height=$( calc-int " 50*(1 + ${m}*0.5) " )
 	beta=1
 	
 	if [ -z "${width}" ]; then
@@ -233,9 +234,9 @@ do
 	mcs=700000
 
 	#nanoparticle configuartion (force a:b ratio 3:1)
-	x=$( calc-int " 15*(1 + ${m}*0.5) -1 " )
-	y=$( calc-int " 15*(1 + ${m}*0.5) -1 " )
-	a=$( calc-int " 9*(1 + ${m}*0.5) " )
+	x=$( calc-int " 25*(1 + ${m}*0.5) -1 " )
+	y=$( calc-int " 25*(1 + ${m}*0.5) -1 " )
+	a=$( calc-int " 12*(1 + ${m}*0.5) " )
 	#enforce 3:1 ratio
 	b=$((a/3))
 	theta=$( calc-float "${PI}*0" )
@@ -277,7 +278,7 @@ cd "${BUILD_DIR}"
 #Add tools to work path
 source ${SCRIPTS_PATH}/path.sh
 #Start simulation putting stdout & stderr to a file so we can view it as we go
-time -p sim-state "${STATE_FILENAME}" ${mcs} > std.log 2>&1
+${TIME_CMD} sim-state "${STATE_FILENAME}" ${mcs} > std.log 2>&1
 HEREDOC
 
 		#Submit job (27626.calgary.phy.bris.ac.uk)
@@ -303,7 +304,7 @@ HEREDOC
 		cd "${BUILD_DIR}"
 
 		if [ "${DRY_RUN}" -eq 0 ]; then
-			time -p sim-state "${STATE_FILENAME}" ${mcs}
+			${TIME_CMD} sim-state "${STATE_FILENAME}" ${mcs}
 		else
 			echo "Doing dry run. Not running sim-state ${STATE_FILENAME} ${mcs}"	
 			#run true so that $? =0
