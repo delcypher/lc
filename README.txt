@@ -33,6 +33,8 @@ HOW TO COMPILE AND RUN:
    		       analytical solution.
    create-state      : Creates a binary state file.
    dump-state        : Reads a binary state file and sends to standard output data for use with the "ildump.gnu" GNUplot script.
+   dvid-state        : Director Variation In Direction. Loads a binary state file and outputs data for plotting angle of Director
+   		       in a particular direction.
    probe-state       : Displays information about a binary state file.
    sim-state         : Simulates the lattice specified by a binary state file with Monte Carlo parameters specified by the binary 
    		       state file in a free energy minimisation Monte Carlo simulation.
