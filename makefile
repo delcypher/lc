@@ -43,7 +43,7 @@ LIBRARIES = m
 	${CXX} -M ${CPPFLAGS} $< > $*.dep
 
 #Default target that makes various useful tools
-tools : sim-state create-state probe-state dump-state comp-energy-state comp-angle-state
+tools : sim-state create-state probe-state dump-state comp-energy-state comp-angle-state dvid-state
 ifeq (${runth},1)
 	 scripts/tests.sh
 endif
@@ -75,6 +75,9 @@ comp-energy-state: comp-energy-state.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} $^ -o $@
 
 comp-angle-state: comp-angle-state.o ${OBJECTS}
+	${CXX} ${CPPFLAGS} $^ -o $@
+
+dvid-state: dvid-state.o ${OBJECTS}
 	${CXX} ${CPPFLAGS} $^ -o $@
 
 #Test Harnesses must be defined between the "#TEST HARNESSES START" and "#TEST HARNESSES END" lines
