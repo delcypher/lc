@@ -75,8 +75,8 @@ int main(int n, char* argv[])
 	configuration.desAcceptRatio=0.5;
 
 	//create circular nanoparticle (x,y,a,b,theta,boundary))
-	EllipticalNanoparticle particle1 = EllipticalNanoparticle(50, 50, 18, 6, atoi(argv[2]), (EllipticalNanoparticle::boundary) atoi(argv[3]));
-	EllipticalNanoparticle particle2 = EllipticalNanoparticle(100, 50, 18, 6, atoi(argv[4]), (EllipticalNanoparticle::boundary) atoi(argv[5]));
+	EllipticalNanoparticle particle1 = EllipticalNanoparticle(50, 50, 18, 6, atof(argv[2]), (EllipticalNanoparticle::boundary) atoi(argv[3]));
+	EllipticalNanoparticle particle2 = EllipticalNanoparticle(100, 50, 18, 6, atof(argv[4]), (EllipticalNanoparticle::boundary) atoi(argv[5]));
 
 	if(particle1.inBadState())
 		badState=true;
