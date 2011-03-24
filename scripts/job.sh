@@ -6,6 +6,7 @@ JOB_PREFIX="lc"
 TIME="/usr/bin/time -p"
 #SET value for PI (20dp from Wolfram Alpha)
 PI="3.14159265358979323846"
+TMP_FILE="/tmp/tmp.$$"
 
 if [ "$#" -lt 3 ]; then
 	echo "Usage: $0 <mode> <target_directory> <log_file> [OPTION...]"
@@ -208,6 +209,12 @@ source ${SCRIPTS_PATH}/path.sh
 TARGET_DIR=$(cd "$TARGET_DIR"; echo "$PWD" )
 cyanmessage "Target directory: ${TARGET_DIR}\n"
 
+#make temporary file
+touch "${TMP_FILE}"
+if [ $? -ne 0 ]; then
+	echo "failed to write temporary file to ${TMP_FILE}"
+	exit 1;
+fi
 
 #note n = (1 + m*0.5) where n is scale factor
 #Add loop here
@@ -246,7 +253,13 @@ do
 		exit 1;
 	fi
 
-	for ((mcs=5000; mcs<=15000; mcs+=500))
+	#Create time log 
+	TIME_LOG="${TARGET_DIR}/${width}-${height}-times.log"
+	touch "${TIME_LOG}"
+
+	echo "#[Steps] [time(seconds)]" >> "${TIME_LOG}"
+
+	for ((mcs=1500; mcs<=10000; mcs+=500))
 	do
 		#Number of Monte Carlo steps to run through
 		
@@ -257,41 +270,15 @@ do
 		echo "# ${width}x${height} : ${mcs} steps , run ${run}" >> "${LOG_FILE}"
 				
 		if [ "$MODE" = "pbs" ]; then
-			#Build PBS/Torque script (we shouldn't indent the HEREDOC)
-			cat > "${BUILD_DIR}run.sh" <<HEREDOC
-#PBS -N ${JOB_PREFIX}-${width}-${height}
-#PBS -l cput=40:00:00
-
-cd "${BUILD_DIR}"
-#Add tools to work path
-source ${SCRIPTS_PATH}/path.sh
-#Start simulation timing
-${TIME} sim-state "${STATE_FILENAME}" ${mcs} 2>> "${LOG_FILE}"
-HEREDOC
-
-			#Submit job (27626.calgary.phy.bris.ac.uk)
-			if [ "${DRY_RUN}" -eq 0 ]; then
-				JOB_ID=$(qsub "${BUILD_DIR}run.sh" || (redmessage "Failed to start job!\n"; exit 1) )
-			else
-				echo "Doing dry run. Not running qsub ${BUILD_DIR}run.sh";
-				JOB_ID="DRY RUN"
-			fi
-
-			#write to log
-			if [ -z "$JOB_ID" ]; then
-				redmessage "Something went wrong... I didn't get a JOB_ID !\n"
-				echo "Failed to start job number ${m} in ${BUILD_DIR}\n" >> "${LOG_FILE}"
-			else
-				greenmessage "Running ${JOB_ID} in ${BUILD_DIR}\n"
-			fi
-
+			echo "pbs mode disabled in script!"
+			exit 1;
 		elif [ "$MODE" = "local" ]; then
 		
 			#Run job locally
 			cd "${BUILD_DIR}"
 
 			if [ "${DRY_RUN}" -eq 0 ]; then
-				${TIME} sim-state "${STATE_FILENAME}" ${mcs} 2>> "${LOG_FILE}"
+				${TIME} sim-state "${STATE_FILENAME}" ${mcs} 2> "${TMP_FILE}"
 			else
 				echo "Doing dry run. Not running sim-state ${STATE_FILENAME} ${mcs}"	
 				#run true so that $? =0
@@ -302,6 +289,15 @@ HEREDOC
 				redmessage "Job ${m} failed!\n"
 			else
 				greenmessage "Job ${m} finished"
+
+				#if job succeeded we will process time measurements
+				#sed command strips out number next to real time and shows only first line
+				timetorun=$( cat "${TMP_FILE}" | sed -n 's/real \([0-9.]\+\)/\1/g ; 1p')
+				if [ -z "$timetorun" ]; then
+					echo "Failed to get timing measurements!"
+					exit 1;
+				fi
+				echo "${mcs} ${timetorun}" >> "${TIME_LOG}"
 			fi
 
 			#change back to original directory
@@ -312,3 +308,5 @@ HEREDOC
 	done
 	
 done
+echo "Removing temporary file ${TMP_FILE}"
+rm ${TMP_FILE}
