@@ -79,8 +79,11 @@ int main(int n, char* argv[])
 	signal(SIGUSR1,&requestStateHandler);
 
 	//set precision for std::cout and std::cerr
-	cout.precision(STD_PRECISION);
-	cerr.precision(STD_PRECISION);
+	cout.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	cout.precision(STDOE_PRECISION);
+
+	cerr.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	cerr.precision(STDOE_PRECISION);
 	
 
 	//create lattice object
@@ -372,7 +375,6 @@ bool openFiles(bool overwrite)
 			CONING_FILE << " , " << ENERGY_FILE << endl;
 	}
 
-	//append file output as when we resume we'd like to keep the results of previous attempt.
 	annealF.open(ANNEALING_FILE, mode);
 	if(!annealF.is_open())
 	{
@@ -380,7 +382,8 @@ bool openFiles(bool overwrite)
 		return false;
 	}
 
-	coningF.precision(STD_PRECISION);
+	annealF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	annealF.precision(STDOE_PRECISION);
 
 	//append file output as when we resume we'd like to keep the results of previous attempt.
 	coningF.open(CONING_FILE, mode);
@@ -394,7 +397,8 @@ bool openFiles(bool overwrite)
 		return false;
 	}
 
-	coningF.precision(STD_PRECISION);
+	coningF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	coningF.precision(STDOE_PRECISION);
 
 	//truncate file (erase old contents) as we don't want old file contents
 	finalLF.open(FINAL_LATTICE_STATE_FILE, ios::trunc);
@@ -409,7 +413,8 @@ bool openFiles(bool overwrite)
 		return false;
 	}
 
-	finalLF.precision(STATE_SAVE_PRECISION);
+	finalLF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	finalLF.precision(FILE_PRECISION);
 
 	//append file output as when we resume we'd like to keep the results of previous attempt.
 	energyF.open(ENERGY_FILE, mode);
@@ -425,7 +430,8 @@ bool openFiles(bool overwrite)
 		return false;
 	}
 
-	energyF.precision(STATE_SAVE_PRECISION);
+	finalLF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	energyF.precision(FILE_PRECISION);
 
 	return true;
 }
@@ -445,7 +451,8 @@ void dumpViewableLatticeState()
 	ofstream requestDumpF (REQUEST_LATTICE_STATE_FILE, ios::trunc);
 	
 	//set precision
-	requestDumpF.precision(STATE_SAVE_PRECISION);
+	requestDumpF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	requestDumpF.precision(FILE_PRECISION);
 
 	if(!requestDumpF.is_open())
 	{

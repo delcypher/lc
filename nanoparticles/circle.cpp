@@ -7,7 +7,6 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "common.h"
 
 using namespace std;
 
@@ -140,7 +139,7 @@ std::string CircularNanoparticle::getDescription()
 {
 	std::stringstream description (std::stringstream::out);
 
-	description.precision(STD_PRECISION);
+	description.precision(STDOE_PRECISION);
 
 	description << "Circular Nanoparticle: Radius:" 
 		<< mRadius << 

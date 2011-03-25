@@ -99,8 +99,8 @@ int main(int n, char* argv[])
 	}
 
 	//Dump the current state of the lattice to standard output.
-	//nSystem.nDump(Lattice::BOUNDARY,stdout);
-	cout.precision(STATE_SAVE_PRECISION);
+	cout.setf(STREAM_FLOAT_FORMAT,std::ios::floatfield);
+	cout.precision(FILE_PRECISION);
 	nSystem.indexedNDump(std::cout);
 
 
