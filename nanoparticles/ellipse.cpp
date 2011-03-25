@@ -148,7 +148,7 @@ std::string EllipticalNanoparticle::getDescription()
 {
 	std::stringstream description(std::stringstream::out);
 	
-	description.precision(STD_PRECISION);
+	description.precision(STDOE_PRECISION);
 
 	description << "Elliptical Nanoparticle: " <<
 	"a:" <<
