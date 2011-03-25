@@ -37,8 +37,9 @@ int main(int n, char* argv[])
 	
 	bool badState=false;
 	//set cout precision
-	cout.precision(STD_PRECISION);
-	cout << "#Displaying values to " << STD_PRECISION << " decimal places" << endl;
+	cout.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	cout.precision(STDOE_PRECISION);
+	cout << "#Displaying values to " << STDOE_PRECISION << " decimal places" << endl;
 
 	LatticeConfig configuration;
 
