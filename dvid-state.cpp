@@ -15,16 +15,37 @@ using namespace std;
 
 int main(int n, char* argv[])
 {
-	if(n !=6)
+	if(n <6)
 	{
-		cerr << "Usage: " << argv[0] << " <filename> <x> <y> <angle> <max_r>" << endl <<
+		cerr << "Usage: " << argv[0] << " <filename> <x> <y> <angle> <max_r> [ -n ]" << endl <<
 		"<filename> - Binary state file to read" << endl <<
 		"<x> - The x co-ordinate of the origin of r (int)" << endl <<
 		"<y> - The y co-ordinate of the origin of r (int)" << endl <<
 		"<angle> - The angle r makes with x-axis in radians" << endl <<
-		"<max_r> - The maximum magnitude of r (float)" << endl;
+		"<max_r> - The maximum magnitude of r (float)" << endl << endl <<
+		"OPTIONAL:" << endl <<
+		"-n \n Do not provide plot data for cells that are marked as being a nanoparticle. This is NOT the default behaviour!" << endl;
 		exit(1);
 	}
+	
+	//Decide if we should be outputting plot data for nanoparticle cells
+	bool plotNanoparticles=true;
+	if(n==7)
+	{
+		if( strcmp(argv[6],"-n") == 0)
+		{
+			cout << "#Not providing plot data for nanoparticle cells" << endl;
+			plotNanoparticles=false;
+		}
+		else
+		{
+			cerr << "Error: " << argv[6] << " is not a supported argument!" << endl;
+			exit(1);
+		}
+	}
+
+	if(n>7)
+		cerr << "Warning: Ignoring extra arguments!" << endl;
 
 	char* loadfile = argv[1];
 
@@ -72,9 +93,25 @@ int main(int n, char* argv[])
 
 		//write file output
 		if( nSystem.getN(x,y)->isNanoparticle==true)
-			cout << "# (" << x << "," << y << ")  is a nanoparticle cell" << endl;
+		{
+			if(plotNanoparticles)
+			{
+				//write plot data as normal but inform that the cell is a nanoparticle cell
+				cout << "# (" << x << "," << y << ")  is a nanoparticle cell" << endl;
+				cout << absR << " " << angleInCell << " " << x << " " << y << endl;
+			}
+			else
+			{
+				//don't plot cell as it's a nanoparticle cell and it's been requested that we don't plot it!
+				cout << "#" << absR << " " << angleInCell << " " << x << " " << y << " NOT PLOTTING NANOPARTICLE CELL" << endl;
+			}
 
-		cout << absR << " " << angleInCell << " " << x << " " << y << endl;
+		}
+		else
+		{
+			//write plot data as normal
+			cout << absR << " " << angleInCell << " " << x << " " << y << endl;
+		}
 
 	}
 
