@@ -2,7 +2,6 @@
 
 #ifndef NANOPARTICLE
 	
-	#include "common.h"
 	#include "directorelement.h"
 	#include <string>
 	#include <cstring>
@@ -10,6 +9,7 @@
 	#include <iostream>
 	#include <cstdlib>
 	#include <fstream>
+	#include "common.h"
 	
 	class Nanoparticle
 	{

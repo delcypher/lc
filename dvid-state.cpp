@@ -15,16 +15,38 @@ using namespace std;
 
 int main(int n, char* argv[])
 {
-	if(n !=6)
+	if(n <7)
 	{
-		cerr << "Usage: " << argv[0] << " <filename> <x> <y> <angle> <max_r>" << endl <<
+		cerr << "Usage: " << argv[0] << " <filename> <x> <y> <angle> <max_r> <angular_restriction> [ -n ]" << endl <<
 		"<filename> - Binary state file to read" << endl <<
 		"<x> - The x co-ordinate of the origin of r (int)" << endl <<
 		"<y> - The y co-ordinate of the origin of r (int)" << endl <<
 		"<angle> - The angle r makes with x-axis in radians" << endl <<
-		"<max_r> - The maximum magnitude of r (float)" << endl;
+		"<max_r> - The maximum magnitude of r (float)" << endl << 
+		"<angular_restriction> - The angular restriction to apply on the lattice (enum Lattice::angularRegion)\n\n" <<
+		"OPTIONAL:" << endl <<
+		"-n \nDo not provide plot data for cells that are marked as being a nanoparticle. This is NOT the default behaviour!" << endl;
 		exit(1);
 	}
+	
+	//Decide if we should be outputting plot data for nanoparticle cells
+	bool plotNanoparticles=true;
+	if(n==8)
+	{
+		if( strcmp(argv[7],"-n") == 0)
+		{
+			cout << "#Not providing plot data for nanoparticle cells" << endl;
+			plotNanoparticles=false;
+		}
+		else
+		{
+			cerr << "Error: " << argv[7] << " is not a supported argument!" << endl;
+			exit(1);
+		}
+	}
+
+	if(n>8)
+		cerr << "Warning: Ignoring extra arguments!" << endl;
 
 	char* loadfile = argv[1];
 
@@ -32,20 +54,27 @@ int main(int n, char* argv[])
 	int yOrigin = atoi(argv[3]);
 	double angle = atof(argv[4]);
 	double maxR = atof(argv[5]);
+	Lattice::angularRegion angularRestriction = (Lattice::angularRegion) atoi(argv[6]);
 	int x=0;//the cell x co-ordinate of interest.
 	int y=0;//the cell y co-ordinate of interest.
 	double angleInCell=0;
 
 	//set cout precision
-	cout.precision(STD_PRECISION);
-	cout << "#Displaying values to " << STD_PRECISION << " decimal places" << endl;
+	cout.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	cout.precision(STDOE_PRECISION);
+	cout << "#Displaying values to " << STDOE_PRECISION << " decimal places" << endl;
 
 	//create lattice object from binary state file
 	Lattice nSystem = Lattice(loadfile);
+	
+	if(nSystem.inBadState())
+	{
+		cerr << "Warning Lattice is in BAD state!" << endl;
+	}
 
 	//restrict angular range
-	cerr << "Warning restricting angular range!" << endl;
-	nSystem.restrictAngularRange();
+	cout << "#Restricting angular range to " << angularRestriction << " (enum Lattice::angularRegion)" << endl;
+	nSystem.restrictAngularRange(angularRestriction);
 	
 	//display description
 	nSystem.dumpDescription(std::cout);
@@ -71,9 +100,25 @@ int main(int n, char* argv[])
 
 		//write file output
 		if( nSystem.getN(x,y)->isNanoparticle==true)
-			cout << "# (" << x << "," << y << ")  is a nanoparticle cell" << endl;
+		{
+			if(plotNanoparticles)
+			{
+				//write plot data as normal but inform that the cell is a nanoparticle cell
+				cout << "# (" << x << "," << y << ")  is a nanoparticle cell" << endl;
+				cout << absR << " " << angleInCell << " " << x << " " << y << endl;
+			}
+			else
+			{
+				//don't plot cell as it's a nanoparticle cell and it's been requested that we don't plot it!
+				cout << "#" << absR << " " << angleInCell << " " << x << " " << y << " NOT PLOTTING NANOPARTICLE CELL" << endl;
+			}
 
-		cout << absR << " " << angleInCell << " " << x << " " << y << endl;
+		}
+		else
+		{
+			//write plot data as normal
+			cout << absR << " " << angleInCell << " " << x << " " << y << endl;
+		}
 
 	}
 

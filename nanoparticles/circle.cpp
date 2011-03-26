@@ -7,7 +7,6 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "common.h"
 
 using namespace std;
 
@@ -107,10 +106,14 @@ bool CircularNanoparticle::processCell(int x, int y, enum writeMethods method, D
 					{
 						vectorAngle= atan2(-(x - mxPos),(y - myPos));
 					}
+					else if(mBoundary == PERPENDICULAR)
+					{
+						vectorAngle= atan2((y - myPos),(x - mxPos));
+					}
 					else
 					{
-						//assume perpendicular boundary wanted
-						vectorAngle= atan2((y - myPos),(x - mxPos));
+						cerr << "Error: boundary " << mBoundary << " (enum CircularNanoparticle::boundary) not supported!";
+						return false;
 					}
 
 					
@@ -123,7 +126,7 @@ bool CircularNanoparticle::processCell(int x, int y, enum writeMethods method, D
 			break;
 
 			default:
-				cerr << "Error: Unknown write method!" << endl;
+				cerr << "Error: Unknown write method " << method << " (enum Nanoparticle::writeMethods) " << endl;
 				return false;
 		}
 
@@ -140,12 +143,12 @@ std::string CircularNanoparticle::getDescription()
 {
 	std::stringstream description (std::stringstream::out);
 
-	description.precision(STD_PRECISION);
+	description.precision(STDOE_PRECISION);
 
 	description << "Circular Nanoparticle: Radius:" 
 		<< mRadius << 
-		", Boundary(enum):" <<
-		mBoundary <<
+		", Boundary:" <<
+		mBoundary << " (enum CircularNanoparticle::boundary)" <<
 		", Centre @ (" << 
 		mxPos << 
 		"," << 

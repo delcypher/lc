@@ -26,8 +26,9 @@ int main(int n, char* argv[])
 	double acceptibleError = atof(argv[3]);
 
 	//set cout precision
-	cout.precision(STD_PRECISION);
-	cout << "#Displaying values to " << STD_PRECISION << " decimal places" << endl;
+	cout.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	cout.precision(STDOE_PRECISION);
+	cout << "#Displaying values to " << STDOE_PRECISION << " decimal places" << endl;
 
 	//create lattice object from binary state file
 	Lattice nSystem = Lattice(loadfile);

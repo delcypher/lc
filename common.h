@@ -16,8 +16,18 @@
                 return (a%b + b)%b;
         }
 	
-	const int STATE_SAVE_PRECISION=50; //Precision (d.p) used for saving state to files.
-	const int STD_PRECISION=10; //Precision (d.p) used for outputing to std::cout and std::cerr
+	//Note the iostream dependency comes from need for the ios_base::fmtflags type
+	#include <iostream>
+	
+	/* Set the output format:
+	*  0 - significant figures
+	*  std::ios::fixed - Fixed decimal places
+	*  std::ios::scientific - Scientific notation
+	*/
+	const std::ios_base::fmtflags STREAM_FLOAT_FORMAT = std::ios::fixed;
+	
+	const int FILE_PRECISION=50; //Precision (d.p) used for saving state to files.
+	const int STDOE_PRECISION=10; //Precision (d.p) used for outputing to std::cout and std::cerr
 	#define COMMON_2D 1
 
 #endif
