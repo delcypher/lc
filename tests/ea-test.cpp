@@ -98,8 +98,7 @@ int main(int n, char* argv[])
 	test1 = nSystem.energyCompareWith(state, std::cout, acceptibleAE);
 	std::cout << endl;
 
-	//Need to restrict angular range to do next test
-	nSystem.restrictAngularRange();
+	//Need to restrict angular range to do next test (it is done internally)
 	test2 = nSystem.angleCompareWith(state, std::cout, acceptibleAE);
 
 	return (test1 && test2)?TH_SUCCESS:TH_FAIL;
