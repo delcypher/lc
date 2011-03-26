@@ -113,12 +113,16 @@ bool EllipticalNanoparticle::processCell(int x, int y, enum writeMethods method,
 						denominator = b*b*sin(theta)*fac2 + a*a*cos(theta)*fac1;
 						vectorAngle= atan2(numerator,denominator);
 					}
-					else
+					else if(mBoundary == PERPENDICULAR)
 					{
-						//assume perpendicular boundary wanted
 						numerator = b*b*sin(theta)*fac2 + a*a*cos(theta)*fac1;
 						denominator = b*b*cos(theta)*fac2 - a*a*sin(theta)*fac1;
 						vectorAngle= atan2(numerator,denominator);
+					}
+					else
+					{
+						cerr << "Error: boundary " << mBoundary << " (enum EllipticalNanoparticle::boundary) not supported!";
+						return false;
 					}
 
 					
@@ -157,7 +161,7 @@ std::string EllipticalNanoparticle::getDescription()
 	b <<
 	", Rotation angle w.r.t x-axis (Radians):" <<
 	theta <<
-	", Boundary(enum):" << mBoundary <<
+	", Boundary:" << mBoundary << " (enum EllipticalNanoparticle::boundary)" <<
 	", Centre @ (" <<
 	mxPos <<
 	"," <<
