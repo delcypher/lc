@@ -189,7 +189,7 @@ int main(int n, char* argv[])
 		//output progress as a percentage
 		if(nSystem.param.mStep % percentStep ==0) 
 		{
-			cout  << "\r" << ( (float) (nSystem.param.mStep)/percentStep) << "%  ";
+			cout  << "\r" << ( (int) (nSystem.param.mStep)/percentStep) << "%  ";
 			cout.flush();
 		}
 
