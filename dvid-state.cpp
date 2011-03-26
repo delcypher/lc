@@ -15,36 +15,37 @@ using namespace std;
 
 int main(int n, char* argv[])
 {
-	if(n <6)
+	if(n <7)
 	{
-		cerr << "Usage: " << argv[0] << " <filename> <x> <y> <angle> <max_r> [ -n ]" << endl <<
+		cerr << "Usage: " << argv[0] << " <filename> <x> <y> <angle> <max_r> <angular_restriction> [ -n ]" << endl <<
 		"<filename> - Binary state file to read" << endl <<
 		"<x> - The x co-ordinate of the origin of r (int)" << endl <<
 		"<y> - The y co-ordinate of the origin of r (int)" << endl <<
 		"<angle> - The angle r makes with x-axis in radians" << endl <<
-		"<max_r> - The maximum magnitude of r (float)" << endl << endl <<
+		"<max_r> - The maximum magnitude of r (float)" << endl << 
+		"<angular_restriction> - The angular restriction to apply on the lattice (enum Lattice::angularRegion)\n\n" <<
 		"OPTIONAL:" << endl <<
-		"-n \n Do not provide plot data for cells that are marked as being a nanoparticle. This is NOT the default behaviour!" << endl;
+		"-n \nDo not provide plot data for cells that are marked as being a nanoparticle. This is NOT the default behaviour!" << endl;
 		exit(1);
 	}
 	
 	//Decide if we should be outputting plot data for nanoparticle cells
 	bool plotNanoparticles=true;
-	if(n==7)
+	if(n==8)
 	{
-		if( strcmp(argv[6],"-n") == 0)
+		if( strcmp(argv[7],"-n") == 0)
 		{
 			cout << "#Not providing plot data for nanoparticle cells" << endl;
 			plotNanoparticles=false;
 		}
 		else
 		{
-			cerr << "Error: " << argv[6] << " is not a supported argument!" << endl;
+			cerr << "Error: " << argv[7] << " is not a supported argument!" << endl;
 			exit(1);
 		}
 	}
 
-	if(n>7)
+	if(n>8)
 		cerr << "Warning: Ignoring extra arguments!" << endl;
 
 	char* loadfile = argv[1];
@@ -53,6 +54,7 @@ int main(int n, char* argv[])
 	int yOrigin = atoi(argv[3]);
 	double angle = atof(argv[4]);
 	double maxR = atof(argv[5]);
+	Lattice::angularRegion angularRestriction = (Lattice::angularRegion) atoi(argv[6]);
 	int x=0;//the cell x co-ordinate of interest.
 	int y=0;//the cell y co-ordinate of interest.
 	double angleInCell=0;
@@ -64,10 +66,15 @@ int main(int n, char* argv[])
 
 	//create lattice object from binary state file
 	Lattice nSystem = Lattice(loadfile);
+	
+	if(nSystem.inBadState())
+	{
+		cerr << "Warning Lattice is in BAD state!" << endl;
+	}
 
 	//restrict angular range
-	cerr << "Warning restricting angular range!" << endl;
-	nSystem.restrictAngularRange();
+	cout << "#Restricting angular range to " << angularRestriction << " (enum Lattice::angularRegion)" << endl;
+	nSystem.restrictAngularRange(angularRestriction);
 	
 	//display description
 	nSystem.dumpDescription(std::cout);

@@ -1022,21 +1022,50 @@ int Lattice::getArea() const
 	return (param.width)*(param.height);
 }
 
-void Lattice::restrictAngularRange()
+void Lattice::restrictAngularRange(enum Lattice::angularRegion region)
 {
-	for(int index=0; index < (param.width)*(param.height) ; index++)
+	switch(region)
 	{
-		/* for lattice[index].y == -1 we implicitly assume lattice[index].x=0 but this
-		*  isn't always true due rounding errors where the x component is almost 0 but not quite.
-		*/
-		if( (lattice[index].x < 0) ||  (lattice[index].y == -1 ) )
-		{
-			//flip components
-			lattice[index].x *= -1;
-			lattice[index].y *= -1;
-		}
+		case REGION_RIGHT :
+			
+			//Restrict angular range to (-PI/2,PI/2]
+			for(int index=0; index < (param.width)*(param.height) ; index++)
+			{
+				/* for lattice[index].y == -1 we implicitly assume lattice[index].x=0 but this
+				*  isn't always true due rounding errors where the x component is almost 0 but not quite.
+				*/
+				if( (lattice[index].x < 0) ||  (lattice[index].y == -1 ) )
+				{
+					//flip components
+					lattice[index].x *= -1;
+					lattice[index].y *= -1;
+				}
 
-		
+				
+			}
+		break;
+
+		case REGION_TOP :
+			//Restrict angular range to [0,PI)
+			for(int index=0; index < (param.width)*(param.height) ; index++)
+			{
+				/* for lattice[index].x == -1 we implicitly assume lattice[index].y=0 but this
+				*  isn't always true due rounding errors where the x component is almost 0 but not quite.
+				*/
+				if( (lattice[index].y < 0) ||  (lattice[index].x == -1 ) )
+				{
+					//flip components
+					lattice[index].x *= -1;
+					lattice[index].y *= -1;
+				}
+
+				
+			}
+		break;
+
+		default :
+			cerr << "Error: Angular restriction region " << region << " (enum) not supported!" << endl;
+
 	}
 }
 
@@ -1178,7 +1207,7 @@ bool Lattice::energyCompareWith(enum LatticeConfig::latticeState state, std::ost
 
 }
 
-bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError) const
+bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError)
 {
 	bool match=true;
 
@@ -1200,7 +1229,10 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 		"Standard deviation of Angles (radians): " << calculateAngularStdDev() << endl;
 	
 	double analyticalAngle=0;
-	
+
+	//restrict angular region to (-PI/2,PI/2]
+	restrictAngularRange(REGION_RIGHT);
+
 	// Do angular comparsion
 	double angularAE=0;
 	stream << "Doing angular comparision..." << endl;

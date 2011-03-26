@@ -33,8 +33,6 @@ int main(int n, char* argv[])
 	//create lattice object from binary state file
 	Lattice nSystem = Lattice(loadfile);
 	
-	//Need to restrict angles first before doing comparison
-	nSystem.restrictAngularRange();
 	//Do comparision
 	nSystem.angleCompareWith(state,std::cout,acceptibleError);
 
