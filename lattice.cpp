@@ -184,7 +184,7 @@ CORNER_DIRECTOR(1/sqrt(2),1/sqrt(2),false)
 					break;
 
 				default:
-					cerr << "Error: Lattice constructor does not support nanoparticle of type " << id << " (enum) " << endl;
+					cerr << "Error: Lattice constructor does not support nanoparticle of type " << id << " (enum Nanoparticle::types) " << endl;
 					badState=true;
 			}	
 			
@@ -546,6 +546,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 
 					default:
 						//if we aren't told what to do we will set all zero vectors!
+						cerr << "Error: Intial Lattice state " << param.initialState << " (enum LatticeConfig::latticeState) not supported!" << endl;
 						lattice[index].x=0;
 						lattice[index].y=0;
 						badState=true;
@@ -666,11 +667,11 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Lattice Width:" << param.width << "\n" <<
 		"#Lattice Height:" << param.height << "\n" <<
 		"#Beta:" << param.beta << "\n" <<
-		"#Top Boundary (enum):" << param.topBoundary << "\n" <<
-		"#Bottom Boundary (enum):" << param.bottomBoundary << "\n" <<
-		"#Left Boundary (enum):" << param.leftBoundary << "\n" <<
-		"#Right Boundary (enum):" << param.rightBoundary << "\n" <<
-		"#Initial State (enum):" << param.initialState << "\n" <<
+		"#Top Boundary (enum LatticeConfig::latticeBoundary):" << param.topBoundary << "\n" <<
+		"#Bottom Boundary (enum LatticeConfig::latticeBoundary):" << param.bottomBoundary << "\n" <<
+		"#Left Boundary (enum LatticeConfig::latticeBoundary):" << param.leftBoundary << "\n" <<
+		"#Right Boundary (enum LatticeConfig::latticeBoundary):" << param.rightBoundary << "\n" <<
+		"#Initial State (enum LatticeConfig::latticeState):" << param.initialState << "\n" <<
 		"#Number of Nanoparticles:" << mNumNano << "\n" <<
 		"#State:" << (badState?"Bad":"Good") << "\n" <<
 		"#Monte Carlo parameters:" << "\n\n" <<
@@ -1064,7 +1065,7 @@ void Lattice::restrictAngularRange(enum Lattice::angularRegion region)
 		break;
 
 		default :
-			cerr << "Error: Angular restriction region " << region << " (enum) not supported!" << endl;
+			cerr << "Error: Angular restriction region " << region << " (enum Lattice::anuglarRegion) not supported!" << endl;
 
 	}
 }
@@ -1125,7 +1126,7 @@ bool Lattice::energyCompareWith(enum LatticeConfig::latticeState state, std::ost
 		return false;
 	}
 		
-	stream << "Comparing current state energy to state " << state << " (enum)..." << endl <<
+	stream << "Comparing current state energy to state " << state << " (enum LatticeConfig::latticeState)..." << endl <<
 		"Using absolute error : " << acceptibleError << endl;
 
 	switch(state)
@@ -1156,7 +1157,7 @@ bool Lattice::energyCompareWith(enum LatticeConfig::latticeState state, std::ost
 		break;
 
 		default :	
-			stream << "comparision to state " << state << " (enum) not supported!" << endl;
+			stream << "comparision to state " << state << " (enum LatticeConfig::latticeState) not supported!" << endl;
 			return false;
 	}
 
@@ -1223,7 +1224,7 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 		return false;
 	}
 		
-	stream << "Comparing current state angular distribution to state " << state << " (enum)..." << endl <<
+	stream << "Comparing current state angular distribution to state " << state << " (enum LatticeConfig::latticeState)..." << endl <<
 		"Using absolute error : " << acceptibleError << endl <<
 		"Average Angle (radians): " << calculateAverageAngle() << endl <<
 		"Standard deviation of Angles (radians): " << calculateAngularStdDev() << endl;
@@ -1264,7 +1265,7 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 				break;
 
 				default:
-					cerr << "State " << state << " (enum) not supported!" << endl;
+					cerr << "State " << state << " (enum LatticeConfig::latticeState) not supported!" << endl;
 					return false;
 			}
 
