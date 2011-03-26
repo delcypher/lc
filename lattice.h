@@ -119,6 +119,26 @@
 		public:
 			//Lattice Parameters
 			LatticeConfig param;
+			
+			/* This enum defines different angular restriction regions for the restrictAngularRange() method.
+			*    y
+			* TL | TR
+			* ___|___x    The four quardrants : TL (Top left), BL (Bottom Left), TR (Top Right) & BR (Bottom Right)
+			*    |    
+			* BL | BR
+			*
+			* These quadrants are used to define two different angular restriction regions
+			*
+			* REGION_RIGHT : Restrict DirectorElements to be in TR & BR . Angular restriction (-PI/2,PI/2] w.r.t to x-axis
+			* REGION_TOP : Restrict DirectorElements to be in TL & TR . Angular restriction [0,PI) w.r.t to x-aix
+			*
+			*/
+			enum angularRegion
+			{
+				REGION_RIGHT,
+				REGION_TOP
+
+			};
 
 			/* This initialises the lattice from a LatticeConfig struct
 			* 
@@ -217,13 +237,13 @@
 			//Calculate the area of the lattice (excluding boundaries)
 			int getArea() const;
 			
-			/* Modify DirectorElements so that they are in an angular range (-PI/2,PI/2] to the x-axis
-			 * (anti-clockwise rotation).
+			/* Modify DirectorElements so that they are in an angular range defined by one of the enums in the 
+			 * Lattice::angularRegion enum.
 			 *
 			 * This is done by flipping DirectorElements by PI radians (preserving uniaxial properties).
 			 * This is need for calculateAverageAngle() , calculateAngularStdDev() and angleCompareWith()
 			 */
-			void restrictAngularRange();
+			void restrictAngularRange(enum Lattice::angularRegion region);
 
 			/* Calculate average orientation of the DirectorElements in the lattice as an angle
 			*  in radians w.r.t to x-axis (anti-clockwise).
@@ -285,7 +305,9 @@
 			*/
 			bool energyCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError) const;
 
-			/* NOTE: restrictAngularRange() should be called first!  
+			/* NOTE: This method is NOT const because it calls restrictAngularRange(REGION_RIGHT) in order to sort out 
+			*        DirectorElement orientation so we can do an meaningful comparision.
+			*
 			* Output angular comparision data between this lattice and a lattice in an analytical minimum
 			*  energy state specified by "state". Note supported states are the following:
 			*
@@ -325,7 +347,7 @@
 			*  1. The angular orientation of each of cell is compared to the expected angular orientation for the
 			*     specified ( "state" ) analytical minimum energy state. 
 			*/
-			bool angleCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError) const;
+			bool angleCompareWith(enum LatticeConfig::latticeState state, std::ostream& stream, double acceptibleError);
 
 	};
 
