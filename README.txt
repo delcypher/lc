@@ -225,11 +225,10 @@ annealing.gnu - This is a GNUplot script to show the output of the sim-state pro
 coning.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable CONING_FILE. It plots "Acceptance angle" aginst monte carlo step.
 energy.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ENERGY_FILE. It plots "Free Energy" against monte carlo step.
 ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
+job.sh - This is a script to build a set of binary state files in different folders and either run them locally or submit them to a PBS/torque queing system.
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
 path.sh - This is a bash shell script to add the build directory to the PATH variable so you can run the executables from any directory. To use it run ``source path.sh'' .
-single.sh - This is a bash shell script to build and run a set of binary state and then run them on a single machine.
 tests.sh - This is a script to automatically build and execute test harnesses in the make file.
-job.sh - This is a script to build a set of binary state files in different folders and either run them locally or submit them to a PBS/torque queing system.
 vpn.sh - This is a bash shell script used to setup a connection to the UoB VPN if pptpclient has already been configured on a GNU/Linux system with ppsetup.
 view-state.sh - This script allows a binary state file to quickly viewed by automating the calling of ildump.gnu
 
