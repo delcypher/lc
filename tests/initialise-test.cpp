@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <cstdlib>
-#include "randgen.h"
 #include "lattice.h"
 #include "exitcodes.h"
 
