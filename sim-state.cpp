@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#include "randgen.h"
+#include "mt19937ar.h"
 #include "lattice.h"
 #include <signal.h>
 #include <ctime>
@@ -122,7 +122,7 @@ int main(int n, char* argv[])
 	double energy = nSystem.calculateTotalEnergy();
 
 	//set seed for random number generator
-	setSeed();
+	initMTSeed();
 
 	DirectorElement *temp=NULL;
 	int x, y; 
@@ -201,15 +201,15 @@ int main(int n, char* argv[])
 			do
 			{
 				//pick "random" (x,y) co-ordinate in range ( [0, lattice width -1] , [0, lattice height -1] )
-				x = intRnd() % (nSystem.param.width);
-				y = intRnd() % (nSystem.param.height);
+				x = genrand_int32() % (nSystem.param.width);
+				y = genrand_int32() % (nSystem.param.height);
 				
 				temp = nSystem.setN(x,y);
 			} while (temp->isNanoparticle ==true);
 			
 			
 			//pick a random angle between [- nSystem.param.aAngle , nSystem.param.aAngle]
-			angle = (2*rnd()-1)*nSystem.param.aAngle; 
+			angle = (2*genrand_real1()  -1)*nSystem.param.aAngle; 
 
 			//Make a copy of the DirectorElement n_x & n_y values so we can set temp back to its original value if we reject a change
 			oldNx = temp->x;
@@ -237,7 +237,8 @@ int main(int n, char* argv[])
 
 			if(dE>0) // if the energy increases, determine if change is accepted of rejected
 			{
-				rollOfTheDice = rnd();
+				//pick a random number in range [0,1]
+				rollOfTheDice = genrand_real1();
 				if(rollOfTheDice > exp(-dE*nSystem.param.iTk)) 
 				{
 					// reject change
