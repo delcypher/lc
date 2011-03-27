@@ -31,7 +31,7 @@ endif
 CPPFLAGS = ${DEBUG_OR_OPT} ${PROFILE_OPT} -Wall -I$(shell pwd)
 
 #Project object files
-OBJECTS =  directorelement.o lattice.o randgen.o circle.o ellipse.o 
+OBJECTS =  directorelement.o lattice.o mt19937ar.o circle.o ellipse.o 
 
 #Project libraries to use (space seperated)
 LIBRARIES = m 
@@ -101,7 +101,7 @@ initialise-test: initialise-test.o ${OBJECTS}
 #ARGS 30 30 2
 #ARGS 30 30 3
 
-uniform-rnd: uniform-rnd.o randgen.o
+uniform-rnd: uniform-rnd.o mt19937ar.o
 	${CXX} $^ ${CPPFLAGS} -o $@
 
 rotate-director-test: rotate-director-test.o ${OBJECTS}
