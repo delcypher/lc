@@ -19,6 +19,7 @@ set grid mxtics mytics noxtics noytics
 
 #set axis ranges
 set xrange [0:1]
+set yrange [0:*]
 
 set xlabel "Pseudorandom number"
 set ylabel "Count"

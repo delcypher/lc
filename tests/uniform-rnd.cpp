@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "exitcodes.h"
-#include "randgen.h"
+#include "mt19937ar.h"
 #include <cmath>
 
 using namespace std;
@@ -51,7 +51,7 @@ int main(int n, char* argv[])
 	}
 	
 	//set the random seed
-	setSeed();
+	initMTSeed();
 
 	//calculate bin width
 	binWidth = (double) 1/noOfBins;
@@ -67,8 +67,7 @@ int main(int n, char* argv[])
 	//loop over numbers to generate
 	for(int counter=1; counter <= noToGenerate; counter++)
 	{
-		randomNumber = rnd();
-		//randomNumber = (double) rand() / RAND_MAX ;
+		randomNumber = genrand_real1();
 		
 		//loop over bins to see which one to put random number in.
 		for(binNo=0; binNo < noOfBins; binNo++)

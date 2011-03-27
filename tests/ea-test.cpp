@@ -17,7 +17,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#include "randgen.h"
 #include "lattice.h"
 #include "exitcodes.h"
 
