@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cmath>
-#include "randgen.h"
+#include "mt19937ar.h"
 #include "lattice.h"
 #include <cstring>
 #include <fstream>
@@ -478,7 +478,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 	param.initialState = initialState;
 
 	//we should reset the random seed so we don't generate the set of pseudo random numbers every time	
-	setSeed();
+	initMTSeed();
 	
 	/* Loop through lattice array (lattice[index]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
@@ -503,7 +503,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::RANDOM:
 					{
 						//generate a random angle between 0 & 2*PI radians
-						angle = 2*PI*rnd();
+						angle = 2*PI*genrand_real1();
 						lattice[index].setAngle(angle);
 					}
 
