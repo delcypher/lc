@@ -20,7 +20,6 @@ using namespace std;
 *  ENERGY_FILE - Contains energy and monte carlo step as the simulation progresses.
 *  FINAL_LATTICE_BINARY_STATE_FILE - Contains the final binary state of the lattice that can be loaded using the Lattice::Lattice(const char* filepath)
 					constructor.
-*  FINAL_LATTICE_STATE_FILE - Contains the final state of lattice from Lattice::indexedNDump() for when the simulation end.
 *  REQUEST_LATTICE_STATE_FILE - Contains the current state of the lattice from Lattice::indexedNDump() at any point
 *                               in the simulation. This is written to when SIGUSR1 is sent to this program or when it is
 * 				terminated by SIGTERM or SIGINT.
@@ -30,7 +29,6 @@ using namespace std;
 const char ANNEALING_FILE[] = "annealing.dump";
 const char CONING_FILE[] = "coning.dump";
 const char ENERGY_FILE[] = "energy.dump";
-const char FINAL_LATTICE_STATE_FILE[] = "final-lattice-state.dump";
 const char FINAL_LATTICE_BINARY_STATE_FILE[] = "final-lattice-state.bin";
 const char REQUEST_LATTICE_STATE_FILE[] = "current-lattice-state.dump";
 const char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bin";
@@ -45,7 +43,8 @@ bool openFiles(bool overwrite);
 
 bool requestExit=false;
 Lattice* nSystemp;
-ofstream annealF, coningF, finalLF, energyF;
+ofstream annealF, coningF, energyF;
+ifstream finalLF;
 time_t rawTime;
 
 
@@ -136,11 +135,12 @@ int main(int n, char* argv[])
 		cout << "#Using Old seed:" << nSystem.param.randSeed << endl;
 	}
 
+	//set the random number generator seed
+	init_genrand(nSystem.param.randSeed);
+
 	//Dump the initial state of the lattice to standard output
 	nSystem.dumpDescription(std::cout);
 
-	//set the random number generator seed
-	init_genrand(nSystem.param.randSeed);
 
 	DirectorElement *temp=NULL;
 	int x, y; 
@@ -326,15 +326,18 @@ int main(int n, char* argv[])
 	cout << "\r100%  " << endl;	
 	cout << "#Finished simulation doing " << loopMax << " monte carlo steps." << endl;
 	//output final viewable lattice state
-	cout << "#Dumping final viewable lattice to " << FINAL_LATTICE_STATE_FILE << "..."; cout.flush();
-	nSystem.indexedNDump(finalLF);
-	cout << "done" << endl;
 
 	//output state to binary file which can be used to resume simulation (if loopMax is modified)
 	cout << "#Saving binary state to file " << FINAL_LATTICE_BINARY_STATE_FILE << "...";
 	cout.flush();
-	nSystemp->saveState(FINAL_LATTICE_BINARY_STATE_FILE);
-	cout << "done" << endl;
+	if( nSystemp->saveState(FINAL_LATTICE_BINARY_STATE_FILE) )
+	{
+		cout << "done" << endl;
+	}
+	else
+	{
+		cout << "failed" << endl;
+	}
 
 	closeFiles();
 
@@ -419,21 +422,6 @@ bool openFiles(bool overwrite)
 	coningF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
 	coningF.precision(STDOE_PRECISION);
 
-	//truncate file (erase old contents) as we don't want old file contents
-	finalLF.open(FINAL_LATTICE_STATE_FILE, ios::trunc);
-	if(!finalLF.is_open())
-	{
-		cerr << "Error: couldn't open open ofstream on file " << FINAL_LATTICE_STATE_FILE << endl;
-
-		//close fstreams
-		annealF.close();
-		coningF.close();
-
-		return false;
-	}
-
-	finalLF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
-	finalLF.precision(FILE_PRECISION);
 
 	//append file output as when we resume we'd like to keep the results of previous attempt.
 	energyF.open(ENERGY_FILE, mode);
@@ -449,7 +437,7 @@ bool openFiles(bool overwrite)
 		return false;
 	}
 
-	finalLF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	energyF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
 	energyF.precision(FILE_PRECISION);
 
 	return true;
@@ -458,7 +446,6 @@ bool openFiles(bool overwrite)
 void closeFiles()
 {
 	coningF.close();
-	finalLF.close();
 	energyF.close();
 	annealF.close();
 }
