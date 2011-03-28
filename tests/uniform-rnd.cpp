@@ -6,6 +6,7 @@
 #include "exitcodes.h"
 #include "mt19937ar.h"
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
@@ -50,8 +51,8 @@ int main(int n, char* argv[])
 		exit(TH_BAD_ARGUMENT);
 	}
 	
-	//set the random seed
-	initMTSeed();
+	//set the random seed (use UNIX system time)
+	init_genrand(time(NULL));
 
 	//calculate bin width
 	binWidth = (double) 1/noOfBins;
