@@ -77,6 +77,7 @@
 		int acceptCounter, rejectCounter; //Counters used for coning algorithm
 		double aAngle; //The current acceptance angle
 		double desAcceptRatio; //The Desired acceptance ratio
+		unsigned long randSeed; //The seed used for the random number generator. You probably shouldn't set this as sim-state will overwrite this value when it runs for the first time.
  
 
 	} LatticeConfig;
