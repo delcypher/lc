@@ -40,6 +40,8 @@ void requestStateHandler(int sig);
 void dumpViewableLatticeState();
 void closeFiles();
 bool openFiles(bool overwrite);
+void handleArgs(int n, char* argv[]);
+void usageMessage();
 
 bool requestExit=false;
 Lattice* nSystemp;
@@ -47,30 +49,23 @@ ofstream annealF, coningF, energyF;
 ifstream finalLF;
 time_t rawTime;
 
+char* stateFile;
+unsigned long loopMax;
+unsigned long annealStep;
+unsigned long seedToUse;
 
 
 int main(int n, char* argv[])
 {
-	if(n!=3)
-	{
-		cerr << "Usage: " << argv[0] << " <filename> <mcs>" << endl <<
-		"<filename> - Binary state file to load for simulation." << endl <<
-		"<mcs> - Number of monte carlo steps to run simulation for." << endl;
-		exit(1);
-	}
-	
-	char* stateFile = argv[1];
-	unsigned long loopMax = 0;
+	//set the random seed we use to UNIX time, user can overwrite this with a command line argument
+	seedToUse= time(NULL);
 
-	if(atoi(argv[2]) < 1)
-	{
-		cerr << "Error: Number of monte carlo steps must be 1 or more" << endl;
-		exit(1);
-	}
-	else
-	{
-		loopMax = atoi(argv[2]);
-	}
+	//set the default anneal step that the user can overwrite with a command line argument
+	annealStep=280;
+
+	//handle command line arguments
+	handleArgs(n,argv);
+	
 
 	//add signal handlers
 	signal(SIGINT,&setExit);
@@ -124,9 +119,8 @@ int main(int n, char* argv[])
 	//set seed for random number generator
 	if(nSystem.param.mStep == 0)
 	{
-		//use UNIX system time as seed.
-		nSystem.param.randSeed = time(NULL);
-		cout << "#Generating new seed:" << nSystem.param.randSeed << endl;
+		//use the seed specified (either UNIX time or user specified seed)
+		nSystem.param.randSeed = seedToUse;
 
 	}
 	else
@@ -137,6 +131,9 @@ int main(int n, char* argv[])
 
 	//set the random number generator seed
 	init_genrand(nSystem.param.randSeed);
+
+	//Tell user how often we cool
+	cout << "#Annealing every " << annealStep << " monte carlo steps" << endl;
 
 	//Dump the initial state of the lattice to standard output
 	nSystem.dumpDescription(std::cout);
@@ -301,7 +298,7 @@ int main(int n, char* argv[])
 		*
 		* It appears that this value needs to be scaled with the lattice dimensions. 280 appears to be adequate for up to 180x180
 		*/
-		if(( nSystem.param.mStep%280)==0 && nSystem.param.mStep!=0) 
+		if(( nSystem.param.mStep % annealStep)==0 && nSystem.param.mStep!=0) 
 		{
 			nSystem.param.iTk *= 1.01;
 
@@ -474,4 +471,113 @@ void dumpViewableLatticeState()
 	requestDumpF.close();
 	cout << "done" << endl;
 
+}
+
+void usageMessage()
+{
+		cerr << "Usage: sim-state <filename> <mcs> [ options ]" << endl <<
+		"<filename> - Binary state file to load for simulation." << endl <<
+		"<mcs> - Number of monte carlo steps to run simulation for.\n\n" <<
+		"[options]" << endl <<
+		"--rand-seed <seed>\n" <<
+		"Set the random number generator seed <seed> (where <seed> is a positive integer) to be used in simulator. This is option is ignored if the simulation is being resumed.\n\n" <<
+		"--anneal-step <annealstep>\n" <<
+		"Lower \"Temperature\" in simulator every <annealstep> monte carlo steps where <annealstep> is an integer.\n" << endl;
+		exit(1);
+
+}
+
+void handleArgs(int n, char* argv[])
+{
+	if(n<3)
+	{
+		usageMessage();
+	}
+
+	//read mandatory options
+	stateFile = argv[1];
+
+	if(atoi(argv[2]) < 1)
+	{
+		cerr << "Error: Number of monte carlo steps must be 1 or more.\n\n" << endl;
+		usageMessage();
+	}
+	else
+	{
+		loopMax = atoi(argv[2]);
+	}	
+
+	//process optional arguments
+	if(n>3)
+	{
+		//Set argument index to first optional argument
+		int argIndex=3;
+		while ( argIndex < n)
+		{
+			
+			if( strcmp(argv[argIndex],"--rand-seed") ==0 )
+			{
+				
+				//move to next argument index (even if it doesn't exist!)
+				argIndex++;
+
+				//check we have another argument to process
+				if( (n -1) < argIndex)
+				{
+					cerr << "Error: Expected random seed value <seed> (int).\n\n" << endl;
+					usageMessage();
+				}
+
+				//get seed value
+				if( atoi(argv[argIndex]) < 0)
+				{
+					cerr << "Error: Random seed <seed> must be >= 0\n\n" << endl;
+					usageMessage();
+				}
+				else
+				{
+					seedToUse = atoi(argv[argIndex]);
+					cout << "#Overwriting seed with seed:" << seedToUse << endl;
+				}
+
+				argIndex++;
+				continue;
+			}
+
+			if( strcmp(argv[argIndex],"--anneal-step")  ==0)
+			{
+				//move to next argument index (even if it doesn't exist!)
+				argIndex++;
+
+				//check we have another argument to process
+				if( (n -1) < argIndex)
+				{
+					cerr << "Error: Expected annealing step <annealstep> (int)\n\n" << endl;
+					usageMessage();
+				}
+
+
+				if(atoi(argv[argIndex]) <= 0)
+				{
+					cerr << "Error: Anealing step <annealstep> must be > 0\n\n" << endl;
+					usageMessage();
+				}
+				else
+				{
+					annealStep = atoi(argv[argIndex]);
+				}
+
+				argIndex++;
+				continue;
+
+			}
+
+			//If we get this far the argument hasn't been handled so it isn't a valid argument!
+			cerr << "Argument " << argv[argIndex] << " not recongised.\n\n" << endl;
+			usageMessage();
+
+		}
+
+
+	}
 }
