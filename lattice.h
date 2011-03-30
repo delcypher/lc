@@ -330,8 +330,8 @@
 			*  PARALLEL_X : theta = 0
 			*  PARALLEL_Y : theta = PI/2
 			*  K1_EQUAL_K3: theta = (PI/2)(y + 1)/(height +1)
-			*  K1_DOMINANT: theta = (PI/2) - arccos( (y + 1)/(height +1) )
-			*  K3_DOMINANT: theta = (PI/2) - arcsin( 1 - (y + 1)/(height +1) )
+			*  K1_DOMINANT: theta = arcsin( (y + 1)/(height +1) )
+			*  K3_DOMINANT: theta = arccos( 1 - (y + 1)/(height +1) )
 			*
 			*
 			*  This information is outputted to an std::ostream "stream".

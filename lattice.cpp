@@ -536,7 +536,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K1_DOMINANT:
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
-						angle = PI/2 - acos( (double) (yPos + 1)/(param.height + 1));
+						angle = asin( (double) (yPos + 1)/(param.height + 1));
 						lattice[index].setAngle(angle);
 					}
 
@@ -545,7 +545,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K3_DOMINANT:
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
-						angle = PI/2 -asin(1 - (double) (yPos +1)/(param.height +1)   );
+						angle = acos(1 - (double) (yPos +1)/(param.height +1)   );
 						lattice[index].setAngle(angle);
 					}
 					break;
@@ -1267,11 +1267,11 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 				break;
 
 				case LatticeConfig::K1_DOMINANT :
-					analyticalAngle= PI/2 - acos( (double) (y + 1)/(param.height + 1));
+					analyticalAngle= asin( (double) (y + 1)/(param.height + 1));
 				break;
 
 				case LatticeConfig::K3_DOMINANT :
-					analyticalAngle= PI/2 -asin(1 - (double) (y +1)/(param.height +1)   );
+					analyticalAngle= acos(1 - (double) (y +1)/(param.height +1)   );
 				break;
 
 				default:
