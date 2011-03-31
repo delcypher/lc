@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 #Bash script to simplify calling GNUplot script (ildump.gnu) to view a binary state file.
 
 if [ "$#" -ne 1 ]; then
