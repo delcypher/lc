@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #Bash script to simplify calling GNUplot script (ildump.gnu) to view a binary state file.
 
 if [ "$#" -ne 1 ]; then
@@ -11,7 +11,7 @@ TEMP_FILE="/tmp/state-dump-temp.dump.$$"
 
 #Get filepath
 FP=$(basename "$1" )
-FP_DIR=$(dirname "$FP")
+FP_DIR=$(dirname "$1")
 #construct absolute filepath
 FP="$( cd ${FP_DIR} ; echo $PWD )/${FP}"
 
