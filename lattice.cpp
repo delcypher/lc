@@ -1233,7 +1233,10 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 		cerr << "Error: Acceptible relative error must be >= 0" << endl;
 		return false;
 	}
-		
+
+	//restrict angular region to (-PI/2,PI/2]
+	restrictAngularRange(REGION_RIGHT);
+	
 	stream << "Comparing current state angular distribution to state " << state << " (enum LatticeConfig::latticeState)..." << endl <<
 		"Using absolute error : " << acceptibleError << endl <<
 		"Average Angle (radians): " << calculateAverageAngle() << endl <<
@@ -1241,9 +1244,7 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 	
 	double analyticalAngle=0;
 
-	//restrict angular region to (-PI/2,PI/2]
-	restrictAngularRange(REGION_RIGHT);
-
+	
 	// Do angular comparsion
 	double angularAE=0;
 	stream << "Doing angular comparision..." << endl;
