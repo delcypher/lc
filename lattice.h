@@ -216,6 +216,11 @@
 			/* Calculate the Free energy of the lattice.
 			*/
 			double calculateTotalEnergy() const;
+			
+			/* Calculate the Free energy of the lattice excluding contributions
+			*  from nanoparticle cells.
+			*/
+			double calculateTotalNotNPEnergy() const;
 
 			/* Calculate the average Free energy of a lattice cell.
 			*
@@ -223,6 +228,14 @@
 			double calculateAverageEnergy() const
 			{
 				return calculateTotalEnergy() / getArea();
+			}
+
+			/* Calculates the average free energy per unit volume of non Nanoparticle cells.
+			*
+			*/
+			double calculateNotNPAverageEnergy() const
+			{
+				return calculateTotalNotNPEnergy() / (getArea() - getNanoparticleCellCount()  ) ;
 			}
 
 			//returns true if Lattice is in a bad state (usually from initialisation or add() )

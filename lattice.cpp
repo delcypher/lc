@@ -692,7 +692,9 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n" <<
 		"#\n" <<
 		"#Total Free energy of lattice:" << calculateTotalEnergy() << "\n" <<
-		"#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n";
+		"#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n" <<
+		"#Average free energy per unit volume of non nanoparticle cells:" << calculateNotNPAverageEnergy() << "\n";
+
 		if(mNanoparticles!=NULL)
 		{
 			for(int counter=0; counter < mNumNano; counter++)
@@ -834,6 +836,32 @@ double Lattice::calculateTotalEnergy() const
 		for(xPos=0; xPos < (param.width); xPos++)
 		{
 			energy += calculateEnergyOfCell(xPos,yPos);	
+		}
+	}
+
+	return energy;
+
+}
+
+double Lattice::calculateTotalNotNPEnergy() const
+{
+	/*
+	* This calculation isn't very efficient as it uses calculateEngergyOfCell() for everycell
+	* which results in various derivatives being calculated more than once.
+	*/
+
+	int xPos,yPos;
+	double energy=0;
+
+	for(yPos=0; yPos < (param.height); yPos++)
+	{
+		for(xPos=0; xPos < (param.width); xPos++)
+		{
+			//Only add up contributions from non nanoparticle cells.
+			if(getN(xPos,yPos)->isNanoparticle == false )
+			{
+				energy += calculateEnergyOfCell(xPos,yPos);
+			}
 		}
 	}
 
