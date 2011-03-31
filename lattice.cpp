@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <cstdio>
+#include <ctime>
 #include <cmath>
 #include "mt19937ar.h"
 #include "lattice.h"
@@ -40,6 +41,9 @@ CORNER_DIRECTOR(1/sqrt(2),1/sqrt(2),false)
 
 	//set lattice parameters
 	param = configuration;
+
+	//set the random seed to zero. It is expected that sim-state will set this when it needs to
+	param.randSeed =0;
 	
 	//allocate memory for lattice (index]) part of array
 	lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (param.width)*(param.height));
@@ -477,8 +481,10 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 {
 	param.initialState = initialState;
 
-	//we should reset the random seed so we don't generate the set of pseudo random numbers every time	
-	initMTSeed();
+	/*we should reset the random seed so we don't generate the set of pseudo random numbers every time.
+	* We use UNIX system time as the seed.
+	*/
+	init_genrand(time(NULL));
 	
 	/* Loop through lattice array (lattice[index]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
@@ -530,7 +536,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K1_DOMINANT:
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
-						angle = PI/2 - acos( (double) (yPos + 1)/(param.height + 1));
+						angle = asin( (double) (yPos + 1)/(param.height + 1));
 						lattice[index].setAngle(angle);
 					}
 
@@ -539,7 +545,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K3_DOMINANT:
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
-						angle = PI/2 -asin(1 - (double) (yPos +1)/(param.height +1)   );
+						angle = acos(1 - (double) (yPos +1)/(param.height +1)   );
 						lattice[index].setAngle(angle);
 					}
 					break;
@@ -681,11 +687,14 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Reject Counter:" << param.rejectCounter << "\n" <<
 		"#Current Acceptance angle:" << param.aAngle << "\n" <<
 		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" <<
+		"#Pseudo random number generator seed:" << param.randSeed << "\n" <<
 		"#" << "\n" <<
 		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n" <<
 		"#\n" <<
 		"#Total Free energy of lattice:" << calculateTotalEnergy() << "\n" <<
-		"#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n";
+		"#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n" <<
+		"#Average free energy per unit volume of non nanoparticle cells:" << calculateNotNPAverageEnergy() << "\n";
+
 		if(mNanoparticles!=NULL)
 		{
 			for(int counter=0; counter < mNumNano; counter++)
@@ -834,6 +843,32 @@ double Lattice::calculateTotalEnergy() const
 
 }
 
+double Lattice::calculateTotalNotNPEnergy() const
+{
+	/*
+	* This calculation isn't very efficient as it uses calculateEngergyOfCell() for everycell
+	* which results in various derivatives being calculated more than once.
+	*/
+
+	int xPos,yPos;
+	double energy=0;
+
+	for(yPos=0; yPos < (param.height); yPos++)
+	{
+		for(xPos=0; xPos < (param.width); xPos++)
+		{
+			//Only add up contributions from non nanoparticle cells.
+			if(getN(xPos,yPos)->isNanoparticle == false )
+			{
+				energy += calculateEnergyOfCell(xPos,yPos);
+			}
+		}
+	}
+
+	return energy;
+
+}
+
 bool Lattice::saveState(const char* filename) const
 {
 	/* Assume following ordering of binary blocks
@@ -972,6 +1007,9 @@ bool Lattice::operator==(const Lattice & rhs) const
 		return false;
 
 	if(this->param.desAcceptRatio != rhs.param.desAcceptRatio)
+		return false;
+
+	if(this->param.randSeed != rhs.param.randSeed)
 		return false;
 
 	//compare lattice array elements
@@ -1223,7 +1261,10 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 		cerr << "Error: Acceptible relative error must be >= 0" << endl;
 		return false;
 	}
-		
+
+	//restrict angular region to (-PI/2,PI/2]
+	restrictAngularRange(REGION_RIGHT);
+	
 	stream << "Comparing current state angular distribution to state " << state << " (enum LatticeConfig::latticeState)..." << endl <<
 		"Using absolute error : " << acceptibleError << endl <<
 		"Average Angle (radians): " << calculateAverageAngle() << endl <<
@@ -1231,9 +1272,7 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 	
 	double analyticalAngle=0;
 
-	//restrict angular region to (-PI/2,PI/2]
-	restrictAngularRange(REGION_RIGHT);
-
+	
 	// Do angular comparsion
 	double angularAE=0;
 	stream << "Doing angular comparision..." << endl;
@@ -1257,11 +1296,11 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 				break;
 
 				case LatticeConfig::K1_DOMINANT :
-					analyticalAngle= PI/2 - acos( (double) (y + 1)/(param.height + 1));
+					analyticalAngle= asin( (double) (y + 1)/(param.height + 1));
 				break;
 
 				case LatticeConfig::K3_DOMINANT :
-					analyticalAngle= PI/2 -asin(1 - (double) (y +1)/(param.height +1)   );
+					analyticalAngle= acos(1 - (double) (y +1)/(param.height +1)   );
 				break;
 
 				default:

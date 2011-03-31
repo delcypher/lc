@@ -77,6 +77,7 @@
 		int acceptCounter, rejectCounter; //Counters used for coning algorithm
 		double aAngle; //The current acceptance angle
 		double desAcceptRatio; //The Desired acceptance ratio
+		unsigned long randSeed; //The seed used for the random number generator. You probably shouldn't set this as sim-state will overwrite this value when it runs for the first time.
  
 
 	} LatticeConfig;
@@ -215,6 +216,11 @@
 			/* Calculate the Free energy of the lattice.
 			*/
 			double calculateTotalEnergy() const;
+			
+			/* Calculate the Free energy of the lattice excluding contributions
+			*  from nanoparticle cells.
+			*/
+			double calculateTotalNotNPEnergy() const;
 
 			/* Calculate the average Free energy of a lattice cell.
 			*
@@ -222,6 +228,14 @@
 			double calculateAverageEnergy() const
 			{
 				return calculateTotalEnergy() / getArea();
+			}
+
+			/* Calculates the average free energy per unit volume of non Nanoparticle cells.
+			*
+			*/
+			double calculateNotNPAverageEnergy() const
+			{
+				return calculateTotalNotNPEnergy() / (getArea() - getNanoparticleCellCount()  ) ;
 			}
 
 			//returns true if Lattice is in a bad state (usually from initialisation or add() )
@@ -329,8 +343,8 @@
 			*  PARALLEL_X : theta = 0
 			*  PARALLEL_Y : theta = PI/2
 			*  K1_EQUAL_K3: theta = (PI/2)(y + 1)/(height +1)
-			*  K1_DOMINANT: theta = (PI/2) - arccos( (y + 1)/(height +1) )
-			*  K3_DOMINANT: theta = (PI/2) - arcsin( 1 - (y + 1)/(height +1) )
+			*  K1_DOMINANT: theta = arcsin( (y + 1)/(height +1) )
+			*  K3_DOMINANT: theta = arccos( 1 - (y + 1)/(height +1) )
 			*
 			*
 			*  This information is outputted to an std::ostream "stream".

@@ -26,7 +26,7 @@
 	*/
 	const std::ios_base::fmtflags STREAM_FLOAT_FORMAT = std::ios::fixed;
 	
-	const int FILE_PRECISION=50; //Precision (d.p) used for saving state to files.
+	const int FILE_PRECISION=20; //Precision (d.p) used for saving state to files.
 	const int STDOE_PRECISION=10; //Precision (d.p) used for outputing to std::cout and std::cerr
 	#define COMMON_2D 1
 
