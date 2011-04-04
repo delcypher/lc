@@ -27,22 +27,13 @@ double getiTk(const LatticeConfig& realConfig);
 
 unsigned long seedToUse;
 char* savefile;
+LatticeConfig configuration;
 
-
-void usageMessage();
-void handleArgs(int n, char* argv[]);
-
-void handleArgs(int n, char* argv[])
+void handleOptionalArgs(int n, char* argv[], int argIndex)
 {
-	if(n<2)
-	{
-		usageMessage();
-	}
-
-	savefile = argv[1];
-
-	//now handle optional arguments
-	int argIndex=2;
+	/* argIndex should start at the index of the first
+	*  optional argument
+	*/
 	while(argIndex < n)
 	{
 		if(strcmp(argv[argIndex],"--rand-seed") ==0)
@@ -75,45 +66,41 @@ void handleArgs(int n, char* argv[])
 		exit(1);
 
 	}
-
 }
 
-void usageMessage()
-{
-	cerr << "Usage: create-state  <filename> [options]" << endl <<
-		"<filename> - Filename to save created binary state file to.\n\n" <<
-		"[Options]\n\n" <<
-		"--rand-seed <seed>\n" <<
-		"Set the random seed for initialisation (only applies for initialState == LatticeConfig::RANDOM) to <seed> where <seed> is a positive integer" << endl;
-		exit(1);
-
-}
 
 int main(int n, char* argv[])
 {
 	//By default set random initialisation seed to UNIX time
 	seedToUse = time(NULL);
 
-	handleArgs(n,argv);
-	
+	if(n<2)
+	{
+		cerr << "Usage: create-state  <filename> [options]" << endl <<
+		"<filename> - Filename to save created binary state file to.\n\n" <<
+		"[Options]\n\n" <<
+		"--rand-seed <seed>\n" <<
+		"Set the random seed for initialisation (only applies for initialState == LatticeConfig::RANDOM) to <seed> where <seed> is a positive integer" << endl;
+		exit(1);
+	}
+
+	savefile = argv[1];
+
+
 	bool badState=false;
 	//set cout precision
 	cout.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
 	cout.precision(STDOE_PRECISION);
 	cout << "#Displaying values to " << STDOE_PRECISION << " decimal places" << endl;
 
-	LatticeConfig configuration;
-
+	//set lattice configuration
 	configuration.width = 50;
 	configuration.height= 50;
 
 	//set initial director alignment
 	configuration.initialState = LatticeConfig::RANDOM;
 
-	//IF having initial Random state should set random seed!
-	configuration.randSeed = seedToUse;
-	cout << "#Using random initialisation seed: " << configuration.randSeed << endl;
-
+	
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
 	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL;
@@ -130,6 +117,14 @@ int main(int n, char* argv[])
 	configuration.rejectCounter=0;
 	configuration.aAngle=PI/2;
 	configuration.desAcceptRatio=0.5;
+
+	//Handle optional arguments (i.e. what random seed to use)
+	handleOptionalArgs(n,argv,2);
+
+	//IF having initial Random state should set random seed!
+	configuration.randSeed = seedToUse;
+	cout << "#Using random initialisation seed: " << configuration.randSeed << endl;
+
 
 	//create circular nanoparticle (x,y,radius, boundary)
 	CircularNanoparticle particle1 = CircularNanoparticle(7,7,5,CircularNanoparticle::PARALLEL);
