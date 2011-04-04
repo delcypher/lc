@@ -265,7 +265,7 @@ do
 
 			ARGS="${BUILD_DIR}${STATE_FILENAME} ${width} ${height} ${beta} ${top} ${bottom} ${left} ${right} ${latticeInitialState} ${x} ${y} ${a} ${b} ${theta} ${particleBoundary}"
 			echo "create-state $ARGS"
-			create-state $ARGS > /dev/null
+			create-state $ARGS --rand-seed $RANDOM > /dev/null
 			if [ "$?" -ne 0 ]; then
 				redmessage "Building state file $STATE_FILENAME failed!\n";
 				exit 1;
