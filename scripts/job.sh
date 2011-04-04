@@ -211,119 +211,121 @@ cyanmessage "Target directory: ${TARGET_DIR}\n"
 
 #note n = (1 + m*0.5) where n is scale factor
 #Add loop here
-for ((m=0; m<180 ;m+=5))
+for ((angle=0; angle<180 ;angle+=5))
 do
 	for ((particleBoundary=0; particleBoundary<=1; particleBoundary++))
 	do
-		#Scale the width & height by m
-		width=150
-		height=150
-		beta=1
-		
-		if [ -z "${width}" ]; then
-			exit
-		fi
+		for ((run=0; run <10; run++))
+		do
 
-		#lattice boundaries
-		top=1
-		bottom=1
-		left=1
-		right=1
+			width=150
+			height=150
+			beta=1
+			
+			if [ -z "${width}" ]; then
+				exit
+			fi
 
-		latticeInitialState=0
+			#lattice boundaries
+			top=0
+			bottom=0
+			left=0
+			right=0
 
-		#Number of Monte Carlo steps to run through
-		mcs=700000
+			latticeInitialState=0
 
-		#nanoparticle configuartion (force a:b ratio 3:1)
-		x=74
-		y=74
-		a=36
-		#enforce 3:1 ratio
-		b=$((a/3))
-		theta=$( calc-float "${PI}*${m}/180" )
+			#Number of Monte Carlo steps to run through
+			mcs=800000
 
-		#set build directory (make sure slash is appended!)
-		BUILD_DIR="${TARGET_DIR}/pb-${particleBoundary}/angle-${m}/"
+			#nanoparticle configuartion (force a:b ratio 3:1)
+			x=74
+			y=74
+			a=36
+			#enforce 3:1 ratio
+			b=$((a/3))
+			theta=$( calc-float "${PI}*${angle}/180" )
 
-		#try to make directory
-		mkdir -p "$BUILD_DIR"
-		if [ "$?" -ne 0 ]; then
-			redmessage "Building directory $BUILD_DIR failed!\n";
-			exit 1;
-		fi
+			#set build directory (make sure slash is appended!)
+			BUILD_DIR="${TARGET_DIR}/pb-${particleBoundary}/angle-${angle}/run-${run}/"
 
-		#make binary statefile
-		STATE_FILENAME="state.bin"
+			#try to make directory
+			mkdir -p "$BUILD_DIR"
+			if [ "$?" -ne 0 ]; then
+				redmessage "Building directory $BUILD_DIR failed!\n";
+				exit 1;
+			fi
 
-		#check if statefile already exists
-		if [ -a "${BUILD_DIR}${STATE_FILENAME}" ]; then
-			ask "${BUILD_DIR}${STATE_FILENAME}" || exit 1;
-		fi
+			#make binary statefile
+			STATE_FILENAME="state.bin"
 
-		ARGS="${BUILD_DIR}${STATE_FILENAME} ${width} ${height} ${beta} ${top} ${bottom} ${left} ${right} ${latticeInitialState} ${x} ${y} ${a} ${b} ${theta} ${particleBoundary}"
-		echo "create-state $ARGS"
-		create-state $ARGS > /dev/null
-		if [ "$?" -ne 0 ]; then
-			redmessage "Building state file $STATE_FILENAME failed!\n";
-			exit 1;
-		fi
-		
-		if [ "$MODE" = "pbs" ]; then
-			#Build PBS/Torque script (we shouldn't indent the HEREDOC)
-			cat > "${BUILD_DIR}run.sh" <<HEREDOC
-#PBS -N ${JOB_PREFIX}-angle${m}-pb${particleBoundary}
+			#check if statefile already exists
+			if [ -a "${BUILD_DIR}${STATE_FILENAME}" ]; then
+				ask "${BUILD_DIR}${STATE_FILENAME}" || exit 1;
+			fi
+
+			ARGS="${BUILD_DIR}${STATE_FILENAME} ${width} ${height} ${beta} ${top} ${bottom} ${left} ${right} ${latticeInitialState} ${x} ${y} ${a} ${b} ${theta} ${particleBoundary}"
+			echo "create-state $ARGS"
+			create-state $ARGS > /dev/null
+			if [ "$?" -ne 0 ]; then
+				redmessage "Building state file $STATE_FILENAME failed!\n";
+				exit 1;
+			fi
+			
+			if [ "$MODE" = "pbs" ]; then
+				#Build PBS/Torque script (we shouldn't indent the HEREDOC)
+				cat > "${BUILD_DIR}run.sh" <<HEREDOC
+#PBS -N ${JOB_PREFIX}-angle${angle}-pb${particleBoundary}-r${run}
 #PBS -l cput=40:00:00
 
 cd "${BUILD_DIR}"
 #Add tools to work path
 source ${SCRIPTS_PATH}/path.sh
 #Start simulation putting stdout & stderr to a file so we can view it as we go
-${TIME_CMD} sim-state "${STATE_FILENAME}" ${mcs} > std.log 2>&1
+${TIME_CMD} sim-state "${STATE_FILENAME}" ${mcs} --rand-seed ${run}  > std.log 2>&1
 HEREDOC
 
-			#Submit job (27626.calgary.phy.bris.ac.uk)
-			if [ "${DRY_RUN}" -eq 0 ]; then
-				JOB_ID=$(qsub "${BUILD_DIR}run.sh" || (redmessage "Failed to start job!\n"; exit 1) )
-			else
-				echo "Doing dry run. Not running qsub ${BUILD_DIR}run.sh";
-				JOB_ID="DRY RUN"
+				#Submit job (27626.calgary.phy.bris.ac.uk)
+				if [ "${DRY_RUN}" -eq 0 ]; then
+					JOB_ID=$(qsub "${BUILD_DIR}run.sh" || (redmessage "Failed to start job!\n"; exit 1) )
+				else
+					echo "Doing dry run. Not running qsub ${BUILD_DIR}run.sh";
+					JOB_ID="DRY RUN"
+				fi
+
+				#write to log
+				if [ -z "$JOB_ID" ]; then
+					redmessage "Something went wrong... I didn't get a JOB_ID !\n"
+					echo "Failed to start job number ${m} in ${BUILD_DIR}\n" >> "${LOG_FILE}"
+				else
+					greenmessage "Running ${JOB_ID} in ${BUILD_DIR}\n"
+					echo "${JOB_ID} ${BUILD_DIR}" >> "${LOG_FILE}"
+				fi
+
+			elif [ "$MODE" = "local" ]; then
+			
+				#Run job locally
+				cd "${BUILD_DIR}"
+
+				if [ "${DRY_RUN}" -eq 0 ]; then
+					${TIME_CMD} sim-state "${STATE_FILENAME}" ${mcs}
+				else
+					echo "Doing dry run. Not running sim-state ${STATE_FILENAME} ${mcs}"	
+					#run true so that $? =0
+					true
+				fi
+
+				if [ $? -ne 0 ]; then
+					redmessage "Job ${m} failed!\n"
+					echo "Job ${m} failed in ${BUILD_DIR}\n" >> "${LOG_FILE}"
+				else
+					greenmessage "Job ${m} finished"
+					echo "${m} ${BUILD_DIR}" >> "${LOG_FILE}"
+				fi
+
+				#change back to original directory
+				cd -
+
 			fi
-
-			#write to log
-			if [ -z "$JOB_ID" ]; then
-				redmessage "Something went wrong... I didn't get a JOB_ID !\n"
-				echo "Failed to start job number ${m} in ${BUILD_DIR}\n" >> "${LOG_FILE}"
-			else
-				greenmessage "Running ${JOB_ID} in ${BUILD_DIR}\n"
-				echo "${JOB_ID} ${BUILD_DIR}" >> "${LOG_FILE}"
-			fi
-
-		elif [ "$MODE" = "local" ]; then
-		
-			#Run job locally
-			cd "${BUILD_DIR}"
-
-			if [ "${DRY_RUN}" -eq 0 ]; then
-				${TIME_CMD} sim-state "${STATE_FILENAME}" ${mcs}
-			else
-				echo "Doing dry run. Not running sim-state ${STATE_FILENAME} ${mcs}"	
-				#run true so that $? =0
-				true
-			fi
-
-			if [ $? -ne 0 ]; then
-				redmessage "Job ${m} failed!\n"
-				echo "Job ${m} failed in ${BUILD_DIR}\n" >> "${LOG_FILE}"
-			else
-				greenmessage "Job ${m} finished"
-				echo "${m} ${BUILD_DIR}" >> "${LOG_FILE}"
-			fi
-
-			#change back to original directory
-			cd -
-
-		fi
-
+		done
 	done	
 done
