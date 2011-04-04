@@ -480,7 +480,7 @@ void usageMessage()
 		"<mcs> - Number of monte carlo steps to run simulation for.\n\n" <<
 		"[options]" << endl <<
 		"--rand-seed <seed>\n" <<
-		"Set the random number generator seed <seed> (where <seed> is a positive integer) to be used in simulator. This is option is ignored if the simulation is being resumed.\n\n" <<
+		"Set the random number generator seed <seed> (where <seed> is a positive integer) to be used in simulator. This option is ignored if the simulation is being resumed.\n\n" <<
 		"--anneal-step <annealstep>\n" <<
 		"Lower \"Temperature\" in simulator every <annealstep> monte carlo steps where <annealstep> is an integer.\n" << endl;
 		exit(1);
