@@ -63,11 +63,27 @@
 			*  param.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
 			*
 			*  These are the minimum free energy configurations for the analytical
-			*  solutions using the above boundary conditions and assuming the behaviour of K_1 and K_3.
+			*  solutions assuming the director is only a function of y
+			*  using the above boundary conditions and assuming the behaviour of K_1 and K_3.
 			*/
 			K1_EQUAL_K3,
 			K1_DOMINANT,
-			K3_DOMINANT
+			K3_DOMINANT,
+			
+			/* LAPLACE_BOX_RIGHT & LAPLACE_BOX_LEFT should be used with
+			* param.topBoundary = LatticeConfig::BOUNDARY_PARALLEL
+			* param.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL
+			* param.leftBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+			* param.rightBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+			*
+			* These are the configurations that correspond to the minimum free energy configuration
+			* of the director assuming K_1 = K_3 and that the director is a function of x & y with the 
+			* above boundary conditions.
+			*
+			*/
+			LAPLACE_BOX_RIGHT,
+			LAPLACE_BOX_LEFT
+
 		} initialState;
 
 		/* Monte Carlo and coning algorithm parameters */
@@ -117,6 +133,10 @@
 			double calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign) const;
 
 
+			/* Calculates the nth (int n) term of the fourier half sine series that gives the angle the director makes
+			*  with the x-axis for the states LAPLACE_BOX_RIGHT  & LAPLACE_BOX_LEFT .
+			*/
+			double calculateLaplaceAngleTerm(int xPos,int yPos,int n,enum LatticeConfig::latticeState solutionType) const;
 		public:
 			//Lattice Parameters
 			LatticeConfig param;
