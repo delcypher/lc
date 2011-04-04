@@ -41,10 +41,7 @@ CORNER_DIRECTOR(1/sqrt(2),1/sqrt(2),false)
 
 	//set lattice parameters
 	param = configuration;
-
-	//set the random seed to zero. It is expected that sim-state will set this when it needs to
-	param.randSeed =0;
-	
+		
 	//allocate memory for lattice (index]) part of array
 	lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (param.width)*(param.height));
 	
@@ -528,10 +525,11 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 {
 	param.initialState = initialState;
 
-	/*we should reset the random seed so we don't generate the set of pseudo random numbers every time.
-	* We use UNIX system time as the seed.
+	/* We set the random seed here. This only matters if param.initialState == LatticeConfig::RANDOM
+	* NOTE THIS SEED IS OVERWRITEN BY sim-state FOR ITS OWN USE.
+	*
 	*/
-	init_genrand(time(NULL));
+	init_genrand(param.randSeed);
 	
 	/* Loop through lattice array (lattice[index]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
@@ -764,7 +762,7 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Reject Counter:" << param.rejectCounter << "\n" <<
 		"#Current Acceptance angle:" << param.aAngle << "\n" <<
 		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" <<
-		"#Pseudo random number generator seed:" << param.randSeed << "\n" <<
+		"#Pseudo random number generator " << ( (param.mStep==0 && param.initialState ==LatticeConfig::RANDOM)?("initialisation"):("monte carlo") ) << " seed:" << param.randSeed << "\n" <<
 		"#" << "\n" <<
 		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n" <<
 		"#\n" <<
