@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include "lattice.h"
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
@@ -24,16 +25,76 @@ using namespace std;
 */
 double getiTk(const LatticeConfig& realConfig);
 
-int main(int n, char* argv[])
+unsigned long seedToUse;
+char* savefile;
+
+
+void usageMessage();
+void handleArgs(int n, char* argv[]);
+
+void handleArgs(int n, char* argv[])
 {
-	if(n !=2)
+	if(n<2)
 	{
-		cerr << "Usage: " << argv[0] << " <filename>" << endl <<
-		"<filename> - Filename to save created binary state file to" << endl;
-		exit(1);
+		usageMessage();
 	}
 
-	char* savefile = argv[1];
+	savefile = argv[1];
+
+	//now handle optional arguments
+	int argIndex=2;
+	while(argIndex < n)
+	{
+		if(strcmp(argv[argIndex],"--rand-seed") ==0)
+		{
+			argIndex++;
+			//check we have an argument in front
+			if(n > argIndex)
+			{
+				if(atoi(argv[argIndex]) < 0)
+				{
+					cerr << "Error: <seed> must be >=0" << endl;
+					exit(1);
+				}
+
+				seedToUse=atoi(argv[argIndex]);
+
+				argIndex++;
+				continue;
+			}
+			else
+			{
+				cerr << "Error: Expected <seed>" << endl;
+				exit(1);
+
+			}
+		}
+		
+		//handled all supported arguments, throw error
+		cerr << "Error: Argument " << argv[argIndex] << " not supported!" << endl;
+		exit(1);
+
+	}
+
+}
+
+void usageMessage()
+{
+	cerr << "Usage: create-state  <filename> [options]" << endl <<
+		"<filename> - Filename to save created binary state file to.\n\n" <<
+		"[Options]\n\n" <<
+		"--rand-seed <seed>\n" <<
+		"Set the random seed for initialisation (only applies for initialState == LatticeConfig::RANDOM) to <seed> where <seed> is a positive integer" << endl;
+		exit(1);
+
+}
+
+int main(int n, char* argv[])
+{
+	//By default set random initialisation seed to UNIX time
+	seedToUse = time(NULL);
+
+	handleArgs(n,argv);
 	
 	bool badState=false;
 	//set cout precision
@@ -48,6 +109,10 @@ int main(int n, char* argv[])
 
 	//set initial director alignment
 	configuration.initialState = LatticeConfig::RANDOM;
+
+	//IF having initial Random state should set random seed!
+	configuration.randSeed = seedToUse;
+	cout << "#Using random initialisation seed: " << configuration.randSeed << endl;
 
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;
