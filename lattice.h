@@ -76,13 +76,32 @@
 			* param.leftBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
 			* param.rightBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
 			*
+			* In the report this is the "2D box with homogenous surface alignment"
+			*
 			* These are the configurations that correspond to the minimum free energy configuration
 			* of the director assuming K_1 = K_3 and that the director is a function of x & y with the 
 			* above boundary conditions.
 			*
 			*/
 			LAPLACE_BOX_RIGHT,
-			LAPLACE_BOX_LEFT
+			LAPLACE_BOX_LEFT,
+
+			/* LAPLACE_BOX2_RIGHT & LAPLACE_BOX2_LEFT should be used with
+			* param.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+			* param.bottomBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+			* param.leftBoundary = LatticeConfig::BOUNDARY_PARALLEL
+			* param.rightBoundary = LatticeConfig::BOUNDARY_PARALLEL
+			*
+			* In the report this is the "2D box with homeotropic surface alignment"
+			*
+			* These are the configurations that correspond to the minimum free energy configuration
+			* of the director assuming K_1 = K_3 and that the director is a function of x & y with the 
+			* above boundary conditions.
+			*
+			*/
+			LAPLACE_BOX2_LEFT,
+			LAPLACE_BOX2_RIGHT
+
 
 		} initialState;
 
@@ -138,10 +157,17 @@
 			double calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign) const;
 
 
-			/* Calculates the nth (int n) term of the fourier half sine series that gives the angle the director makes
-			*  with the x-axis for the states LAPLACE_BOX_RIGHT  & LAPLACE_BOX_LEFT .
+			/* Calculates the nth (int n) term of the fourier series that gives the angle the director makes
+			*  with the x-axis for a 2D box with 
+			*
+			* homeotropic (LAPLACE_BOX2_LEFT, LAPLACE_BOX2_RIGHT)
+			* or 
+			* homogeneous (LAPLACE_BOX_LEFT, LAPLACE_BOX_RIGHT) 
+			* surface alignment on all sides:
+			* 
+			* THIS IS A HELPER FUNCTION FOR reInitialise() and should NOT call it yourself, that's why its private damn it!
 			*/
-			double calculateLaplaceAngleTerm(int xPos,int yPos,int n,enum LatticeConfig::latticeState solutionType) const;
+			double calculateLaplaceAngleTerm(int xPos,int yPos,int n,enum LatticeConfig::latticeState solutionType);
 		public:
 			//Lattice Parameters
 			LatticeConfig param;

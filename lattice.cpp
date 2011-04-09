@@ -313,53 +313,79 @@ bool Lattice::add(Nanoparticle& np)
 
 }
 
-double Lattice::calculateLaplaceAngleTerm(int xPos,int yPos,int n,enum LatticeConfig::latticeState solutionType) const
+double Lattice::calculateLaplaceAngleTerm(int xPos,int yPos,int n,enum LatticeConfig::latticeState solutionType)
 {
 	//we shouldn't be passed an incorrect value for n
 	if (n<=0)
 	{
+		cerr << "Error: n must be > 0" << endl;
+		this->badState=true; //Put lattice in badstate
 		return 0;
 	}
 
-	double sineTerm = sin(n*PI*( (double) (yPos +1)/(param.height +1) ) );
-	double firstExp = exp(PI*n*( (double) (xPos +1)/(param.height +1) ) );
-	double secondExp = exp(-PI*n*( (double) (xPos +1)/(param.height +1) ) );
+		double sineTerm;
+		double firstExp;
+		double secondExp;
+		double K=0;
+		double I=0;
+		double expFactor;
+
+	if(solutionType== LatticeConfig::LAPLACE_BOX_LEFT || solutionType== LatticeConfig::LAPLACE_BOX_RIGHT)
+	{
+		sineTerm = sin(n*PI*( (double) (yPos +1)/(param.height +1) ) );
+		firstExp = exp(PI*n*( (double) (xPos +1)/(param.height +1) ) );
+		secondExp = exp(-PI*n*( (double) (xPos +1)/(param.height +1) ) );
+		expFactor = ( exp(n*PI*( (double) (param.width +1)/(param.height +1) )) -1) /
+				( exp(2*n*PI*( (double) (param.width +1)/(param.height +1) )) -1);
+
+	}
+	else if(solutionType== LatticeConfig::LAPLACE_BOX2_LEFT || solutionType== LatticeConfig::LAPLACE_BOX2_RIGHT)
+	{
+		sineTerm = sin(n*PI*( (double) (xPos +1)/(param.width +1) ) );
+		firstExp = exp(PI*n*( (double) (yPos +1)/(param.width +1) ) );
+		secondExp = exp(-PI*n*( (double) (yPos +1)/(param.width +1) ) );
+		expFactor = ( exp(n*PI*( (double) (param.height +1)/(param.width +1) )) -1) /
+				( exp(2*n*PI*( (double) (param.height +1)/(param.width +1) )) -1);
+
+	}
+	else
+	{
+		cerr << "Error: solutionType " << solutionType << " (enum LatticeConfig::latticeState) not supported" << endl;
+		this->badState=true; //Put lattice in badstate
+		return 0;
+	}
 	
 	/* Terms that depend on solution type
 	*/
-	double K=0;
-	double I=0;
-	double expFactor = ( exp(n*PI*( (double) (param.width +1)/(param.height +1) )) -1) /
-				( exp(2*n*PI*( (double) (param.width +1)/(param.height +1) )) -1);
+	K=0;
+	I=0;
 
 	if(isnan(expFactor))
 	{
-		cerr << "Error: In calculateLaplaceAngleTerm() expFactor gave NaN. Use a smaller n!" << endl;
+		cerr << "Error: In calculateLaplaceAngleTerm() expFactor gave NaN. Use a smaller n." << endl;
+		this->badState=true; //Put lattice in badstate
 		expFactor=0;
 	}
 	
 	//0 for even n, 2 for odd n
 	double oddEven= ((n%2)==0)?0:2 ;
 
-	switch(solutionType)
+	if(solutionType == LatticeConfig::LAPLACE_BOX_RIGHT || solutionType == LatticeConfig::LAPLACE_BOX2_RIGHT)
 	{
-		case LatticeConfig::LAPLACE_BOX_RIGHT:
-			K=( (double) 1/n )*(oddEven)*expFactor;
-			I=( (double) 1/n)*(oddEven)*(1 - expFactor);
-		break;
-
-		case LatticeConfig::LAPLACE_BOX_LEFT:
-			K=-( (double) 1/n )*(oddEven)*expFactor;
-			I=-( (double) 1/n)*(oddEven)*(1 - expFactor);
-		break;
-
-		default:
-			cerr << "Error: In calculateLaplaceAngleTerm() solutionType " << solutionType << " not supported!" << endl;
+		K=( (double) 1/n )*(oddEven)*expFactor;
+		I=( (double) 1/n)*(oddEven)*(1 - expFactor);
 	}
+	else if(solutionType == LatticeConfig::LAPLACE_BOX_LEFT || solutionType == LatticeConfig::LAPLACE_BOX2_LEFT)
+	{
+		K=-( (double) 1/n )*(oddEven)*expFactor;
+		I=-( (double) 1/n)*(oddEven)*(1 - expFactor);
+	}
+	
 
 	return (K*firstExp + I*secondExp)*sineTerm;	
 
 }
+
 
 const DirectorElement* Lattice::getN(int xPos, int yPos) const
 {
@@ -618,6 +644,37 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 						for(n=1; n<=101; n+=2)
 						{
 							angle += calculateLaplaceAngleTerm(xPos,yPos,n,LatticeConfig::LAPLACE_BOX_LEFT);
+						}
+
+						lattice[index].setAngle(angle);
+
+					}
+					break;
+
+					case LatticeConfig::LAPLACE_BOX2_LEFT:
+					{
+						angle=0;
+						int n;
+						//sum fourier terms
+						for(n=1; n<=101; n+=2)
+						{
+							angle += calculateLaplaceAngleTerm(xPos,yPos,n,LatticeConfig::LAPLACE_BOX2_LEFT);
+						}
+
+						lattice[index].setAngle(angle);
+
+					}
+
+					break;
+
+					case LatticeConfig::LAPLACE_BOX2_RIGHT:
+					{
+						angle=0;
+						int n;
+						//sum fourier terms
+						for(n=1; n<=101; n+=2)
+						{
+							angle += calculateLaplaceAngleTerm(xPos,yPos,n,LatticeConfig::LAPLACE_BOX2_RIGHT);
 						}
 
 						lattice[index].setAngle(angle);
