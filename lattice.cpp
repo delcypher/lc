@@ -818,9 +818,14 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Accept Counter:" << param.acceptCounter << "\n" <<
 		"#Reject Counter:" << param.rejectCounter << "\n" <<
 		"#Current Acceptance angle:" << param.aAngle << "\n" <<
-		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" <<
-		"#Pseudo random number generator " << ( (param.mStep==0 && param.initialState ==LatticeConfig::RANDOM)?("initialisation"):("monte carlo") ) << " seed:" << param.randSeed << "\n" <<
-		"#" << "\n" <<
+		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" ;
+		
+		//only inform about random seed when appropriate
+		if(param.initialState ==LatticeConfig::RANDOM || param.mStep > 0)
+		{
+			stream << "#Pseudo random number generator " << ( (param.mStep==0 && param.initialState ==LatticeConfig::RANDOM)?("initialisation"):("monte carlo") ) << " seed:" << param.randSeed << "\n";
+		}
+		stream << "#" << "\n" <<
 		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n" <<
 		"#\n" <<
 		"#Total Free energy of lattice:" << calculateTotalEnergy() << "\n" <<
