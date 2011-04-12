@@ -36,30 +36,6 @@ void handleOptionalArgs(int n, char* argv[], int argIndex)
 	*/
 	while(argIndex < n)
 	{
-		if(strcmp(argv[argIndex],"--rand-seed") ==0)
-		{
-			argIndex++;
-			//check we have an argument in front
-			if(n > argIndex)
-			{
-				if(atoi(argv[argIndex]) < 0)
-				{
-					cerr << "Error: <seed> must be >=0" << endl;
-					exit(1);
-				}
-
-				seedToUse=atoi(argv[argIndex]);
-
-				argIndex++;
-				continue;
-			}
-			else
-			{
-				cerr << "Error: Expected <seed>" << endl;
-				exit(1);
-
-			}
-		}
 		
 		//handled all supported arguments, throw error
 		cerr << "Error: Argument " << argv[argIndex] << " not supported!" << endl;
@@ -80,8 +56,6 @@ int main(int n, char* argv[])
 		"<theta2>    - The theta value for the nanoparticle\n" << 
 		"<boundary2> - The nanoparticle boundary condition (enum)\n"  <<
 		"[Options]\n\n" <<
-		"--rand-seed <seed>\n" <<
-		"Set the random seed for initialisation (only applies for initialState == LatticeConfig::RANDOM) to <seed> where <seed> is a positive integer\n" <<
 		"Received " << (n -1) << " arguments" << endl;
 
 		exit(1);
@@ -134,9 +108,6 @@ int main(int n, char* argv[])
 	//Handle optional arguments (i.e. what random seed to use)
 	handleOptionalArgs(n,argv,6);
 
-	//IF having initial Random state should set random seed!
-	configuration.randSeed = seedToUse;
-	cout << "#Using random initialisation seed: " << configuration.randSeed << endl;
 
 
 	if(particle1.inBadState())

@@ -94,6 +94,8 @@ int main(int n, char* argv[])
 		cerr << "Lattice in bad state!" << endl;
 		exit(2);
 	}
+	//Dump the initial state of the lattice to standard output
+	nSystem.dumpDescription(std::cout);
 
 	//open files, if new simulation truncate all files, if not append to some files
 	if(nSystem.param.mStep ==0 )
@@ -113,24 +115,8 @@ int main(int n, char* argv[])
 
 	double energy = nSystem.calculateTotalEnergy();
 
-	/* If starting a new simulation we set a new seed for the random number generator
-	*  and set that in the binary state file. If resuming we use the old seed.
-	*/
-	//set seed for random number generator
-	if(nSystem.param.mStep == 0)
-	{
-		//use the seed specified (either UNIX time or user specified seed)
-		nSystem.param.randSeed = seedToUse;
-
-	}
-	else
-	{
-		//Don't modify seed in binary state file
-		cout << "#Using Old seed:" << nSystem.param.randSeed << endl;
-	}
-
 	//set the random number generator seed
-	init_genrand(nSystem.param.randSeed);
+	init_genrand(time(NULL));
 
 	//Tell user how often we cool
 	cout << "#Annealing every " << annealStep << " monte carlo steps" << endl;

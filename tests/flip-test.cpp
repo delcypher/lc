@@ -11,6 +11,13 @@
 
 using namespace std;
 
+/* Include the nanoparticle header files you wish you use here.
+*  Make sure the nanoparticle is listed in the OBJECTS variable
+*  in the make file too!
+*/
+#include "nanoparticles/circle.h"
+#include "nanoparticles/ellipse.h"
+
 void cleanup();
 double** energyrow;
 double** energycol;

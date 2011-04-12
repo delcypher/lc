@@ -42,8 +42,6 @@ int main(int n, char* argv[])
 	//set initial director alignment
 	configuration.initialState = (LatticeConfig::latticeState) atoi(argv[3]);
 
-	//set seed even if it's not necessary
-	configuration.randSeed = time(NULL);
 
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;

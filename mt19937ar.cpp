@@ -45,6 +45,15 @@
 #include <ctime>
 #include "mt19937ar.h"
 
+void initMTSeed()
+{
+	time_t seed;
+
+        seed = time(NULL);
+
+	//Use UNIX time as seed.
+	init_genrand(seed);
+}
 
 /* Period parameters */  
 #define N 624

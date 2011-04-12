@@ -5,7 +5,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <cstdio>
-#include <ctime>
 #include <cmath>
 #include "mt19937ar.h"
 #include "lattice.h"
@@ -41,7 +40,7 @@ CORNER_DIRECTOR(1/sqrt(2),1/sqrt(2),false)
 
 	//set lattice parameters
 	param = configuration;
-		
+
 	//allocate memory for lattice (index]) part of array
 	lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (param.width)*(param.height));
 	
@@ -555,7 +554,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 	* NOTE THIS SEED IS OVERWRITEN BY sim-state FOR ITS OWN USE.
 	*
 	*/
-	init_genrand(param.randSeed);
+	init_genrand(time(NULL));
 	
 	/* Loop through lattice array (lattice[index]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
@@ -823,14 +822,8 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Accept Counter:" << param.acceptCounter << "\n" <<
 		"#Reject Counter:" << param.rejectCounter << "\n" <<
 		"#Current Acceptance angle:" << param.aAngle << "\n" <<
-		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" ;
-		
-		//only inform about random seed when appropriate
-		if(param.initialState ==LatticeConfig::RANDOM || param.mStep > 0)
-		{
-			stream << "#Pseudo random number generator " << ( (param.mStep==0 && param.initialState ==LatticeConfig::RANDOM)?("initialisation"):("monte carlo") ) << " seed:" << param.randSeed << "\n";
-		}
-		stream << "#" << "\n" <<
+		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" <<
+		"#" << "\n" <<
 		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n" <<
 		"#\n" <<
 		"#Total Free energy of lattice:" << totalE;
@@ -1156,9 +1149,6 @@ bool Lattice::operator==(const Lattice & rhs) const
 		return false;
 
 	if(this->param.desAcceptRatio != rhs.param.desAcceptRatio)
-		return false;
-
-	if(this->param.randSeed != rhs.param.randSeed)
 		return false;
 
 	//compare lattice array elements
