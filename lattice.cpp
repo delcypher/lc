@@ -313,53 +313,79 @@ bool Lattice::add(Nanoparticle& np)
 
 }
 
-double Lattice::calculateLaplaceAngleTerm(int xPos,int yPos,int n,enum LatticeConfig::latticeState solutionType) const
+double Lattice::calculateLaplaceAngleTerm(int xPos,int yPos,int n,enum LatticeConfig::latticeState solutionType)
 {
 	//we shouldn't be passed an incorrect value for n
 	if (n<=0)
 	{
+		cerr << "Error: n must be > 0" << endl;
+		this->badState=true; //Put lattice in badstate
 		return 0;
 	}
 
-	double sineTerm = sin(n*PI*( (double) (yPos +1)/(param.height +1) ) );
-	double firstExp = exp(PI*n*( (double) (xPos +1)/(param.height +1) ) );
-	double secondExp = exp(-PI*n*( (double) (xPos +1)/(param.height +1) ) );
+		double sineTerm;
+		double firstExp;
+		double secondExp;
+		double K=0;
+		double I=0;
+		double expFactor;
+
+	if(solutionType== LatticeConfig::LAPLACE_BOX_LEFT || solutionType== LatticeConfig::LAPLACE_BOX_RIGHT)
+	{
+		sineTerm = sin(n*PI*( (double) (yPos +1)/(param.height +1) ) );
+		firstExp = exp(PI*n*( (double) (xPos +1)/(param.height +1) ) );
+		secondExp = exp(-PI*n*( (double) (xPos +1)/(param.height +1) ) );
+		expFactor = ( exp(n*PI*( (double) (param.width +1)/(param.height +1) )) -1) /
+				( exp(2*n*PI*( (double) (param.width +1)/(param.height +1) )) -1);
+
+	}
+	else if(solutionType== LatticeConfig::LAPLACE_BOX2_LEFT || solutionType== LatticeConfig::LAPLACE_BOX2_RIGHT)
+	{
+		sineTerm = sin(n*PI*( (double) (xPos +1)/(param.width +1) ) );
+		firstExp = exp(PI*n*( (double) (yPos +1)/(param.width +1) ) );
+		secondExp = exp(-PI*n*( (double) (yPos +1)/(param.width +1) ) );
+		expFactor = ( exp(n*PI*( (double) (param.height +1)/(param.width +1) )) -1) /
+				( exp(2*n*PI*( (double) (param.height +1)/(param.width +1) )) -1);
+
+	}
+	else
+	{
+		cerr << "Error: solutionType " << solutionType << " (enum LatticeConfig::latticeState) not supported" << endl;
+		this->badState=true; //Put lattice in badstate
+		return 0;
+	}
 	
 	/* Terms that depend on solution type
 	*/
-	double K=0;
-	double I=0;
-	double expFactor = ( exp(n*PI*( (double) (param.width +1)/(param.height +1) )) -1) /
-				( exp(2*n*PI*( (double) (param.width +1)/(param.height +1) )) -1);
+	K=0;
+	I=0;
 
 	if(isnan(expFactor))
 	{
-		cerr << "Error: In calculateLaplaceAngleTerm() expFactor gave NaN. Use a smaller n!" << endl;
+		cerr << "Error: In calculateLaplaceAngleTerm() expFactor gave NaN. Use a smaller n." << endl;
+		this->badState=true; //Put lattice in badstate
 		expFactor=0;
 	}
 	
 	//0 for even n, 2 for odd n
 	double oddEven= ((n%2)==0)?0:2 ;
 
-	switch(solutionType)
+	if(solutionType == LatticeConfig::LAPLACE_BOX_RIGHT || solutionType == LatticeConfig::LAPLACE_BOX2_RIGHT)
 	{
-		case LatticeConfig::LAPLACE_BOX_RIGHT:
-			K=( (double) 1/n )*(oddEven)*expFactor;
-			I=( (double) 1/n)*(oddEven)*(1 - expFactor);
-		break;
-
-		case LatticeConfig::LAPLACE_BOX_LEFT:
-			K=-( (double) 1/n )*(oddEven)*expFactor;
-			I=-( (double) 1/n)*(oddEven)*(1 - expFactor);
-		break;
-
-		default:
-			cerr << "Error: In calculateLaplaceAngleTerm() solutionType " << solutionType << " not supported!" << endl;
+		K=( (double) 1/n )*(oddEven)*expFactor;
+		I=( (double) 1/n)*(oddEven)*(1 - expFactor);
 	}
+	else if(solutionType == LatticeConfig::LAPLACE_BOX_LEFT || solutionType == LatticeConfig::LAPLACE_BOX2_LEFT)
+	{
+		K=-( (double) 1/n )*(oddEven)*expFactor;
+		I=-( (double) 1/n)*(oddEven)*(1 - expFactor);
+	}
+	
 
 	return (K*firstExp + I*secondExp)*sineTerm;	
 
 }
+
 
 const DirectorElement* Lattice::getN(int xPos, int yPos) const
 {
@@ -625,6 +651,37 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					}
 					break;
 
+					case LatticeConfig::LAPLACE_BOX2_LEFT:
+					{
+						angle=0;
+						int n;
+						//sum fourier terms
+						for(n=1; n<=101; n+=2)
+						{
+							angle += calculateLaplaceAngleTerm(xPos,yPos,n,LatticeConfig::LAPLACE_BOX2_LEFT);
+						}
+
+						lattice[index].setAngle(angle);
+
+					}
+
+					break;
+
+					case LatticeConfig::LAPLACE_BOX2_RIGHT:
+					{
+						angle=0;
+						int n;
+						//sum fourier terms
+						for(n=1; n<=101; n+=2)
+						{
+							angle += calculateLaplaceAngleTerm(xPos,yPos,n,LatticeConfig::LAPLACE_BOX2_RIGHT);
+						}
+
+						lattice[index].setAngle(angle);
+
+					}
+					break;
+
 					default:
 						//if we aren't told what to do we will set all zero vectors!
 						cerr << "Error: Intial Lattice state " << param.initialState << " (enum LatticeConfig::latticeState) not supported!" << endl;
@@ -743,6 +800,11 @@ void Lattice::indexedNDump(std::ostream& stream) const
 
 void Lattice::dumpDescription(std::ostream& stream) const
 {
+	//calculate different energies
+	double totalE = calculateTotalEnergy();
+	double totalEfromNotNP = calculateTotalSelectiveEnergy(false);
+	double totalEfromNP = calculateTotalSelectiveEnergy(true);
+
 	stream << "#Lattice Parameters:\n" << 
 		"#State is " << (badState?"Bad":"Good") << "\n" <<
 		"#Lattice Width:" << param.width << "\n" <<
@@ -761,13 +823,25 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Accept Counter:" << param.acceptCounter << "\n" <<
 		"#Reject Counter:" << param.rejectCounter << "\n" <<
 		"#Current Acceptance angle:" << param.aAngle << "\n" <<
-		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" <<
-		"#Pseudo random number generator " << ( (param.mStep==0 && param.initialState ==LatticeConfig::RANDOM)?("initialisation"):("monte carlo") ) << " seed:" << param.randSeed << "\n" <<
-		"#" << "\n" <<
+		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" ;
+		
+		//only inform about random seed when appropriate
+		if(param.initialState ==LatticeConfig::RANDOM || param.mStep > 0)
+		{
+			stream << "#Pseudo random number generator " << ( (param.mStep==0 && param.initialState ==LatticeConfig::RANDOM)?("initialisation"):("monte carlo") ) << " seed:" << param.randSeed << "\n";
+		}
+		stream << "#" << "\n" <<
 		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n" <<
 		"#\n" <<
-		"#Total Free energy of lattice:" << calculateTotalEnergy() << "\n" <<
-		"#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n" <<
+		"#Total Free energy of lattice:" << totalE;
+		
+		//if we have nanoparticles in lattice provide information about the contribution from nanoparticle and non-nanoparticle cells
+		if(mNumNano > 0)
+		{
+			stream << " (contribution: NotNP:" << totalEfromNotNP << " ( " << (totalEfromNotNP/totalE)*100 << "%) , NP:" << totalEfromNP << " (" << (totalEfromNP/totalE)*100 << "%) )";
+		}
+
+		stream << "\n#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n" <<
 		"#Average free energy per unit volume of non nanoparticle cells:" << calculateNotNPAverageEnergy() << "\n";
 
 		if(mNanoparticles!=NULL)
@@ -918,7 +992,7 @@ double Lattice::calculateTotalEnergy() const
 
 }
 
-double Lattice::calculateTotalNotNPEnergy() const
+double Lattice::calculateTotalSelectiveEnergy(bool countNP) const
 {
 	/*
 	* This calculation isn't very efficient as it uses calculateEngergyOfCell() for everycell
@@ -932,8 +1006,8 @@ double Lattice::calculateTotalNotNPEnergy() const
 	{
 		for(xPos=0; xPos < (param.width); xPos++)
 		{
-			//Only add up contributions from non nanoparticle cells.
-			if(getN(xPos,yPos)->isNanoparticle == false )
+			//Only add up contributions from non nanoparticle or nanoparticle cells depending on countNP.
+			if(getN(xPos,yPos)->isNanoparticle == countNP )
 			{
 				energy += calculateEnergyOfCell(xPos,yPos);
 			}
