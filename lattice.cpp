@@ -800,6 +800,11 @@ void Lattice::indexedNDump(std::ostream& stream) const
 
 void Lattice::dumpDescription(std::ostream& stream) const
 {
+	//calculate different energies
+	double totalE = calculateTotalEnergy();
+	double totalEfromNotNP = calculateTotalSelectiveEnergy(false);
+	double totalEfromNP = calculateTotalSelectiveEnergy(true);
+
 	stream << "#Lattice Parameters:\n" << 
 		"#State is " << (badState?"Bad":"Good") << "\n" <<
 		"#Lattice Width:" << param.width << "\n" <<
@@ -828,8 +833,15 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		stream << "#" << "\n" <<
 		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n" <<
 		"#\n" <<
-		"#Total Free energy of lattice:" << calculateTotalEnergy() << "\n" <<
-		"#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n" <<
+		"#Total Free energy of lattice:" << totalE;
+		
+		//if we have nanoparticles in lattice provide information about the contribution from nanoparticle and non-nanoparticle cells
+		if(mNumNano > 0)
+		{
+			stream << " (contribution: NotNP:" << totalEfromNotNP << " ( " << (totalEfromNotNP/totalE)*100 << "%) , NP:" << totalEfromNP << " (" << (totalEfromNP/totalE)*100 << "%) )";
+		}
+
+		stream << "\n#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n" <<
 		"#Average free energy per unit volume of non nanoparticle cells:" << calculateNotNPAverageEnergy() << "\n";
 
 		if(mNanoparticles!=NULL)
@@ -980,7 +992,7 @@ double Lattice::calculateTotalEnergy() const
 
 }
 
-double Lattice::calculateTotalNotNPEnergy() const
+double Lattice::calculateTotalSelectiveEnergy(bool countNP) const
 {
 	/*
 	* This calculation isn't very efficient as it uses calculateEngergyOfCell() for everycell
@@ -994,8 +1006,8 @@ double Lattice::calculateTotalNotNPEnergy() const
 	{
 		for(xPos=0; xPos < (param.width); xPos++)
 		{
-			//Only add up contributions from non nanoparticle cells.
-			if(getN(xPos,yPos)->isNanoparticle == false )
+			//Only add up contributions from non nanoparticle or nanoparticle cells depending on countNP.
+			if(getN(xPos,yPos)->isNanoparticle == countNP )
 			{
 				energy += calculateEnergyOfCell(xPos,yPos);
 			}
