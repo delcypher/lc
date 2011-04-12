@@ -20,7 +20,6 @@ using namespace std;
 *  ENERGY_FILE - Contains energy and monte carlo step as the simulation progresses.
 *  FINAL_LATTICE_BINARY_STATE_FILE - Contains the final binary state of the lattice that can be loaded using the Lattice::Lattice(const char* filepath)
 					constructor.
-*  FINAL_LATTICE_STATE_FILE - Contains the final state of lattice from Lattice::indexedNDump() for when the simulation end.
 *  REQUEST_LATTICE_STATE_FILE - Contains the current state of the lattice from Lattice::indexedNDump() at any point
 *                               in the simulation. This is written to when SIGUSR1 is sent to this program or when it is
 * 				terminated by SIGTERM or SIGINT.
@@ -30,7 +29,6 @@ using namespace std;
 const char ANNEALING_FILE[] = "annealing.dump";
 const char CONING_FILE[] = "coning.dump";
 const char ENERGY_FILE[] = "energy.dump";
-const char FINAL_LATTICE_STATE_FILE[] = "final-lattice-state.dump";
 const char FINAL_LATTICE_BINARY_STATE_FILE[] = "final-lattice-state.bin";
 const char REQUEST_LATTICE_STATE_FILE[] = "current-lattice-state.dump";
 const char BACKUP_LATTICE_STATE_FILE[] = "backup-lattice-state.bin";
@@ -42,36 +40,32 @@ void requestStateHandler(int sig);
 void dumpViewableLatticeState();
 void closeFiles();
 bool openFiles(bool overwrite);
+void handleArgs(int n, char* argv[]);
+void usageMessage();
 
 bool requestExit=false;
 Lattice* nSystemp;
-ofstream annealF, coningF, finalLF, energyF;
+ofstream annealF, coningF, energyF;
+ifstream finalLF;
 time_t rawTime;
 
+char* stateFile;
+unsigned long loopMax;
+unsigned long annealStep;
+unsigned long seedToUse;
 
 
 int main(int n, char* argv[])
 {
-	if(n!=3)
-	{
-		cerr << "Usage: " << argv[0] << " <filename> <mcs>" << endl <<
-		"<filename> - Binary state file to load for simulation." << endl <<
-		"<mcs> - Number of monte carlo steps to run simulation for." << endl;
-		exit(1);
-	}
-	
-	char* stateFile = argv[1];
-	unsigned long loopMax = 0;
+	//set the random seed we use to UNIX time, user can overwrite this with a command line argument
+	seedToUse= time(NULL);
 
-	if(atoi(argv[2]) < 1)
-	{
-		cerr << "Error: Number of monte carlo steps must be 1 or more" << endl;
-		exit(1);
-	}
-	else
-	{
-		loopMax = atoi(argv[2]);
-	}
+	//set the default anneal step that the user can overwrite with a command line argument
+	annealStep=280;
+
+	//handle command line arguments
+	handleArgs(n,argv);
+	
 
 	//add signal handlers
 	signal(SIGINT,&setExit);
@@ -100,8 +94,6 @@ int main(int n, char* argv[])
 		cerr << "Lattice in bad state!" << endl;
 		exit(2);
 	}
-	//Dump the initial state of the lattice to standard output
-	nSystem.dumpDescription(std::cout);
 
 	//open files, if new simulation truncate all files, if not append to some files
 	if(nSystem.param.mStep ==0 )
@@ -121,8 +113,31 @@ int main(int n, char* argv[])
 
 	double energy = nSystem.calculateTotalEnergy();
 
+	/* If starting a new simulation we set a new seed for the random number generator
+	*  and set that in the binary state file. If resuming we use the old seed.
+	*/
 	//set seed for random number generator
-	initMTSeed();
+	if(nSystem.param.mStep == 0)
+	{
+		//use the seed specified (either UNIX time or user specified seed)
+		nSystem.param.randSeed = seedToUse;
+
+	}
+	else
+	{
+		//Don't modify seed in binary state file
+		cout << "#Using Old seed:" << nSystem.param.randSeed << endl;
+	}
+
+	//set the random number generator seed
+	init_genrand(nSystem.param.randSeed);
+
+	//Tell user how often we cool
+	cout << "#Annealing every " << annealStep << " monte carlo steps" << endl;
+
+	//Dump the initial state of the lattice to standard output
+	nSystem.dumpDescription(std::cout);
+
 
 	DirectorElement *temp=NULL;
 	int x, y; 
@@ -283,7 +298,7 @@ int main(int n, char* argv[])
 		*
 		* It appears that this value needs to be scaled with the lattice dimensions. 280 appears to be adequate for up to 180x180
 		*/
-		if(( nSystem.param.mStep%280)==0 && nSystem.param.mStep!=0) 
+		if(( nSystem.param.mStep % annealStep)==0 && nSystem.param.mStep!=0) 
 		{
 			nSystem.param.iTk *= 1.01;
 
@@ -308,15 +323,18 @@ int main(int n, char* argv[])
 	cout << "\r100%  " << endl;	
 	cout << "#Finished simulation doing " << loopMax << " monte carlo steps." << endl;
 	//output final viewable lattice state
-	cout << "#Dumping final viewable lattice to " << FINAL_LATTICE_STATE_FILE << "..."; cout.flush();
-	nSystem.indexedNDump(finalLF);
-	cout << "done" << endl;
 
 	//output state to binary file which can be used to resume simulation (if loopMax is modified)
 	cout << "#Saving binary state to file " << FINAL_LATTICE_BINARY_STATE_FILE << "...";
 	cout.flush();
-	nSystemp->saveState(FINAL_LATTICE_BINARY_STATE_FILE);
-	cout << "done" << endl;
+	if( nSystemp->saveState(FINAL_LATTICE_BINARY_STATE_FILE) )
+	{
+		cout << "done" << endl;
+	}
+	else
+	{
+		cout << "failed" << endl;
+	}
 
 	closeFiles();
 
@@ -401,21 +419,6 @@ bool openFiles(bool overwrite)
 	coningF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
 	coningF.precision(STDOE_PRECISION);
 
-	//truncate file (erase old contents) as we don't want old file contents
-	finalLF.open(FINAL_LATTICE_STATE_FILE, ios::trunc);
-	if(!finalLF.is_open())
-	{
-		cerr << "Error: couldn't open open ofstream on file " << FINAL_LATTICE_STATE_FILE << endl;
-
-		//close fstreams
-		annealF.close();
-		coningF.close();
-
-		return false;
-	}
-
-	finalLF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
-	finalLF.precision(FILE_PRECISION);
 
 	//append file output as when we resume we'd like to keep the results of previous attempt.
 	energyF.open(ENERGY_FILE, mode);
@@ -431,7 +434,7 @@ bool openFiles(bool overwrite)
 		return false;
 	}
 
-	finalLF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
+	energyF.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
 	energyF.precision(FILE_PRECISION);
 
 	return true;
@@ -440,7 +443,6 @@ bool openFiles(bool overwrite)
 void closeFiles()
 {
 	coningF.close();
-	finalLF.close();
 	energyF.close();
 	annealF.close();
 }
@@ -469,4 +471,113 @@ void dumpViewableLatticeState()
 	requestDumpF.close();
 	cout << "done" << endl;
 
+}
+
+void usageMessage()
+{
+		cerr << "Usage: sim-state <filename> <mcs> [ options ]" << endl <<
+		"<filename> - Binary state file to load for simulation." << endl <<
+		"<mcs> - Number of monte carlo steps to run simulation for.\n\n" <<
+		"[options]" << endl <<
+		"--rand-seed <seed>\n" <<
+		"Set the random number generator seed <seed> (where <seed> is a positive integer) to be used in simulator. This option is ignored if the simulation is being resumed.\n\n" <<
+		"--anneal-step <annealstep>\n" <<
+		"Lower \"Temperature\" in simulator every <annealstep> monte carlo steps where <annealstep> is an integer.\n" << endl;
+		exit(1);
+
+}
+
+void handleArgs(int n, char* argv[])
+{
+	if(n<3)
+	{
+		usageMessage();
+	}
+
+	//read mandatory options
+	stateFile = argv[1];
+
+	if(atoi(argv[2]) < 1)
+	{
+		cerr << "Error: Number of monte carlo steps must be 1 or more.\n\n" << endl;
+		usageMessage();
+	}
+	else
+	{
+		loopMax = atoi(argv[2]);
+	}	
+
+	//process optional arguments
+	if(n>3)
+	{
+		//Set argument index to first optional argument
+		int argIndex=3;
+		while ( argIndex < n)
+		{
+			
+			if( strcmp(argv[argIndex],"--rand-seed") ==0 )
+			{
+				
+				//move to next argument index (even if it doesn't exist!)
+				argIndex++;
+
+				//check we have another argument to process
+				if( (n -1) < argIndex)
+				{
+					cerr << "Error: Expected random seed value <seed> (int).\n\n" << endl;
+					usageMessage();
+				}
+
+				//get seed value
+				if( atoi(argv[argIndex]) < 0)
+				{
+					cerr << "Error: Random seed <seed> must be >= 0\n\n" << endl;
+					usageMessage();
+				}
+				else
+				{
+					seedToUse = atoi(argv[argIndex]);
+					cout << "#Overwriting seed with seed:" << seedToUse << endl;
+				}
+
+				argIndex++;
+				continue;
+			}
+
+			if( strcmp(argv[argIndex],"--anneal-step")  ==0)
+			{
+				//move to next argument index (even if it doesn't exist!)
+				argIndex++;
+
+				//check we have another argument to process
+				if( (n -1) < argIndex)
+				{
+					cerr << "Error: Expected annealing step <annealstep> (int)\n\n" << endl;
+					usageMessage();
+				}
+
+
+				if(atoi(argv[argIndex]) <= 0)
+				{
+					cerr << "Error: Anealing step <annealstep> must be > 0\n\n" << endl;
+					usageMessage();
+				}
+				else
+				{
+					annealStep = atoi(argv[argIndex]);
+				}
+
+				argIndex++;
+				continue;
+
+			}
+
+			//If we get this far the argument hasn't been handled so it isn't a valid argument!
+			cerr << "Argument " << argv[argIndex] << " not recongised.\n\n" << endl;
+			usageMessage();
+
+		}
+
+
+	}
 }

@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include "lattice.h"
 #include "exitcodes.h"
+#include <ctime>
 
 using namespace std;
 
@@ -40,6 +41,9 @@ int main(int n, char* argv[])
 
 	//set initial director alignment
 	configuration.initialState = (LatticeConfig::latticeState) atoi(argv[3]);
+	
+	//set random seed even if it isn't necessary. We use UNIX time
+	configuration.randSeed = time(NULL);
 
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR;

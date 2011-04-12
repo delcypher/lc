@@ -63,11 +63,46 @@
 			*  param.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
 			*
 			*  These are the minimum free energy configurations for the analytical
-			*  solutions using the above boundary conditions and assuming the behaviour of K_1 and K_3.
+			*  solutions assuming the director is only a function of y
+			*  using the above boundary conditions and assuming the behaviour of K_1 and K_3.
 			*/
 			K1_EQUAL_K3,
 			K1_DOMINANT,
-			K3_DOMINANT
+			K3_DOMINANT,
+			
+			/* LAPLACE_BOX_RIGHT & LAPLACE_BOX_LEFT should be used with
+			* param.topBoundary = LatticeConfig::BOUNDARY_PARALLEL
+			* param.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL
+			* param.leftBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+			* param.rightBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+			*
+			* In the report this is the "2D box with homogenous surface alignment"
+			*
+			* These are the configurations that correspond to the minimum free energy configuration
+			* of the director assuming K_1 = K_3 and that the director is a function of x & y with the 
+			* above boundary conditions.
+			*
+			*/
+			LAPLACE_BOX_RIGHT,
+			LAPLACE_BOX_LEFT,
+
+			/* LAPLACE_BOX2_RIGHT & LAPLACE_BOX2_LEFT should be used with
+			* param.topBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+			* param.bottomBoundary = LatticeConfig::BOUNDARY_PERPENDICULAR
+			* param.leftBoundary = LatticeConfig::BOUNDARY_PARALLEL
+			* param.rightBoundary = LatticeConfig::BOUNDARY_PARALLEL
+			*
+			* In the report this is the "2D box with homeotropic surface alignment"
+			*
+			* These are the configurations that correspond to the minimum free energy configuration
+			* of the director assuming K_1 = K_3 and that the director is a function of x & y with the 
+			* above boundary conditions.
+			*
+			*/
+			LAPLACE_BOX2_LEFT,
+			LAPLACE_BOX2_RIGHT
+
+
 		} initialState;
 
 		/* Monte Carlo and coning algorithm parameters */
@@ -77,7 +112,13 @@
 		int acceptCounter, rejectCounter; //Counters used for coning algorithm
 		double aAngle; //The current acceptance angle
 		double desAcceptRatio; //The Desired acceptance ratio
- 
+		
+		/* This is the seed used for the random number generator. If running Lattice::Lattice(LatticeConfig state)
+		*  and state.initialState == LatticeConfig::RANDOM then it will used as the random initialisation seed.
+		*  The sim-state tool later overwrites this value with its own used for the simulation.
+		*
+		*/
+		unsigned long randSeed; 
 
 	} LatticeConfig;
 
@@ -116,6 +157,17 @@
 			double calculateCosineBetween(const DirectorElement* C, const DirectorElement* O, const double& flipSign) const;
 
 
+			/* Calculates the nth (int n) term of the fourier series that gives the angle the director makes
+			*  with the x-axis for a 2D box with 
+			*
+			* homeotropic (LAPLACE_BOX2_LEFT, LAPLACE_BOX2_RIGHT)
+			* or 
+			* homogeneous (LAPLACE_BOX_LEFT, LAPLACE_BOX_RIGHT) 
+			* surface alignment on all sides:
+			* 
+			* THIS IS A HELPER FUNCTION FOR reInitialise() and should NOT call it yourself, that's why its private damn it!
+			*/
+			double calculateLaplaceAngleTerm(int xPos,int yPos,int n,enum LatticeConfig::latticeState solutionType);
 		public:
 			//Lattice Parameters
 			LatticeConfig param;
@@ -215,6 +267,13 @@
 			/* Calculate the Free energy of the lattice.
 			*/
 			double calculateTotalEnergy() const;
+			
+			/* Calculate the Free energy of the lattice excluding particular contributions
+			*  
+			*  countNP==true : Only sum contributions from nanoparticle cells
+			*  countNP==false : Only sum contributions from non nanoparticle cells
+			*/
+			double calculateTotalSelectiveEnergy(bool countNP) const;
 
 			/* Calculate the average Free energy of a lattice cell.
 			*
@@ -222,6 +281,14 @@
 			double calculateAverageEnergy() const
 			{
 				return calculateTotalEnergy() / getArea();
+			}
+
+			/* Calculates the average free energy per unit volume of non Nanoparticle cells.
+			*
+			*/
+			double calculateNotNPAverageEnergy() const
+			{
+				return calculateTotalSelectiveEnergy(false) / (getArea() - getNanoparticleCellCount()  ) ;
 			}
 
 			//returns true if Lattice is in a bad state (usually from initialisation or add() )
@@ -329,8 +396,8 @@
 			*  PARALLEL_X : theta = 0
 			*  PARALLEL_Y : theta = PI/2
 			*  K1_EQUAL_K3: theta = (PI/2)(y + 1)/(height +1)
-			*  K1_DOMINANT: theta = (PI/2) - arccos( (y + 1)/(height +1) )
-			*  K3_DOMINANT: theta = (PI/2) - arcsin( 1 - (y + 1)/(height +1) )
+			*  K1_DOMINANT: theta = arcsin( (y + 1)/(height +1) )
+			*  K3_DOMINANT: theta = arccos( 1 - (y + 1)/(height +1) )
 			*
 			*
 			*  This information is outputted to an std::ostream "stream".

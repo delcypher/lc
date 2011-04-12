@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include "lattice.h"
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
@@ -24,26 +25,76 @@ using namespace std;
 */
 double getiTk(const LatticeConfig& realConfig);
 
+unsigned long seedToUse;
+char* savefile;
+LatticeConfig configuration;
+
+void handleOptionalArgs(int n, char* argv[], int argIndex)
+{
+	/* argIndex should start at the index of the first
+	*  optional argument
+	*/
+	while(argIndex < n)
+	{
+		if(strcmp(argv[argIndex],"--rand-seed") ==0)
+		{
+			argIndex++;
+			//check we have an argument in front
+			if(n > argIndex)
+			{
+				if(atoi(argv[argIndex]) < 0)
+				{
+					cerr << "Error: <seed> must be >=0" << endl;
+					exit(1);
+				}
+
+				seedToUse=atoi(argv[argIndex]);
+
+				argIndex++;
+				continue;
+			}
+			else
+			{
+				cerr << "Error: Expected <seed>" << endl;
+				exit(1);
+
+			}
+		}
+		
+		//handled all supported arguments, throw error
+		cerr << "Error: Argument " << argv[argIndex] << " not supported!" << endl;
+		exit(1);
+
+	}
+}
+
+
 int main(int n, char* argv[])
 {
-	if(n !=6)
+	if(n <6)
 	{
-		cerr << "Usage: " << argv[0] << " <filename> <theta1> <boundry1> <theta2> <boundry2>" << endl <<
+		cerr << "Usage: " << argv[0] << " <filename> <theta1> <boundry1> <theta2> <boundry2> [options]" << endl <<
 		"<filename> - Filename to save created binary state file to\n" << 
 		"<theta1>    - The theta value for the nanoparticle\n" << 
 		"<boundary1> - The nanoparticle boundary condition (enum)\n"  <<
 		"<theta2>    - The theta value for the nanoparticle\n" << 
 		"<boundary2> - The nanoparticle boundary condition (enum)\n"  <<
+		"[Options]\n\n" <<
+		"--rand-seed <seed>\n" <<
+		"Set the random seed for initialisation (only applies for initialState == LatticeConfig::RANDOM) to <seed> where <seed> is a positive integer\n" <<
 		"Received " << (n -1) << " arguments" << endl;
 
 		exit(1);
 	}
 
-	
 
 
-	char* savefile = argv[1];
 	
+	//By default set random initialisation seed to UNIX time
+	seedToUse = time(NULL);
+
+	savefile = argv[1];
+
 	bool badState=false;
 	//set cout precision
 	cout.setf(STREAM_FLOAT_FORMAT,ios::floatfield);
@@ -58,6 +109,7 @@ int main(int n, char* argv[])
 	//set initial director alignment
 	configuration.initialState = LatticeConfig::RANDOM;
 
+	
 	//set boundary conditions
 	configuration.topBoundary = LatticeConfig::BOUNDARY_PARALLEL;
 	configuration.bottomBoundary = LatticeConfig::BOUNDARY_PARALLEL;
@@ -78,6 +130,14 @@ int main(int n, char* argv[])
 	//create circular nanoparticle (x,y,a,b,theta,boundary))
 	EllipticalNanoparticle particle1 = EllipticalNanoparticle(50, 50, 18, 6, atof(argv[2]), (EllipticalNanoparticle::boundary) atoi(argv[3]));
 	EllipticalNanoparticle particle2 = EllipticalNanoparticle(100, 50, 18, 6, atof(argv[4]), (EllipticalNanoparticle::boundary) atoi(argv[5]));
+
+	//Handle optional arguments (i.e. what random seed to use)
+	handleOptionalArgs(n,argv,6);
+
+	//IF having initial Random state should set random seed!
+	configuration.randSeed = seedToUse;
+	cout << "#Using random initialisation seed: " << configuration.randSeed << endl;
+
 
 	if(particle1.inBadState())
 		badState=true;

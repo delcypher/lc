@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <cstdio>
+#include <ctime>
 #include <cmath>
 #include "mt19937ar.h"
 #include "lattice.h"
@@ -40,7 +41,7 @@ CORNER_DIRECTOR(1/sqrt(2),1/sqrt(2),false)
 
 	//set lattice parameters
 	param = configuration;
-	
+		
 	//allocate memory for lattice (index]) part of array
 	lattice = (DirectorElement*) malloc(sizeof(DirectorElement) * (param.width)*(param.height));
 	
@@ -312,6 +313,79 @@ bool Lattice::add(Nanoparticle& np)
 
 }
 
+double Lattice::calculateLaplaceAngleTerm(int xPos,int yPos,int n,enum LatticeConfig::latticeState solutionType)
+{
+	//we shouldn't be passed an incorrect value for n
+	if (n<=0)
+	{
+		cerr << "Error: n must be > 0" << endl;
+		this->badState=true; //Put lattice in badstate
+		return 0;
+	}
+
+		double sineTerm;
+		double firstExp;
+		double secondExp;
+		double K=0;
+		double I=0;
+		double expFactor;
+
+	if(solutionType== LatticeConfig::LAPLACE_BOX_LEFT || solutionType== LatticeConfig::LAPLACE_BOX_RIGHT)
+	{
+		sineTerm = sin(n*PI*( (double) (yPos +1)/(param.height +1) ) );
+		firstExp = exp(PI*n*( (double) (xPos +1)/(param.height +1) ) );
+		secondExp = exp(-PI*n*( (double) (xPos +1)/(param.height +1) ) );
+		expFactor = ( exp(n*PI*( (double) (param.width +1)/(param.height +1) )) -1) /
+				( exp(2*n*PI*( (double) (param.width +1)/(param.height +1) )) -1);
+
+	}
+	else if(solutionType== LatticeConfig::LAPLACE_BOX2_LEFT || solutionType== LatticeConfig::LAPLACE_BOX2_RIGHT)
+	{
+		sineTerm = sin(n*PI*( (double) (xPos +1)/(param.width +1) ) );
+		firstExp = exp(PI*n*( (double) (yPos +1)/(param.width +1) ) );
+		secondExp = exp(-PI*n*( (double) (yPos +1)/(param.width +1) ) );
+		expFactor = ( exp(n*PI*( (double) (param.height +1)/(param.width +1) )) -1) /
+				( exp(2*n*PI*( (double) (param.height +1)/(param.width +1) )) -1);
+
+	}
+	else
+	{
+		cerr << "Error: solutionType " << solutionType << " (enum LatticeConfig::latticeState) not supported" << endl;
+		this->badState=true; //Put lattice in badstate
+		return 0;
+	}
+	
+	/* Terms that depend on solution type
+	*/
+	K=0;
+	I=0;
+
+	if(isnan(expFactor))
+	{
+		cerr << "Error: In calculateLaplaceAngleTerm() expFactor gave NaN. Use a smaller n." << endl;
+		this->badState=true; //Put lattice in badstate
+		expFactor=0;
+	}
+	
+	//0 for even n, 2 for odd n
+	double oddEven= ((n%2)==0)?0:2 ;
+
+	if(solutionType == LatticeConfig::LAPLACE_BOX_RIGHT || solutionType == LatticeConfig::LAPLACE_BOX2_RIGHT)
+	{
+		K=( (double) 1/n )*(oddEven)*expFactor;
+		I=( (double) 1/n)*(oddEven)*(1 - expFactor);
+	}
+	else if(solutionType == LatticeConfig::LAPLACE_BOX_LEFT || solutionType == LatticeConfig::LAPLACE_BOX2_LEFT)
+	{
+		K=-( (double) 1/n )*(oddEven)*expFactor;
+		I=-( (double) 1/n)*(oddEven)*(1 - expFactor);
+	}
+	
+
+	return (K*firstExp + I*secondExp)*sineTerm;	
+
+}
+
 
 const DirectorElement* Lattice::getN(int xPos, int yPos) const
 {
@@ -477,8 +551,11 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 {
 	param.initialState = initialState;
 
-	//we should reset the random seed so we don't generate the set of pseudo random numbers every time	
-	initMTSeed();
+	/* We set the random seed here. This only matters if param.initialState == LatticeConfig::RANDOM
+	* NOTE THIS SEED IS OVERWRITEN BY sim-state FOR ITS OWN USE.
+	*
+	*/
+	init_genrand(param.randSeed);
 	
 	/* Loop through lattice array (lattice[index]) and initialise
 	*  Note in C we must use RANDOM,... but if using C++ then must use LatticeConfig::RANDOM , ...
@@ -530,7 +607,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K1_DOMINANT:
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
-						angle = PI/2 - acos( (double) (yPos + 1)/(param.height + 1));
+						angle = asin( (double) (yPos + 1)/(param.height + 1));
 						lattice[index].setAngle(angle);
 					}
 
@@ -539,8 +616,69 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 					case LatticeConfig::K3_DOMINANT:
 					{
 						//the cast to double is important else we will do division with ints and discard remainder
-						angle = PI/2 -asin(1 - (double) (yPos +1)/(param.height +1)   );
+						angle = acos(1 - (double) (yPos +1)/(param.height +1)   );
 						lattice[index].setAngle(angle);
+					}
+					break;
+					
+					case LatticeConfig::LAPLACE_BOX_RIGHT:
+					{
+						angle=0;
+						int n;
+						//sum fourier terms
+						for(n=1; n<=101; n+=2)
+						{
+							angle += calculateLaplaceAngleTerm(xPos,yPos,n,LatticeConfig::LAPLACE_BOX_RIGHT);
+						}
+
+						lattice[index].setAngle(angle);
+
+					}
+					break;
+
+					case LatticeConfig::LAPLACE_BOX_LEFT:
+					{
+						angle=0;
+						int n;
+						//sum fourier terms
+						for(n=1; n<=101; n+=2)
+						{
+							angle += calculateLaplaceAngleTerm(xPos,yPos,n,LatticeConfig::LAPLACE_BOX_LEFT);
+						}
+
+						lattice[index].setAngle(angle);
+
+					}
+					break;
+
+					case LatticeConfig::LAPLACE_BOX2_LEFT:
+					{
+						angle=0;
+						int n;
+						//sum fourier terms
+						for(n=1; n<=101; n+=2)
+						{
+							angle += calculateLaplaceAngleTerm(xPos,yPos,n,LatticeConfig::LAPLACE_BOX2_LEFT);
+						}
+
+						lattice[index].setAngle(angle);
+
+					}
+
+					break;
+
+					case LatticeConfig::LAPLACE_BOX2_RIGHT:
+					{
+						angle=0;
+						int n;
+						//sum fourier terms
+						for(n=1; n<=101; n+=2)
+						{
+							angle += calculateLaplaceAngleTerm(xPos,yPos,n,LatticeConfig::LAPLACE_BOX2_RIGHT);
+						}
+
+						lattice[index].setAngle(angle);
+
 					}
 					break;
 
@@ -662,6 +800,11 @@ void Lattice::indexedNDump(std::ostream& stream) const
 
 void Lattice::dumpDescription(std::ostream& stream) const
 {
+	//calculate different energies
+	double totalE = calculateTotalEnergy();
+	double totalEfromNotNP = calculateTotalSelectiveEnergy(false);
+	double totalEfromNP = calculateTotalSelectiveEnergy(true);
+
 	stream << "#Lattice Parameters:\n" << 
 		"#State is " << (badState?"Bad":"Good") << "\n" <<
 		"#Lattice Width:" << param.width << "\n" <<
@@ -680,12 +823,27 @@ void Lattice::dumpDescription(std::ostream& stream) const
 		"#Accept Counter:" << param.acceptCounter << "\n" <<
 		"#Reject Counter:" << param.rejectCounter << "\n" <<
 		"#Current Acceptance angle:" << param.aAngle << "\n" <<
-		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" <<
-		"#" << "\n" <<
+		"#Desired Acceptance ratio:" << param.desAcceptRatio << "\n" ;
+		
+		//only inform about random seed when appropriate
+		if(param.initialState ==LatticeConfig::RANDOM || param.mStep > 0)
+		{
+			stream << "#Pseudo random number generator " << ( (param.mStep==0 && param.initialState ==LatticeConfig::RANDOM)?("initialisation"):("monte carlo") ) << " seed:" << param.randSeed << "\n";
+		}
+		stream << "#" << "\n" <<
 		"#Nanoparticle cells in lattice:" << getNanoparticleCellCount() << "/" << getArea() << " (" << ( (double) 100*getNanoparticleCellCount()/getArea() ) << " %)" << "\n" <<
 		"#\n" <<
-		"#Total Free energy of lattice:" << calculateTotalEnergy() << "\n" <<
-		"#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n";
+		"#Total Free energy of lattice:" << totalE;
+		
+		//if we have nanoparticles in lattice provide information about the contribution from nanoparticle and non-nanoparticle cells
+		if(mNumNano > 0)
+		{
+			stream << " (contribution: NotNP:" << totalEfromNotNP << " ( " << (totalEfromNotNP/totalE)*100 << "%) , NP:" << totalEfromNP << " (" << (totalEfromNP/totalE)*100 << "%) )";
+		}
+
+		stream << "\n#Average free energy per unit volume of cell:" << calculateAverageEnergy() << "\n" <<
+		"#Average free energy per unit volume of non nanoparticle cells:" << calculateNotNPAverageEnergy() << "\n";
+
 		if(mNanoparticles!=NULL)
 		{
 			for(int counter=0; counter < mNumNano; counter++)
@@ -834,6 +992,32 @@ double Lattice::calculateTotalEnergy() const
 
 }
 
+double Lattice::calculateTotalSelectiveEnergy(bool countNP) const
+{
+	/*
+	* This calculation isn't very efficient as it uses calculateEngergyOfCell() for everycell
+	* which results in various derivatives being calculated more than once.
+	*/
+
+	int xPos,yPos;
+	double energy=0;
+
+	for(yPos=0; yPos < (param.height); yPos++)
+	{
+		for(xPos=0; xPos < (param.width); xPos++)
+		{
+			//Only add up contributions from non nanoparticle or nanoparticle cells depending on countNP.
+			if(getN(xPos,yPos)->isNanoparticle == countNP )
+			{
+				energy += calculateEnergyOfCell(xPos,yPos);
+			}
+		}
+	}
+
+	return energy;
+
+}
+
 bool Lattice::saveState(const char* filename) const
 {
 	/* Assume following ordering of binary blocks
@@ -972,6 +1156,9 @@ bool Lattice::operator==(const Lattice & rhs) const
 		return false;
 
 	if(this->param.desAcceptRatio != rhs.param.desAcceptRatio)
+		return false;
+
+	if(this->param.randSeed != rhs.param.randSeed)
 		return false;
 
 	//compare lattice array elements
@@ -1223,7 +1410,10 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 		cerr << "Error: Acceptible relative error must be >= 0" << endl;
 		return false;
 	}
-		
+
+	//restrict angular region to (-PI/2,PI/2]
+	restrictAngularRange(REGION_RIGHT);
+	
 	stream << "Comparing current state angular distribution to state " << state << " (enum LatticeConfig::latticeState)..." << endl <<
 		"Using absolute error : " << acceptibleError << endl <<
 		"Average Angle (radians): " << calculateAverageAngle() << endl <<
@@ -1231,9 +1421,7 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 	
 	double analyticalAngle=0;
 
-	//restrict angular region to (-PI/2,PI/2]
-	restrictAngularRange(REGION_RIGHT);
-
+	
 	// Do angular comparsion
 	double angularAE=0;
 	stream << "Doing angular comparision..." << endl;
@@ -1257,11 +1445,11 @@ bool Lattice::angleCompareWith(enum LatticeConfig::latticeState state, std::ostr
 				break;
 
 				case LatticeConfig::K1_DOMINANT :
-					analyticalAngle= PI/2 - acos( (double) (y + 1)/(param.height + 1));
+					analyticalAngle= asin( (double) (y + 1)/(param.height + 1));
 				break;
 
 				case LatticeConfig::K3_DOMINANT :
-					analyticalAngle= PI/2 -asin(1 - (double) (y +1)/(param.height +1)   );
+					analyticalAngle= acos(1 - (double) (y +1)/(param.height +1)   );
 				break;
 
 				default:

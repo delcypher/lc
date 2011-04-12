@@ -7,9 +7,6 @@
 */
 
 #ifndef MT_RND
-	//Sets the the MT19937 random number generator seed to UNIX time (we generally use this)
-	void initMTSeed();
-
 	//You can manually set the seed using this method.
 	void init_genrand(unsigned long s);
 

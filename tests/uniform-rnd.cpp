@@ -6,6 +6,8 @@
 #include "exitcodes.h"
 #include "mt19937ar.h"
 #include <cmath>
+#include <ctime>
+#include <cstring>
 
 using namespace std;
 
@@ -17,12 +19,16 @@ int main(int n, char* argv[])
 {
 	int noToGenerate, noOfBins, binNo;
 	double randomNumber, binWidth;
+	unsigned long randomSeed=time(NULL); //default seed is to use UNIX time
 	
-	if(n!=3)
+	if(n<3)
 	{
-		cerr << "Usage: " << argv[0] << " <no_to_generate> <no_of_bins>" << endl <<
+		cerr << "Usage: " << argv[0] << " <no_to_generate> <no_of_bins> [options]" << endl <<
 		"  <no_to_generate> - How many random numbers to generate" << endl <<
-		"  <no_of_bins> - How many bins to use for binning data" << endl;
+		"  <no_of_bins> - How many bins to use for binning data\n\n" <<
+		"Options\n\n" <<
+		"--rand-seed <seed>\n" <<
+		"Use <seed> as the random number generator seed where <seed> is a positive integer.\n" << endl;
 		exit(TH_BAD_ARGUMENT);
 	}
 
@@ -41,6 +47,44 @@ int main(int n, char* argv[])
 		exit(TH_BAD_ARGUMENT);
 	}
 
+	//handle optional arguments
+	if(n>3)
+	{
+		int argIndex=3;
+		while( argIndex < n)
+		{
+			if( strcmp(argv[argIndex],"--rand-seed") == 0)
+			{
+				argIndex++;
+
+				if(argIndex > (n -1) )
+				{
+					cerr << "Error: expected random seed <seed>" << endl;
+					exit(TH_BAD_ARGUMENT);
+				}
+
+				if( atoi(argv[argIndex]) < 0 )
+				{
+					cerr << "Error: <seed> must be >=0" << endl;
+					exit(TH_BAD_ARGUMENT);
+				}
+
+				randomSeed=atoi(argv[argIndex]);
+
+				//continue to next argument
+				argIndex++;
+				continue;
+
+			}
+
+			//bad argument
+			cerr << "Error: Argument " << argv[argIndex] << " not recognised!" << endl;
+			exit(TH_BAD_ARGUMENT);
+
+		}
+
+	}
+
 	//allocate memory for bins (and set all values to zero)
 	bin = (int*) calloc(noOfBins,sizeof(int));
 
@@ -50,8 +94,9 @@ int main(int n, char* argv[])
 		exit(TH_BAD_ARGUMENT);
 	}
 	
-	//set the random seed
-	initMTSeed();
+	//set the random seed (use UNIX system time)
+	cerr << "Using random seed: " << randomSeed << endl; 
+	init_genrand(randomSeed);
 
 	//calculate bin width
 	binWidth = (double) 1/noOfBins;
