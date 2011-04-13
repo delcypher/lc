@@ -211,9 +211,9 @@ cyanmessage "Target directory: ${TARGET_DIR}\n"
 
 #note n = (1 + m*0.5) where n is scale factor
 #Add loop here
-for ((angle=80; angle<=100 ;angle+=5))
+for ((angle=0; angle<=10 ;angle+=5))
 do
-	for ((particleBoundary=0; particleBoundary<=0; particleBoundary++))
+	for ((particleBoundary=1; particleBoundary<=1; particleBoundary++))
 	do
 		for ((run=0; run <10; run++))
 		do
