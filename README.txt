@@ -223,6 +223,7 @@ In the scripts/ directory are bash shell and gnuplot scripts for doing various u
 annealing.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ANNEALING_FILE. It plots "iTk" against monte carlo step.
 coning.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable CONING_FILE. It plots "Acceptance angle" aginst monte carlo step.
 energy.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ENERGY_FILE. It plots "Free Energy" against monte carlo step.
+energy-den-colour-map.gnu - This is a GNUplot script to show the output of the en-den-plot program in GNUplot's interactive mode.
 ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
 path.sh - This is a bash shell script to add the build directory to the PATH variable so you can run the executables from any directory. To use it run ``source path.sh'' .
