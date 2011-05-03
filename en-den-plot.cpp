@@ -65,10 +65,10 @@ int main(int n, char* argv[])
 
 	double cellEnergy=0;
 
-	//loop over all the cells in the lattice (INCLUDING BOUNDARY CELLS!) 
-	for(int xPos=-1; xPos <= nSystem.param.width ; xPos++)
+	//loop over all the cells in the lattice excluding boundary cells
+	for(int xPos=0; xPos < nSystem.param.width ; xPos++)
 	{
-		for(int yPos=-1; yPos <= nSystem.param.height; yPos++)
+		for(int yPos=0; yPos < nSystem.param.height; yPos++)
 		{
 			cellEnergy = nSystem.calculateEnergyOfCell(xPos,yPos);
 			
