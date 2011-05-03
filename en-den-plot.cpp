@@ -86,6 +86,9 @@ int main(int n, char* argv[])
 			//produce output for plotting
 			cout << xPos << " " << yPos << " " << cellEnergy << endl;
 		}
+
+		//add blank line to seperate scanlines for gnuplot's pm3d splot feature.
+		cout << " " << endl;
 	}
 
 	cout << "#Finished" << endl;
