@@ -22,8 +22,13 @@ set grid mxtics mytics noxtics noytics
 #set axis ranges
 set xrange [0:$1]
 #flip y-axis so it's the right way round
-set yrange [0:$2] reverse
+set yrange [0:$2]
 
+#you may need this command if axes look the wrong way round
+#set yrange [0:$2] reverse
+
+#force z range
+set zrange [0:*]
 
 #set 1:1 aspect ratio
 set size ratio 1
@@ -45,6 +50,7 @@ splot "$0" with pm3d
 #set ranges to auto for other plots
 set xrange [*:*]
 set yrange [*:*]
+set zrange [*:*]
 
 #set xtics and ytics to auto for other plots
 set xtics autofreq
