@@ -211,9 +211,9 @@ cyanmessage "Target directory: ${TARGET_DIR}\n"
 
 #note n = (1 + m*0.5) where n is scale factor
 #Add loop here
-for ((angle=0; angle<180 ;angle+=5))
+for ((angle=0; angle<=10 ;angle+=5))
 do
-	for ((particleBoundary=0; particleBoundary<=1; particleBoundary++))
+	for ((particleBoundary=1; particleBoundary<=1; particleBoundary++))
 	do
 		for ((run=0; run <10; run++))
 		do
@@ -235,7 +235,7 @@ do
 			latticeInitialState=0
 
 			#Number of Monte Carlo steps to run through
-			mcs=800000
+			mcs=1180000
 
 			#nanoparticle configuartion (force a:b ratio 3:1)
 			x=74
@@ -281,7 +281,7 @@ cd "${BUILD_DIR}"
 #Add tools to work path
 source ${SCRIPTS_PATH}/path.sh
 #Start simulation putting stdout & stderr to a file so we can view it as we go
-${TIME_CMD} sim-state "${STATE_FILENAME}" ${mcs} --rand-seed ${run}  > std.log 2>&1
+${TIME_CMD} sim-state "${STATE_FILENAME}" ${mcs} --rand-seed ${run} --anneal-step 580  > std.log 2>&1
 HEREDOC
 
 				#Submit job (27626.calgary.phy.bris.ac.uk)
