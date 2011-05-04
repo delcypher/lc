@@ -226,7 +226,7 @@
 			*/
 			void reInitialise(enum LatticeConfig::latticeState initialState);
 
-			/* These are the different dumping modes used by translatedUnitVectorDump()
+			/* These are the different dumping modes used by nDump()
 			*  EVERYTHING - NANOPARTICLES AND NORMAL LATTICE POINTS
 			*  PARTICLES - NANOPARTICLES ONLY
 			*  NOT_PARTICLES - NORMAL LATTICE POINTS ONLY
