@@ -34,8 +34,8 @@ set zrange [0:*]
 set size ratio 1
 
 #set axis titles
-set xlabel "x"
-set ylabel "y"
+set xlabel "x'"
+set ylabel "y'"
 set title "Colour map of energy density"
 
 #set to use pm3d colour map

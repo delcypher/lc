@@ -61,7 +61,7 @@ int main(int n, char* argv[])
 	nSystem.dumpDescription(std::cout);
 	
 	//Write header
-	cout << "#[x] [y] [energy density]" << endl;
+	cout << "#[x_prime] [y_prime] [energy density]" << endl;
 
 	double cellEnergy=0;
 
