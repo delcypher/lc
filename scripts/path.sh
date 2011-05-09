@@ -32,3 +32,8 @@ IFS=$tempIFS
 #add alias for view-state.sh
 alias view-state="$addpath/scripts/view-state.sh" && echo "Added view-state alias"
 
+#add alias for view-energy-density-colour-map.sh
+alias view-edcm="$addpath/scripts/view-energy-density-colour-map.sh" && echo "Added view-edcm alias"
+
+#add alias for view-energy-density-3d.sh
+alias view-ed3d="$addpath/scripts/view-energy-density-3d.sh" && echo "Added view-ed3d alias"
