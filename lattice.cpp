@@ -706,7 +706,7 @@ void Lattice::reInitialise(enum LatticeConfig::latticeState initialState)
 
 void Lattice::nDump(enum Lattice::dumpMode mode, std::ostream& stream) const
 {
-	stream << "# (x) (y) (n_x) (n_y)\n";
+	stream << "#[x'] [y'] [n_x] [n_y]\n";
 
 	//print lattice state
 	int xPos, yPos, xInitial, yInitial, xFinal, yFinal;

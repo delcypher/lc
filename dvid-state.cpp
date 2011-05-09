@@ -80,7 +80,7 @@ int main(int n, char* argv[])
 	nSystem.dumpDescription(std::cout);
 	
 	//Write header
-	cout << "# [R] [angle (radians)] [x cell co-ordinate] [y cell co-ordinate]" << endl;
+	cout << "#[R] [angle_(radians)] [x_cell_co-ordinate] [y_cell_co-ordinate]" << endl;
 
 	//loop over a range of different r values
 	for(double absR=0; absR<= maxR ; absR+= 1)
