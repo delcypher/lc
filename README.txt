@@ -223,6 +223,7 @@ In the scripts/ directory are bash shell and gnuplot scripts for doing various u
 annealing.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ANNEALING_FILE. It plots "iTk" against monte carlo step.
 coning.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable CONING_FILE. It plots "Acceptance angle" aginst monte carlo step.
 energy.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ENERGY_FILE. It plots "Free Energy" against monte carlo step.
+energy-den-colour-map.gnu - This is a GNUplot script to show the output of the en-den-plot program in GNUplot's interactive mode.
 ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
 job.sh - This is a script to build a set of binary state files in different folders and either run them locally or submit them to a PBS/torque queing system.
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
