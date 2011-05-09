@@ -38,14 +38,12 @@ set xlabel "x'"
 set ylabel "y'"
 set title "Colour map of energy density"
 
-#set to use pm3d colour map
-set pm3d map
 
 #possible palette that you could use that highlights disclinations well.
 #set palette define (0 "grey", 0.1 "#700000", 0.3 "red")
 
 #plot data
-splot "$0" with pm3d
+plot "$0" with image
 
 #set ranges to auto for other plots
 set xrange [*:*]
