@@ -102,6 +102,22 @@ HOW TO COMPILE AND RUN:
 
    where <width+1> & <height+1> are the width and height of the lattice +1 respectively.
 
+   You can also view a 3D energy density plot by running
+
+   $ scripts/view-energy-density-3d.sh mystate.bin
+
+   or run it via the alias added by scripts/path.sh
+
+   $ view-ed3d mystate.bin
+
+   You can also view a energy density colour map (Not sure supported by old versions of GNUplot) by running
+
+   $ scripts/view-energy-density-colour-map.sh mystate.bin
+
+   or run it via the alias added by scripts/path.sh
+
+   view-edcm mystate.bin
+
 3. To now simulate the "cooling" of a lattice state to the minimum energy situation you use the sim-state tool. To run it run
 
    $ sim-state mystate.bin <steps>
@@ -115,7 +131,7 @@ HOW TO COMPILE AND RUN:
    /home/dan/adir/
    $ /home/dan/lc/sim-state.bin mystate.bin
    $ ls
-   annealing.dump  coning.dump  energy.dump  final-lattice-state.bin  final-lattice-state.dump
+   annealing.dump  coning.dump  energy.dump  final-lattice-state.bin
 
    The sim-state program is designed to handle UNIX kill signals whilst running to do some useful things. You send a signal to the application
    by finding out the PID of the running program by running
