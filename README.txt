@@ -38,6 +38,7 @@ HOW TO COMPILE AND RUN:
    dump-state        : Reads a binary state file and sends to standard output data for use with the "ildump.gnu" GNUplot script.
    dvid-state        : Director Variation In Direction. Loads a binary state file and outputs data for plotting angle of Director
    		       in a particular direction.
+   en-den-plot       : This produces energy density plot data for the GNUplot scripts energy-den-colour-map.gnu and energy-den-3d.gnu
    probe-state       : Displays information about a binary state file.
    sim-state         : Simulates the lattice specified by a binary state file with Monte Carlo parameters specified by the binary 
    		       state file in a free energy minimisation Monte Carlo simulation.
@@ -157,6 +158,7 @@ HOW TO COMPILE AND RUN:
    comp-angle-state
    comp-energy-state
    dvid-state
+   en-den-plot
 
    which were described earlier.
 
@@ -224,11 +226,14 @@ annealing.gnu - This is a GNUplot script to show the output of the sim-state pro
 coning.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable CONING_FILE. It plots "Acceptance angle" aginst monte carlo step.
 energy.gnu - This is a GNUplot script to show the output of the sim-state program on the file defined by the variable ENERGY_FILE. It plots "Free Energy" against monte carlo step.
 energy-den-colour-map.gnu - This is a GNUplot script to show the output of the en-den-plot program in GNUplot's interactive mode.
+energy-den-3d.gnu - This is a GNUplot script to show the output of the en-den-plot program in a 3D plot in GNUplot's interactive mode.
 ildump.gnu - This is a GNUplot script to show the output of Lattice::indexedNDump() in GNUplot's interactive mode.
 ldump.gnu - This is a GNUplot script to show the output of Lattice::nDump() in GNUplot's interactive mode.
 path.sh - This is a bash shell script to add the build directory to the PATH variable so you can run the executables from any directory. To use it run ``source path.sh'' .
 tests.sh - This is a script to automatically build and execute test harnesses in the make file.
 view-state.sh - This script allows a binary state file to quickly viewed by automating the calling of ildump.gnu
+view-energy-density-colour-map.sh - This allows a binary state file to be quickly opened and an energy density colour displayed.
+view-energy-density-3d.sh - This allows a binary state file to be quickly opened and a 3D energy density plot to be displayed.
 
 TEST HARNESSES:
 The test harnesses are a collection of small programs meant to test various things (e.g. Comparing analytical solutions to computer calculated values) that
