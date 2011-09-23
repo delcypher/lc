@@ -135,7 +135,7 @@ HOW TO COMPILE AND RUN:
 
    The sim-state program is designed to handle UNIX kill signals whilst running to do some useful things. You send a signal to the application
    by finding out the PID of the running program by running
-   $ pgrep 2dlc
+   $ pgrep sim-state
    
    You can then send the signal by running
     $ kill -<signal> <pid>
